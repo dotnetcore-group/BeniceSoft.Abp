@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Mapster" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Ddd.Application\BeniceSoft.Abp.Ddd.Application.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.EntityFrameworkCore\BeniceSoft.Abp.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.EntityFrameworkCore.PostgreSql\BeniceSoft.Abp.EntityFrameworkCore.PostgreSql.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Extensions.Caching.Abstractions\BeniceSoft.Abp.Extensions.Caching.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Extensions.RateLimiting.Abstractions\BeniceSoft.Abp.Extensions.RateLimiting.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.OperationLogging\BeniceSoft.Abp.OperationLogging.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.EventBus.Dtm.Http\BeniceSoft.Abp.EventBus.Dtm.Http.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Core\BeniceSoft.Core.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Office.Pdf\BeniceSoft.Office.Pdf.csproj" />
+    <ProjectReference Include="..\BeniceSoft.Abp.Sample.Application.Contracts\BeniceSoft.Abp.Sample.Application.Contracts.csproj" />
+    <ProjectReference Include="..\BeniceSoft.Abp.Sample.Domain\BeniceSoft.Abp.Sample.Domain.csproj" />
+    <ProjectReference Include="..\BeniceSoft.Abp.Sample.EntityFrameworkCore\BeniceSoft.Abp.Sample.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\BeniceSoft.Abp.Sample.RemoteService.Abstractions\BeniceSoft.Abp.Sample.RemoteService.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

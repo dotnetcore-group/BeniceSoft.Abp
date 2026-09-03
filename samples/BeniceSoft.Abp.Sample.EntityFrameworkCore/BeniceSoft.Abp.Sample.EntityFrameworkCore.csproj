@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Auth.EntityFrameworkCore\BeniceSoft.Abp.Auth.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.EntityFrameworkCore.PostgreSql\BeniceSoft.Abp.EntityFrameworkCore.PostgreSql.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.EntityFrameworkCore.Sharding\BeniceSoft.Abp.EntityFrameworkCore.Sharding.csproj" />
+    <ProjectReference Include="..\BeniceSoft.Abp.Sample.Domain\BeniceSoft.Abp.Sample.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
+</Project>

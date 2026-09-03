@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <PackageReference Include="AgileConfig.Client" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" />
+    <PackageReference Include="NetEscapades.Configuration.Yaml" />
+
+    <PackageReference Include="Volo.Abp.EventBus.RabbitMQ" />
+    <PackageReference Include="Winton.Extensions.Configuration.Consul" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Extensions.RabbitMQ\BeniceSoft.Abp.Extensions.RabbitMQ.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.AspNetCore\BeniceSoft.Abp.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.EventBus.Dtm.EntityFrameworkCore\BeniceSoft.Abp.EventBus.Dtm.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.EventBus.Dtm.Http\BeniceSoft.Abp.EventBus.Dtm.Http.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Swagger\BeniceSoft.Abp.Swagger.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Auth\BeniceSoft.Abp.Auth.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Extensions.DistributedLock\BeniceSoft.Abp.Extensions.DistributedLock.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Extensions.RateLimiting\BeniceSoft.Abp.Extensions.RateLimiting.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Extensions.Caching.MessagePack\BeniceSoft.Abp.Extensions.Caching.MessagePack.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.OperationLogging.EventBus\BeniceSoft.Abp.OperationLogging.EventBus.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.ServiceDiscovery\BeniceSoft.Abp.ServiceDiscovery.csproj" />
+    <ProjectReference Include="..\BeniceSoft.Abp.Sample.Application\BeniceSoft.Abp.Sample.Application.csproj" />
+    <ProjectReference Include="..\BeniceSoft.Abp.Sample.EntityFrameworkCore\BeniceSoft.Abp.Sample.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\BeniceSoft.Abp.Sample.RemoteService.Implements\BeniceSoft.Abp.Sample.RemoteService.Implements.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.Development.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

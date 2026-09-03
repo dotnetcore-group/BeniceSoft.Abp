@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<ItemGroup>
+		<PackageReference Include="Volo.Abp.Ddd.Domain" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.Auth.Core\BeniceSoft.Abp.Auth.Core.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Abp.Ddd.Domain\BeniceSoft.Abp.Ddd.Domain.csproj" />
+	</ItemGroup>
+
+</Project>

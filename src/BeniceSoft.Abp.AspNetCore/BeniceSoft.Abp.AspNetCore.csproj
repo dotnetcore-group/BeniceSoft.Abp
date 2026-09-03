@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+	
+	<ItemGroup>
+		<Content Remove="C:\Users\Administrator\.nuget\packages\volo.abp.aspnetcore.mvc\10.6.0\contentFiles\any\net10.0\Volo.Abp.AspNetCore.Mvc.abppkg.analyze.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Serilog.AspNetCore" />
+		<PackageReference Include="Volo.Abp.AspNetCore.MultiTenancy" />
+		<PackageReference Include="Volo.Abp.AspNetCore.Mvc" />
+		<PackageReference Include="Volo.Abp.Autofac" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.Core\BeniceSoft.Abp.Core.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Abp.Extensions.RateLimiting.Abstractions\BeniceSoft.Abp.Extensions.RateLimiting.Abstractions.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Abp.MultiTenancy\BeniceSoft.Abp.MultiTenancy.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<ItemGroup>
+		<PackageReference Include="Volo.Abp.MultiTenancy" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.Core\BeniceSoft.Abp.Core.csproj" />
+	</ItemGroup>
+
+</Project>

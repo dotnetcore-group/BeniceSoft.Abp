@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<ItemGroup>
+		<PackageReference Include="Volo.Abp.Caching" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.Extensions.Caching.Abstractions\BeniceSoft.Abp.Extensions.Caching.Abstractions.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Core\BeniceSoft.Core.csproj" />
+	</ItemGroup>
+
+</Project>

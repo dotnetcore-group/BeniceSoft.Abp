@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<ItemGroup>
+		<PackageReference Include="Volo.Abp.Ddd.Domain" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Remove="Entity\Auditing\IBeniceSoftHasCreationTime.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Core\BeniceSoft.Core.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Shouldly" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Volo.Abp.TestBase" />
+    <PackageReference Include="Volo.Abp.Autofac" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\samples\BeniceSoft.Abp.Sample.EntityFrameworkCore\BeniceSoft.Abp.Sample.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Auth.Core\BeniceSoft.Abp.Auth.Core.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.EntityFrameworkCore.PostgreSql\BeniceSoft.Abp.EntityFrameworkCore.PostgreSql.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Swagger 从 Host 输出目录加载 XML；Contracts 接口注释要生成并随引用拷贝出去 -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Ddd.Application.Contracts\BeniceSoft.Abp.Ddd.Application.Contracts.csproj" />
+    <ProjectReference Include="..\BeniceSoft.Abp.Sample.Domain.Shared\BeniceSoft.Abp.Sample.Domain.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

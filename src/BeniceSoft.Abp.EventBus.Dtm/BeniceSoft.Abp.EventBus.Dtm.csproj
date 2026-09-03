@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<ItemGroup>
+		<PackageReference Include="DtmCommon" />
+		<PackageReference Include="Volo.Abp.EventBus" />
+	</ItemGroup>
+
+</Project>

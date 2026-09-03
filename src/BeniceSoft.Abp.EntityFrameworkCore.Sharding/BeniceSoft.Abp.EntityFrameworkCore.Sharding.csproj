@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<NoWarn>$(NoWarn);CS1591;CS0436;IDE0130;IDE0290;IDE0305;EF1001</NoWarn>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<NoWarn>$(NoWarn);CS1591;CS0436;IDE0130;IDE0290;IDE0305;EF1001</NoWarn>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.EntityFrameworkCore\BeniceSoft.Abp.EntityFrameworkCore.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Core\BeniceSoft.Core.csproj" />
+	</ItemGroup>
+
+</Project>

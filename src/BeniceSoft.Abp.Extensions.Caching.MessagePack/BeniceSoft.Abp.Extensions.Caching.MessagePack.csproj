@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.Extensions.Caching\BeniceSoft.Abp.Extensions.Caching.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MessagePack" />
+	</ItemGroup>
+
+</Project>

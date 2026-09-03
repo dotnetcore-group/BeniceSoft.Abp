@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<ItemGroup>
+		<PackageReference Include="Volo.Abp.Ddd.Application.Contracts" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.Core\BeniceSoft.Abp.Core.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Abp.Extensions.DistributedLock.Abstractions\BeniceSoft.Abp.Extensions.DistributedLock.Abstractions.csproj" />
+	</ItemGroup>
+
+</Project>

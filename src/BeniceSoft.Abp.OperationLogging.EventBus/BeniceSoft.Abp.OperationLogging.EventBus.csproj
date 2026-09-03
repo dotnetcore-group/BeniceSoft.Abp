@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<ItemGroup>
+		<PackageReference Include="Volo.Abp.EventBus" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.OperationLogging.Abstractions\BeniceSoft.Abp.OperationLogging.Abstractions.csproj" />
+	</ItemGroup>
+
+</Project>

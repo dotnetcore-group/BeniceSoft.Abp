@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<ItemGroup>
+		<PackageReference Include="Volo.Abp.EntityFrameworkCore" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.Auth.Repository\BeniceSoft.Abp.Auth.Repository.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Abp.EntityFrameworkCore\BeniceSoft.Abp.EntityFrameworkCore.csproj" />
+	</ItemGroup>
+
+</Project>

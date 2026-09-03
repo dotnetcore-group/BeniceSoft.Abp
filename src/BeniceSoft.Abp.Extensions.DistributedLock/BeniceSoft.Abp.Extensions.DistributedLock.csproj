@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<ItemGroup>
+		<PackageReference Include="SmartFormat" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Volo.Abp.Core" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.Extensions.DistributedLock.Abstractions\BeniceSoft.Abp.Extensions.DistributedLock.Abstractions.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Abp.Extensions.Redis\BeniceSoft.Abp.Extensions.Redis.csproj" />
+	</ItemGroup>
+
+</Project>

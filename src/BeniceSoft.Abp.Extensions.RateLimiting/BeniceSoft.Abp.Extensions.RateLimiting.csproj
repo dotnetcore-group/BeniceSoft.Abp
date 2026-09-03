@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<ItemGroup>
+		<PackageReference Include="SmartFormat" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Volo.Abp.Core" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.Core\BeniceSoft.Abp.Core.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Abp.Extensions.RateLimiting.Abstractions\BeniceSoft.Abp.Extensions.RateLimiting.Abstractions.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Abp.Extensions.Redis\BeniceSoft.Abp.Extensions.Redis.csproj" />
+	</ItemGroup>
+
+</Project>
+

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<PropertyGroup>
+		<RootNamespace>BeniceSoft.Office.Pdf</RootNamespace>
+		<Description>Open-source PDF parsing: text, page classification, render, barcodes (PdfPig + PDFium + ZXing).</Description>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="PdfPig" />
+		<PackageReference Include="PDFtoImage" />
+		<PackageReference Include="PdfSharpCore" />
+		<PackageReference Include="ZXing.Net" />
+		<PackageReference Include="ZXing.Net.Bindings.SkiaSharp" />
+	</ItemGroup>
+</Project>

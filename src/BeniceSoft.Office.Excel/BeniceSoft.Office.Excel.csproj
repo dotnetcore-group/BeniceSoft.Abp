@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<PropertyGroup>
+		<RootNamespace>BeniceSoft.Office.Excel</RootNamespace>
+		<Description>Excel import/export and template fill based on NPOI (ExcelMapper / ExcelReport).</Description>
+		<AcceptNPOIOSMFLicense>true</AcceptNPOIOSMFLicense>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="NPOI" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Core\BeniceSoft.Core.csproj" />
+	</ItemGroup>
+</Project>

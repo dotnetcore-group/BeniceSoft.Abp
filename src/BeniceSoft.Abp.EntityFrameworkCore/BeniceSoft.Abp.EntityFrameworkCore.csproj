@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<ItemGroup>
+		<Compile Remove="Expression\**" />
+		<EmbeddedResource Remove="Expression\**" />
+		<None Remove="Expression\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Dapper" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Volo.Abp.EntityFrameworkCore" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.Core\BeniceSoft.Abp.Core.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Abp.Ddd.Domain\BeniceSoft.Abp.Ddd.Domain.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Abp.Extensions.AuditTrail.Abstractions\BeniceSoft.Abp.Extensions.AuditTrail.Abstractions.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Abp.Extensions.DynamicQuery.EfCore\BeniceSoft.Abp.Extensions.DynamicQuery.EfCore.csproj" />
+	</ItemGroup>
+
+</Project>

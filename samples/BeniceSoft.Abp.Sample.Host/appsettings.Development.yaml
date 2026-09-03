@@ -1,0 +1,4 @@
+Consul:
+  Address: http://192.168.5.192:30850/
+  ProFileList:
+    - limingjun/config/wecharmer.hero.nacos.sample

@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\common.props" />
+
+	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.Core\BeniceSoft.Abp.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+		<PackageReference Include="RabbitMQ.Client" />
+		<PackageReference Include="Volo.Abp.MultiTenancy" />
+		<PackageReference Include="Volo.Abp.RabbitMQ" />
+		<PackageReference Include="Volo.Abp.Security" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Client\" />
+	</ItemGroup>
+
+</Project>
