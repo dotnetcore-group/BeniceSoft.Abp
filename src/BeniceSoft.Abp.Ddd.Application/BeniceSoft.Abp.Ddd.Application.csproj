@@ -14,6 +14,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\BeniceSoft.Abp.Ddd.Application.Contracts\BeniceSoft.Abp.Ddd.Application.Contracts.csproj" />
 		<ProjectReference Include="..\BeniceSoft.Abp.Ddd.Domain\BeniceSoft.Abp.Ddd.Domain.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Abp.Extensions.DistributedLock.Abstractions\BeniceSoft.Abp.Extensions.DistributedLock.Abstractions.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -7,7 +7,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\BeniceSoft.Abp.Core\BeniceSoft.Abp.Core.csproj" />
-		<ProjectReference Include="..\BeniceSoft.Abp.Extensions.DistributedLock.Abstractions\BeniceSoft.Abp.Extensions.DistributedLock.Abstractions.csproj" />
 	</ItemGroup>
 
 </Project>
