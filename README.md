@@ -1014,4 +1014,8 @@ await client.Get("users").WithArgument("page", 1).As<List<User>>();
 
 ## 许可证
 
-MIT
+本项目采用 [GNU Lesser General Public License v3.0 only](https://www.gnu.org/licenses/lgpl-3.0.html)（`LGPL-3.0-only`）开源。
+
+- 修改并分发本库（或基于本库的衍生库）时，须按 LGPL 开源回馈相应修改。
+- 业务应用可闭源：仅通过链接 / 引用本库使用时，应用本身不必开源。
+- 完整协议见仓库根目录 [`LICENSE`](LICENSE)（LGPL-3.0）与 [`COPYING`](COPYING)（GPL-3.0，由 LGPL 引用）。

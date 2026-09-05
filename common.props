@@ -3,7 +3,7 @@
 		<LangVersion>latest</LangVersion>
 		<Version>10.0.16-dev</Version>
 		<NoWarn>$(NoWarn);CS1591;CS0436;IDE0028;IDE0130;IDE0290;IDE0305</NoWarn>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<OutputPath>..\bin</OutputPath>
 		<DocumentationFile>..\bin\$(MSBuildProjectName).xml</DocumentationFile>
