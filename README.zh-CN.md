@@ -1,4 +1,4 @@
-# BeniceSoft.Abp
+﻿# BeniceSoft.Abp
 
 基于 [ABP](https://abp.io/) 的企业级 .NET 框架。提供 DDD、EF Core（Bulk / QueryFuture / 分库分表）、认证与数据权限、缓存、分布式锁、限流、动态查询、操作日志、变更审计、DTM 事件总线、RabbitMQ、Redis、Swagger、服务发现、Excel/PDF 等基础设施。
 
@@ -171,4 +171,4 @@ cd samples/BeniceSoft.Abp.Sample.Host && dotnet run
 
 ## 许可证
 
-MIT
+[MIT](./LICENSE)

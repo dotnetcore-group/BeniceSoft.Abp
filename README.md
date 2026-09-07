@@ -171,4 +171,5 @@ cd samples/BeniceSoft.Abp.Sample.Host && dotnet run
 
 ## License
 
-MIT
+[MIT](./LICENSE)
+
