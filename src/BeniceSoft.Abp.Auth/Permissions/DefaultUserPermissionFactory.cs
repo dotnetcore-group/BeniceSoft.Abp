@@ -48,17 +48,33 @@ public class DefaultUserPermissionFactory : IUserPermissionFactory
             FunctionPermissions = functionPermissions,
         };
 
-        return Initialize(userPermission);
-    }
-
-    private IUserPermission Initialize(IUserPermission userPermission)
-    {
         _userPermissionAccessor.UserPermission = userPermission;
         _logger.LogInformation("Initialized user {0} permissions.", userPermission.UserId);
+
         return userPermission;
     }
 
-    private async Task<List<RowPermission>?> GetOrLoadRowPermissionsAsync(long userId, string accessToken)
+    public async Task<IUserPermission> CreateForBackgroundAsync(long userId)
+    {
+        var rowPermissions = await GetOrLoadRowPermissionsAsync(userId);
+        var fieldPermissions = await GetOrLoadFieldPermissionsAsync(userId);
+        var functionPermissions = await GetOrLoadFunctionPermissionsAsync(userId);
+        var userPermission = new UserPermission
+        {
+            IsInitialized = true,
+            UserId = userId,
+            RowPermissions = rowPermissions,
+            FieldPermissions = fieldPermissions,
+            FunctionPermissions = functionPermissions,
+        };
+
+        _userPermissionAccessor.UserPermission = userPermission;
+        _logger.LogInformation("Initialized user {0} permissions.", userPermission.UserId);
+
+        return userPermission;
+    }
+
+    private async Task<List<RowPermission>?> GetOrLoadRowPermissionsAsync(long userId, string? accessToken = null)
     {
         var cached = await GetFromCacheAsync<List<RowPermission>>(Cache.GetUserRowPermissionKey(userId));
         if (cached is not null)
@@ -66,12 +82,17 @@ public class DefaultUserPermissionFactory : IUserPermissionFactory
             return cached;
         }
 
-        var loaded = await _permissionCenterClient.GetUserRowPermissions(userId, accessToken);
-        await SetToCacheAsync(Cache.GetUserRowPermissionKey(userId), loaded);
-        return loaded;
+        if (accessToken is not null)
+        {
+            var loaded = await _permissionCenterClient.GetUserRowPermissions(userId, accessToken);
+            await SetToCacheAsync(Cache.GetUserRowPermissionKey(userId), loaded);
+            return loaded;
+        }
+
+        return null;
     }
 
-    private async Task<List<FieldPermission>?> GetOrLoadFieldPermissionsAsync(long userId, string accessToken)
+    private async Task<List<FieldPermission>?> GetOrLoadFieldPermissionsAsync(long userId, string? accessToken = null)
     {
         var cached = await GetFromCacheAsync<List<FieldPermission>>(Cache.GetUserFieldPermissionKey(userId));
         if (cached is not null)
@@ -79,12 +100,17 @@ public class DefaultUserPermissionFactory : IUserPermissionFactory
             return cached;
         }
 
-        var loaded = await _permissionCenterClient.GetUserFieldPermissions(userId, accessToken);
-        await SetToCacheAsync(Cache.GetUserFieldPermissionKey(userId), loaded);
-        return loaded;
+        if (accessToken is not null)
+        {
+            var loaded = await _permissionCenterClient.GetUserFieldPermissions(userId, accessToken);
+            await SetToCacheAsync(Cache.GetUserFieldPermissionKey(userId), loaded);
+            return loaded;
+        }
+
+        return null;
     }
 
-    private async Task<List<string>?> GetOrLoadFunctionPermissionsAsync(long userId, string accessToken)
+    private async Task<List<string>?> GetOrLoadFunctionPermissionsAsync(long userId, string? accessToken = null)
     {
         var cached = await GetFromCacheAsync<List<string>>(Cache.GetUserFunctionPermissionKey(userId));
         if (cached is not null)
@@ -92,9 +118,14 @@ public class DefaultUserPermissionFactory : IUserPermissionFactory
             return cached;
         }
 
-        var loaded = await _permissionCenterClient.GetUserFunctionPermissions(userId, accessToken);
-        await SetToCacheAsync(Cache.GetUserFunctionPermissionKey(userId), loaded);
-        return loaded;
+        if (accessToken is not null)
+        {
+            var loaded = await _permissionCenterClient.GetUserFunctionPermissions(userId, accessToken);
+            await SetToCacheAsync(Cache.GetUserFunctionPermissionKey(userId), loaded);
+            return loaded;
+        }
+
+        return null;
     }
 
     private async Task<T?> GetFromCacheAsync<T>(string key)

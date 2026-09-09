@@ -1,7 +1,7 @@
 ﻿<Project>
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
-		<Version>10.0.16-dev</Version>
+		<Version>10.0.17-dev</Version>
 		<NoWarn>$(NoWarn);CS1591;CS0436;IDE0028;IDE0130;IDE0290;IDE0305</NoWarn>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>

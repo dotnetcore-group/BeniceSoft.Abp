@@ -7,4 +7,6 @@ namespace BeniceSoft.Abp.Auth.Permissions;
 public interface IUserPermissionFactory : ISingletonDependency
 {
     Task<IUserPermission> CreateAsync(long userId, HttpContext httpContext);
+
+    Task<IUserPermission> CreateForBackgroundAsync(long userId);
 }
