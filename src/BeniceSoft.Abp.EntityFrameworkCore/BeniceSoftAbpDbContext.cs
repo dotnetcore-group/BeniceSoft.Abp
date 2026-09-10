@@ -3,8 +3,11 @@ using BeniceSoft.Abp.Ddd.Domain.Entity;
 using BeniceSoft.Abp.Extensions.AuditTrail.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Options;
 using System.Globalization;
+using System.Linq.Expressions;
 using Volo.Abp;
 using Volo.Abp.Data;
 using Volo.Abp.EntityFrameworkCore;
@@ -66,6 +69,48 @@ public abstract class BeniceSoftAbpDbContext<TDbContext> : AbpDbContext<TDbConte
             var builder = modelBuilder.Entity(entityType.ClrType);
             builder.ConfigureBeniceSoftConventions(nameRewriter);
         }
+    }
+
+    /// <summary>
+    /// 自定义全局过滤器
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <param name="entityType"></param>
+    /// <returns></returns>
+    protected override bool ShouldFilterEntity<TEntity>(IMutableEntityType entityType)
+    {
+        if (typeof(IHaveClientId).IsAssignableFrom(typeof(TEntity)))
+        {
+            return true;
+        }
+
+        return base.ShouldFilterEntity<TEntity>(entityType);
+    }
+
+    protected virtual string CurrentClientId => CurrentUser?.ClientId ?? string.Empty;
+    protected virtual bool IsClientIdFilterEnabled => DataFilter?.IsEnabled<IHaveClientId>() ?? false;
+    protected override Expression<Func<TEntity, bool>>? CreateFilterExpression<TEntity>(
+        ModelBuilder modelBuilder,
+        EntityTypeBuilder<TEntity> entityTypeBuilder)
+    {
+        var expression = base.CreateFilterExpression(modelBuilder, entityTypeBuilder);
+        if (typeof(IHaveClientId).IsAssignableFrom(typeof(TEntity)))
+        {
+            Expression<Func<TEntity, bool>> clientIdFilter = e =>
+                !IsClientIdFilterEnabled
+                || EF.Property<string>(e, nameof(IHaveClientId.ClientId)) == CurrentClientId;
+
+            expression = expression == null
+                ? clientIdFilter
+                : QueryFilterExpressionHelper.CombineExpressions(expression, clientIdFilter);
+        }
+
+        return expression;
+    }
+
+    public override string GetCompiledQueryCacheKey()
+    {
+        return $"{base.GetCompiledQueryCacheKey()}:{IsClientIdFilterEnabled}:{CurrentClientId}";
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
@@ -134,6 +179,7 @@ public abstract class BeniceSoftAbpDbContext<TDbContext> : AbpDbContext<TDbConte
                 case EntityState.Added:
                     SetCreationAuditProperties(entry, userId, userName);
                     SetOwnerIdIfNeeded(entry, userId);
+                    SetClientIdIfNeeded(entry);
                     break;
                 case EntityState.Modified:
                     if (IsMarkingEntityAsDeletedViaUpdate(entry))
@@ -184,6 +230,26 @@ public abstract class BeniceSoftAbpDbContext<TDbContext> : AbpDbContext<TDbConte
         if (userId.HasValue)
         {
             ownerIdProperty.CurrentValue = userId.Value;
+        }
+    }
+
+    protected virtual void SetClientIdIfNeeded(EntityEntry entry)
+    {
+        if (entry.Entity is not IHaveClientId)
+        {
+            return;
+        }
+
+        var clientIdProperty = entry.Property(nameof(IHaveClientId.ClientId));
+        if (clientIdProperty.CurrentValue is string currentValue && !string.IsNullOrWhiteSpace(currentValue))
+        {
+            return;
+        }
+
+        var clientId = CurrentUser?.ClientId;
+        if (!string.IsNullOrWhiteSpace(clientId))
+        {
+            clientIdProperty.CurrentValue = clientId;
         }
     }
 

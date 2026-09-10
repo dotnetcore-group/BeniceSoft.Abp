@@ -20,6 +20,7 @@ public static class BeniceSoftModelBuilderExtensions
         builder.TryConfigureAuditedProperties(nameRewriter);
         builder.TryConfigureSoftDelete(nameRewriter);
         builder.TryConfigurOwnerId(nameRewriter);
+        builder.TryConfigureClientId(nameRewriter);
     }
 
     public static void TryConfigureExtraProperties(this EntityTypeBuilder b, INameRewriter nameRewriter)
@@ -136,6 +137,17 @@ public static class BeniceSoftModelBuilderExtensions
         }
     }
 
-
+    public static void TryConfigureClientId(this EntityTypeBuilder b, INameRewriter nameRewriter)
+    {
+        if (b.Metadata.ClrType.IsAssignableTo<IHaveClientId>())
+        {
+            b.Property(nameof(IHaveClientId.ClientId))
+                .IsRequired()
+                .HasDefaultValue(string.Empty)
+                .HasMaxLength(128)
+                .HasColumnName(nameRewriter.RewriteName(nameof(IHaveClientId.ClientId)))
+                .HasComment("应用ClientId");
+        }
+    }
 }
 
