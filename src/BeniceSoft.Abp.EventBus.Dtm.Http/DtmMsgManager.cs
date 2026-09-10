@@ -112,7 +112,7 @@ public class DtmMsgManager : IDtmMsgManager, ITransientDependency
         return new DtmMsgInfoModel(gid,
             DtmTransFactory.NewMsg(gid),
             new DbConnectionLookupInfoModel(dbContextType, CurrentTenant.Id, hashedConnectionString),
-            ServiceProvider.GetService<IDtmRequestHeadersBuilder>()!);
+            ServiceProvider.GetRequiredService<IDtmRequestHeadersBuilder>());
     }
 
     protected virtual async Task AddEventsPublishingActionAsync(DtmOutboxEventBag eventBag)

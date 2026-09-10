@@ -78,10 +78,10 @@ public class BeniceSoftRabbitMqDistributedEventBus : RabbitMqDistributedEventBus
             Dictionary<string, object> headers = new();
 
             if (_httpContextAccessor.HttpContext != null &&
-                _httpContextAccessor.HttpContext.Request.Headers.TryGetValue(DtmRequestHeaderNames.UserClaims, out var value) &&
-                !string.IsNullOrWhiteSpace(value.ToStringSafe()))
+                _httpContextAccessor.HttpContext.Request.Headers.TryGetValue(DtmRequestHeaderNames.UserClaims, out var userClaimsHeader) &&
+                !string.IsNullOrWhiteSpace(userClaimsHeader.ToStringSafe()))
             {
-                headers[DtmRequestHeaderNames.UserClaims] = value.ToStringSafe();
+                headers[DtmRequestHeaderNames.UserClaims] = userClaimsHeader.ToStringSafe();
             }
             else if (_currentUser.IsAuthenticated)
             {

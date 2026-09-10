@@ -10,6 +10,7 @@ namespace BeniceSoft.Abp.EventBus.Dtm.Http;
 /// <summary>
 /// 默认的 DTM Http请求头构建器，从当前上下文中补齐通用请求头
 /// </summary>
+[ExposeServices(typeof(IDtmRequestHeadersBuilder))]
 public class DefaultDtmHttpRequestHeadersBuilder : IDtmRequestHeadersBuilder, ITransientDependency
 {
     private readonly IBeniceSoftCurrentUser _currentUser;

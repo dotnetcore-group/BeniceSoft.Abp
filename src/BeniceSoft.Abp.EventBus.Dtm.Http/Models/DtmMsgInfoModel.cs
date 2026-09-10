@@ -59,10 +59,7 @@ public class DtmMsgInfoModel : IDtmMsgInfoModel
             {DtmRequestHeaderNames.TenantId, DbConnectionLookupInfo.TenantId?.ToStringSafe()!},
             {DtmRequestHeaderNames.HashedConnectionString, DbConnectionLookupInfo.HashedConnectionString},
         };
-        if (_dtmRequestHeadersBuilder != null)
-        {
-            await _dtmRequestHeadersBuilder.BuildHeadersAsync(headers);
-        }
+        await _dtmRequestHeadersBuilder.BuildHeadersAsync(headers);
 
         msg.SetBranchHeaders(headers);
         EventsPublishingActionAdded = true;
