@@ -35,9 +35,9 @@ public class DefectRegressionTests : ShardingTestBase
         var batch = NewBatch("leak");
         using (var seed = _uow.Begin(requiresNew: true, isTransactional: true))
         {
-            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "e", 10, batch), autoSave: true);
-            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "o", 11, batch), autoSave: true);
-            await seed.CompleteAsync();
+            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "e", 10, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "o", 11, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await seed.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         using var scope = App.CreateScope();
@@ -61,9 +61,9 @@ public class DefectRegressionTests : ShardingTestBase
                 .AsNoTracking()
                 .AsConnection(limit: 8, ConnectionMode.MemoryStrictly)
                 .Where(x => x.BatchTag == batch)
-                .ToListAsync();
+                .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
             rows.Where(x => x is not null).Count().ShouldBe(2);
-            await uow.CompleteAsync();
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
         finally
         {
@@ -87,9 +87,9 @@ public class DefectRegressionTests : ShardingTestBase
         var batch = NewBatch("leak-first");
         using (var seed = _uow.Begin(requiresNew: true, isTransactional: true))
         {
-            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "e", 2, batch), autoSave: true);
-            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "o", 3, batch), autoSave: true);
-            await seed.CompleteAsync();
+            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "e", 2, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "o", 3, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await seed.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         using var scope = App.CreateScope();
@@ -113,9 +113,9 @@ public class DefectRegressionTests : ShardingTestBase
                 .AsConnection(limit: 8, ConnectionMode.MemoryStrictly)
                 .Where(x => x.BatchTag == batch)
                 .OrderBy(x => x.Name)
-                .FirstAsync();
+                .FirstAsync(cancellationToken: TestContext.Current.CancellationToken);
             first.ShouldNotBeNull();
-            await uow.CompleteAsync();
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
         finally
         {
@@ -144,7 +144,7 @@ public class DefectRegressionTests : ShardingTestBase
         (root is NotSupportedException or ShardingException).ShouldBeTrue(
             $"expected NotSupported/ShardingException, got {root.GetType().Name}: {root.Message}");
         root.Message.ShouldContain("Async", Case.Insensitive);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -160,7 +160,7 @@ public class DefectRegressionTests : ShardingTestBase
         (root is NotSupportedException or ShardingException).ShouldBeTrue(
             $"expected NotSupported/ShardingException, got {root.GetType().Name}: {root.Message}");
         root.Message.ShouldContain("Async", Case.Insensitive);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -176,7 +176,7 @@ public class DefectRegressionTests : ShardingTestBase
         (root is NotSupportedException or ShardingException).ShouldBeTrue(
             $"expected NotSupported/ShardingException, got {root.GetType().Name}: {root.Message}");
         root.Message.ShouldContain("Async", Case.Insensitive);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>
@@ -198,12 +198,12 @@ public class DefectRegressionTests : ShardingTestBase
             .Where(x => x.BatchTag == batch)
             .GroupBy(x => x.Code)
             .Select(g => new { Code = g.Key, MaxAmount = g.Max(x => x.Amount) })
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         rows.Count.ShouldBe(1);
         rows[0].Code.ShouldBe("SAME");
         rows[0].MaxAmount.ShouldBe(30m);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -220,11 +220,11 @@ public class DefectRegressionTests : ShardingTestBase
             .Where(x => x.BatchTag == batch)
             .GroupBy(x => x.Code)
             .Select(g => new { Code = g.Key, MinAmount = g.Min(x => x.Amount) })
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         rows.Count.ShouldBe(1);
         rows[0].MinAmount.ShouldBe(10m);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>

@@ -34,10 +34,10 @@ public class MonthTableShardingTests : ShardingTestBase
         var rows = await (await _repo.GetQueryableAsync())
             .AsNoTracking()
             .Where(x => x.BizMonth == jan && x.BatchTag == batch)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         rows.Count.ShouldBe(1);
         rows[0].Code.ShouldBe("JAN");
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -58,11 +58,11 @@ public class MonthTableShardingTests : ShardingTestBase
             .AsNoTracking()
             .Where(x => x.BizMonth >= jan && x.BizMonth < mar && x.BatchTag == batch)
             .OrderBy(x => x.BizMonth)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         rows.Count.ShouldBeGreaterThanOrEqualTo(2);
         var codes = rows.Where(x => x is not null).Select(x => x!.Code).OrderBy(c => c).ToList();
         codes.ShouldBe(["FEB", "JAN"]);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -77,9 +77,9 @@ public class MonthTableShardingTests : ShardingTestBase
         var rows = await (await _repo.GetQueryableAsync())
             .AsNoTracking()
             .Where(x => x.BatchTag == batch)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         rows.Where(x => x is not null).Count().ShouldBe(2);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -94,16 +94,16 @@ public class MonthTableShardingTests : ShardingTestBase
             .AsNoTracking()
             .AsRoute(ctx => ctx.MustTable[typeof(ShardLedger)] = new HashSet<string> { "202402" })
             .Where(x => x.Id == id)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         wrong.ShouldBeEmpty();
 
         var ok = await (await _repo.GetQueryableAsync())
             .AsNoTracking()
             .AsRoute(ctx => ctx.MustTable[typeof(ShardLedger)] = new HashSet<string> { "202401" })
             .Where(x => x.Id == id)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         ok.Count.ShouldBe(1);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -118,9 +118,9 @@ public class MonthTableShardingTests : ShardingTestBase
             .AsNoTracking()
             .AsRoute(ctx => ctx.HintTable[typeof(ShardLedger)] = new HashSet<string> { "202401" })
             .Where(x => x.Id == id)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         rows.Count.ShouldBe(1);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -134,13 +134,13 @@ public class MonthTableShardingTests : ShardingTestBase
         using var uow = _uow.Begin(requiresNew: true, isTransactional: true);
         var q = (await _repo.GetQueryableAsync()).AsNoTracking().Where(x => x.BatchTag == batch);
 
-        (await q.CountAsync()).ShouldBe(2);
-        (await q.SumAsync(x => x.Amount)).ShouldBe(40m);
-        (await q.AnyAsync(x => x.Code == "B")).ShouldBeTrue();
+        (await q.CountAsync(cancellationToken: TestContext.Current.CancellationToken)).ShouldBe(2);
+        (await q.SumAsync(x => x.Amount, cancellationToken: TestContext.Current.CancellationToken)).ShouldBe(40m);
+        (await q.AnyAsync(x => x.Code == "B", cancellationToken: TestContext.Current.CancellationToken)).ShouldBeTrue();
 
-        var list = await q.ToListAsync();
+        var list = await q.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         list.Where(x => x is not null).Select(x => x!.Code).OrderBy(c => c).First().ShouldBe("A");
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -155,11 +155,11 @@ public class MonthTableShardingTests : ShardingTestBase
         {
             var entity = await (await _repo.GetQueryableAsync())
                 .Where(x => x.BizMonth == jan && x.Id == id)
-                .SingleAsync();
+                .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
             entity.Code = "NEW";
             entity.Amount = 99m;
-            await _repo.UpdateAsync(entity, autoSave: true);
-            await uow.CompleteAsync();
+            await _repo.UpdateAsync(entity, autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         using (var uow = _uow.Begin(requiresNew: true, isTransactional: true))
@@ -167,20 +167,20 @@ public class MonthTableShardingTests : ShardingTestBase
             var updated = await (await _repo.GetQueryableAsync())
                 .AsNoTracking()
                 .Where(x => x.BizMonth == jan && x.Id == id)
-                .SingleAsync();
+                .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
             updated.Code.ShouldBe("NEW");
             updated.Amount.ShouldBe(99m);
 
-            await _repo.DeleteAsync(updated, autoSave: true);
-            await uow.CompleteAsync();
+            await _repo.DeleteAsync(updated, autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(TestContext.Current.CancellationToken);
         }
 
         using (var uow = _uow.Begin(requiresNew: true, isTransactional: true))
         {
             var exists = await (await _repo.GetQueryableAsync())
-                .AnyAsync(x => x.BizMonth == jan && x.Id == id);
+                .AnyAsync(x => x.BizMonth == jan && x.Id == id, cancellationToken: TestContext.Current.CancellationToken);
             exists.ShouldBeFalse();
-            await uow.CompleteAsync();
+            await uow.CompleteAsync(TestContext.Current.CancellationToken);
         }
     }
 
@@ -197,16 +197,16 @@ public class MonthTableShardingTests : ShardingTestBase
             .AsNoTracking()
             .AsSequence(sameComparer: true)
             .Where(x => x.BatchTag == batch)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         sequenced.Where(x => x is not null).Count().ShouldBe(2);
 
         var noSeq = await (await _repo.GetQueryableAsync())
             .AsNoTracking()
             .AsNoSequence()
             .Where(x => x.BatchTag == batch)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         noSeq.Where(x => x is not null).Count().ShouldBe(2);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -222,10 +222,10 @@ public class MonthTableShardingTests : ShardingTestBase
                 .AsNoTracking()
                 .UseMerge()
                 .Where(x => x.BatchTag == batch)
-                .ToListAsync();
+                .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         });
         ex.Message.ShouldContain("UseMerge");
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -241,9 +241,9 @@ public class MonthTableShardingTests : ShardingTestBase
             .AsNoTracking()
             .AsConnection(limit: 1)
             .Where(x => x.BatchTag == batch)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         rows.Where(x => x is not null).Count().ShouldBe(2);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -251,14 +251,14 @@ public class MonthTableShardingTests : ShardingTestBase
     {
         var batch = NewBatch("tx");
         using var uow = _uow.Begin(requiresNew: true, isTransactional: true);
-        await _repo.InsertAsync(new ShardLedger(Guid.NewGuid(), "T1", 1m, new DateTime(2024, 1, 1), batch), autoSave: false);
-        await _repo.InsertAsync(new ShardLedger(Guid.NewGuid(), "T2", 2m, new DateTime(2024, 2, 1), batch), autoSave: false);
-        await uow.CompleteAsync();
+        await _repo.InsertAsync(new ShardLedger(Guid.NewGuid(), "T1", 1m, new DateTime(2024, 1, 1), batch), autoSave: false, cancellationToken: TestContext.Current.CancellationToken);
+        await _repo.InsertAsync(new ShardLedger(Guid.NewGuid(), "T2", 2m, new DateTime(2024, 2, 1), batch), autoSave: false, cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
 
         using var read = _uow.Begin(requiresNew: true, isTransactional: true);
-        var count = await (await _repo.GetQueryableAsync()).CountAsync(x => x.BatchTag == batch);
+        var count = await (await _repo.GetQueryableAsync()).CountAsync(x => x.BatchTag == batch, cancellationToken: TestContext.Current.CancellationToken);
         count.ShouldBe(2);
-        await read.CompleteAsync();
+        await read.CompleteAsync(TestContext.Current.CancellationToken);
     }
 
     private async Task SeedAsync(params ShardLedger[] items)

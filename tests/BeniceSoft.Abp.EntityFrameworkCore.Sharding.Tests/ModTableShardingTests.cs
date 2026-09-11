@@ -28,9 +28,9 @@ public class ModTableShardingTests : ShardingTestBase
 
         using (var uow = _uow.Begin(requiresNew: true, isTransactional: true))
         {
-            await _repo.InsertAsync(new ShardBucket(evenId, "even", 10, batch), autoSave: true);
-            await _repo.InsertAsync(new ShardBucket(oddId, "odd", 11, batch), autoSave: true);
-            await uow.CompleteAsync();
+            await _repo.InsertAsync(new ShardBucket(evenId, "even", 10, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await _repo.InsertAsync(new ShardBucket(oddId, "odd", 11, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         using (var uow = _uow.Begin(requiresNew: true, isTransactional: true))
@@ -38,15 +38,15 @@ public class ModTableShardingTests : ShardingTestBase
             var even = await (await _repo.GetQueryableAsync())
                 .AsNoTracking()
                 .Where(x => x.BucketKey == 10 && x.BatchTag == batch)
-                .SingleAsync();
+                .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
             even.Id.ShouldBe(evenId);
 
             var odd = await (await _repo.GetQueryableAsync())
                 .AsNoTracking()
                 .Where(x => x.BucketKey == 11 && x.BatchTag == batch)
-                .SingleAsync();
+                .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
             odd.Id.ShouldBe(oddId);
-            await uow.CompleteAsync();
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
     }
 
@@ -58,8 +58,8 @@ public class ModTableShardingTests : ShardingTestBase
 
         using (var uow = _uow.Begin(requiresNew: true, isTransactional: true))
         {
-            await _repo.InsertAsync(new ShardBucket(id, "pin", 20, batch), autoSave: true); // 20 % 2 = 0
-            await uow.CompleteAsync();
+            await _repo.InsertAsync(new ShardBucket(id, "pin", 20, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken); // 20 % 2 = 0
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         using (var uow = _uow.Begin(requiresNew: true, isTransactional: true))
@@ -68,16 +68,16 @@ public class ModTableShardingTests : ShardingTestBase
                 .AsNoTracking()
                 .AsRoute(ctx => ctx.MustTable[typeof(ShardBucket)] = new HashSet<string> { "1" })
                 .Where(x => x.Id == id)
-                .ToListAsync();
+                .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
             wrong.ShouldBeEmpty();
 
             var ok = await (await _repo.GetQueryableAsync())
                 .AsNoTracking()
                 .AsRoute(ctx => ctx.MustTable[typeof(ShardBucket)] = new HashSet<string> { "0" })
                 .Where(x => x.Id == id)
-                .ToListAsync();
+                .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
             ok.Count.ShouldBe(1);
-            await uow.CompleteAsync();
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
     }
 
@@ -87,9 +87,9 @@ public class ModTableShardingTests : ShardingTestBase
         var batch = NewBatch("mod-fan");
         using (var uow = _uow.Begin(requiresNew: true, isTransactional: true))
         {
-            await _repo.InsertAsync(new ShardBucket(Guid.NewGuid(), "a", 2, batch), autoSave: true);
-            await _repo.InsertAsync(new ShardBucket(Guid.NewGuid(), "b", 3, batch), autoSave: true);
-            await uow.CompleteAsync();
+            await _repo.InsertAsync(new ShardBucket(Guid.NewGuid(), "a", 2, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await _repo.InsertAsync(new ShardBucket(Guid.NewGuid(), "b", 3, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         using (var uow = _uow.Begin(requiresNew: true, isTransactional: true))
@@ -97,9 +97,9 @@ public class ModTableShardingTests : ShardingTestBase
             var all = await (await _repo.GetQueryableAsync())
                 .AsNoTracking()
                 .Where(x => x.BatchTag == batch)
-                .ToListAsync();
+                .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
             all.Where(x => x is not null).Count().ShouldBe(2);
-            await uow.CompleteAsync();
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
     }
 }

@@ -39,10 +39,10 @@ public class BoundaryBreakTests : ShardingTestBase
                 .AsNoTracking()
                 .AsRoute(ctx => ctx.MustTable[typeof(ShardLedger)] = new HashSet<string> { "9999" })
                 .Where(x => x.BatchTag == batch)
-                .ToListAsync();
+                .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         });
         ex.Message.ShouldContain("must", Case.Insensitive);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>Hint 非法尾缀应抛 hint error。</summary>
@@ -59,10 +59,10 @@ public class BoundaryBreakTests : ShardingTestBase
                 .AsNoTracking()
                 .AsRoute(ctx => ctx.HintTable[typeof(ShardLedger)] = new HashSet<string> { "24-01" })
                 .Where(x => x.BatchTag == batch)
-                .ToListAsync();
+                .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         });
         ex.Message.ShouldContain("hint", Case.Insensitive);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>写入 GetTails() 之外的未来月：无自动 Append 时应明确失败。</summary>
@@ -113,9 +113,9 @@ public class BoundaryBreakTests : ShardingTestBase
             .AsNoTracking()
             .Where(x => x.BatchTag == batch)
             .OrderBy(x => x.BizMonth)
-            .LastAsync();
+            .LastAsync(cancellationToken: TestContext.Current.CancellationToken);
         last.Code.ShouldBe("MAR");
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>Skip/Take + OrderBy 跨分片应得到全局第 N 条，而非各片各自分页后乱序拼接。</summary>
@@ -135,9 +135,9 @@ public class BoundaryBreakTests : ShardingTestBase
             .OrderBy(x => x.Amount)
             .Skip(1)
             .Take(1)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         page.Where(x => x is not null).Select(x => x!.Code).ShouldBe(["B"]);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>空结果集 Average 不应静默返回 0/NaN（与 LINQ 一致应抛错）。</summary>
@@ -150,7 +150,7 @@ public class BoundaryBreakTests : ShardingTestBase
 
         try
         {
-            var avg = await q.AverageAsync(x => x.Amount);
+            var avg = await q.AverageAsync(x => x.Amount, cancellationToken: TestContext.Current.CancellationToken);
             // 若未抛错，至少不能假装有数据
             avg.ShouldNotBe(0m);
             throw new Xunit.Sdk.XunitException($"Average on empty returned {avg}; expected throw like LINQ.");
@@ -164,7 +164,7 @@ public class BoundaryBreakTests : ShardingTestBase
             // InvalidOperation / DivideByZero / ShardingException 均可接受
         }
 
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>Count/Sum/Any 空集应符合 LINQ：0 / 0 / false。</summary>
@@ -174,10 +174,10 @@ public class BoundaryBreakTests : ShardingTestBase
         var batch = NewBatch("agg0");
         using var uow = _uow.Begin(requiresNew: true, isTransactional: true);
         var q = (await _ledgers.GetQueryableAsync()).AsNoTracking().Where(x => x.BatchTag == batch);
-        (await q.CountAsync()).ShouldBe(0);
-        (await q.SumAsync(x => x.Amount)).ShouldBe(0m);
-        (await q.AnyAsync()).ShouldBeFalse();
-        await uow.CompleteAsync();
+        (await q.CountAsync(cancellationToken: TestContext.Current.CancellationToken)).ShouldBe(0);
+        (await q.SumAsync(x => x.Amount, cancellationToken: TestContext.Current.CancellationToken)).ShouldBe(0m);
+        (await q.AnyAsync(cancellationToken: TestContext.Current.CancellationToken)).ShouldBeFalse();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>同 Guid 落在两个月物理表时，按 Id fan-out 的 Single 必须失败。</summary>
@@ -196,9 +196,9 @@ public class BoundaryBreakTests : ShardingTestBase
             await (await _ledgers.GetQueryableAsync())
                 .AsNoTracking()
                 .Where(x => x.Id == id && x.BatchTag == batch)
-                .SingleAsync();
+                .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
         });
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>
@@ -218,13 +218,13 @@ public class BoundaryBreakTests : ShardingTestBase
         {
             var entity = await (await _ledgers.GetQueryableAsync())
                 .Where(x => x.BizMonth == jan && x.Id == id)
-                .SingleAsync();
+                .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
             entity.BizMonth = feb;
             entity.Code = "MOVED";
             try
             {
-                await _ledgers.UpdateAsync(entity, autoSave: true);
-                await uow.CompleteAsync();
+                await _ledgers.UpdateAsync(entity, autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+                await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
             }
             catch (Exception)
             {
@@ -236,11 +236,11 @@ public class BoundaryBreakTests : ShardingTestBase
         using var read = _uow.Begin(requiresNew: true, isTransactional: true);
         var inJan = await (await _ledgers.GetQueryableAsync())
             .AsNoTracking()
-            .AnyAsync(x => x.BizMonth == jan && x.Id == id && x.BatchTag == batch);
+            .AnyAsync(x => x.BizMonth == jan && x.Id == id && x.BatchTag == batch, cancellationToken: TestContext.Current.CancellationToken);
         var inFeb = await (await _ledgers.GetQueryableAsync())
             .AsNoTracking()
             .Where(x => x.BizMonth == feb && x.Id == id && x.BatchTag == batch)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // 不允许：仍在旧表且新表没有（改键未生效却成功）
         // 不允许：两表都有（双写）
@@ -256,7 +256,7 @@ public class BoundaryBreakTests : ShardingTestBase
 
         inFeb.Count.ShouldBe(1);
         inFeb[0].Code.ShouldBe("MOVED");
-        await read.CompleteAsync();
+        await read.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>仅按 Id 删除（无分片键谓词）应能删掉或明确失败，不能静默 0 行成功。</summary>
@@ -273,16 +273,16 @@ public class BoundaryBreakTests : ShardingTestBase
             var entity = await (await _ledgers.GetQueryableAsync())
                 .AsNoTracking()
                 .Where(x => x.Id == id && x.BatchTag == batch)
-                .SingleAsync();
-            await _ledgers.DeleteAsync(entity, autoSave: true);
-            await uow.CompleteAsync();
+                .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
+            await _ledgers.DeleteAsync(entity, autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         using var read = _uow.Begin(requiresNew: true, isTransactional: true);
         var exists = await (await _ledgers.GetQueryableAsync())
-            .AnyAsync(x => x.BizMonth == jan && x.Id == id);
+            .AnyAsync(x => x.BizMonth == jan && x.Id == id, cancellationToken: TestContext.Current.CancellationToken);
         exists.ShouldBeFalse();
-        await read.CompleteAsync();
+        await read.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>月中上界 LessThan：应包含当月符合谓词的数据（Critical 仅对月初临界生效）。</summary>
@@ -299,11 +299,11 @@ public class BoundaryBreakTests : ShardingTestBase
         var rows = await (await _ledgers.GetQueryableAsync())
             .AsNoTracking()
             .Where(x => x.BizMonth < new DateTime(2024, 3, 15) && x.BatchTag == batch)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         var codes = rows.Where(x => x is not null).Select(x => x!.Code).OrderBy(c => c).ToList();
         codes.ShouldContain("FEB");
         codes.ShouldContain("MAR");
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>月初临界 LessThan：&lt; 2024-03-01 不应扫到 3 月表行。</summary>
@@ -319,9 +319,9 @@ public class BoundaryBreakTests : ShardingTestBase
         var rows = await (await _ledgers.GetQueryableAsync())
             .AsNoTracking()
             .Where(x => x.BizMonth < new DateTime(2024, 3, 1) && x.BatchTag == batch)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         rows.Where(x => x is not null).Select(x => x!.Code).ShouldBe(["FEB"]);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>Mod NotEqual 当前实现会 fan-out 全桶；至少结果集应正确。</summary>
@@ -331,19 +331,19 @@ public class BoundaryBreakTests : ShardingTestBase
         var batch = NewBatch("neq");
         using (var uow = _uow.Begin(requiresNew: true, isTransactional: true))
         {
-            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "e10", 10, batch), autoSave: true);
-            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "e12", 12, batch), autoSave: true);
-            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "o11", 11, batch), autoSave: true);
-            await uow.CompleteAsync();
+            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "e10", 10, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "e12", 12, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await _buckets.InsertAsync(new ShardBucket(Guid.NewGuid(), "o11", 11, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         using var read = _uow.Begin(requiresNew: true, isTransactional: true);
         var rows = await (await _buckets.GetQueryableAsync())
             .AsNoTracking()
             .Where(x => x.BucketKey != 10 && x.BatchTag == batch)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         rows.Where(x => x is not null).Select(x => x!.Name).OrderBy(n => n).ShouldBe(["e12", "o11"]);
-        await read.CompleteAsync();
+        await read.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>int.MinValue 取模不应溢出崩溃。</summary>
@@ -365,8 +365,8 @@ public class BoundaryBreakTests : ShardingTestBase
         var id = Guid.NewGuid();
         using (var uow = _uow.Begin(requiresNew: true, isTransactional: true))
         {
-            await _orders.InsertAsync(new ShardAreaOrder(id, "", "empty-area", batch), autoSave: true);
-            await uow.CompleteAsync();
+            await _orders.InsertAsync(new ShardAreaOrder(id, "", "empty-area", batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         using var read = _uow.Begin(requiresNew: true, isTransactional: true);
@@ -374,9 +374,9 @@ public class BoundaryBreakTests : ShardingTestBase
             .AsNoTracking()
             .AsRoute(ctx => ctx.MustDataSource[typeof(ShardAreaOrder)] = new HashSet<string> { "ds0" })
             .Where(x => x.Id == id)
-            .SingleAsync();
+            .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
         row.Title.ShouldBe("empty-area");
-        await read.CompleteAsync();
+        await read.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>Must 空集合：应抛错，而不是忽略后 fan-out。</summary>
@@ -393,10 +393,10 @@ public class BoundaryBreakTests : ShardingTestBase
                 .AsNoTracking()
                 .AsRoute(ctx => ctx.MustTable[typeof(ShardLedger)] = new HashSet<string>())
                 .Where(x => x.BatchTag == batch)
-                .ToListAsync();
+                .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         });
         ex.Message.ShouldContain("must", Case.Insensitive);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>跨库 Commit 任一数据源失败都必须抛出，不得吞掉后半截异常。</summary>

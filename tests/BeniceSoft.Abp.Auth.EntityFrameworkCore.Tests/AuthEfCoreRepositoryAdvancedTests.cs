@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Core.Models;
+using BeniceSoft.Abp.Auth.Core.Models;
 using BeniceSoft.Abp.Auth.EntityFrameworkCore.Tests.Mocks;
 using BeniceSoft.Core;
 using Volo.Abp.Uow;
@@ -45,8 +45,8 @@ public class AuthEfCoreRepositoryAdvancedTests : AuthEfCoreTestBase
 
         // Act
         using var uow = UnitOfWorkManager.Begin();
-        var result = await OrderRepository.GetListAsync();
-        await uow.CompleteAsync();
+        var result = await OrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(4, result.Count);
@@ -95,8 +95,8 @@ public class AuthEfCoreRepositoryAdvancedTests : AuthEfCoreTestBase
 
         // Act
         using var uow = UnitOfWorkManager.Begin();
-        var result = await OrderRepository.GetListAsync();
-        await uow.CompleteAsync();
+        var result = await OrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert - 用户 1001 拥有 ORD001 和 ORD003
         Assert.Equal(2, result.Count);
@@ -140,8 +140,8 @@ public class AuthEfCoreRepositoryAdvancedTests : AuthEfCoreTestBase
 
         // Act
         using var uow = UnitOfWorkManager.Begin();
-        var result = await OrderRepository.GetListAsync();
-        await uow.CompleteAsync();
+        var result = await OrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert - 因为权限是针对其他表的，所以返回所有数据
         Assert.Equal(5, result.Count);
@@ -190,8 +190,8 @@ public class AuthEfCoreRepositoryAdvancedTests : AuthEfCoreTestBase
 
         // Act
         using var uow = UnitOfWorkManager.Begin();
-        var count = await OrderRepository.GetCountAsync();
-        await uow.CompleteAsync();
+        var count = await OrderRepository.GetCountAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert - 用户 1001 拥有 ORD001 和 ORD003，DepartmentId=100 的有 ORD001 和 ORD002
         // 结果应该是 ORD001, ORD002, ORD003 共 3 条
@@ -235,8 +235,8 @@ public class AuthEfCoreRepositoryAdvancedTests : AuthEfCoreTestBase
 
         // Act
         using var uow = UnitOfWorkManager.Begin();
-        var result = await OrderRepository.GetListAsync();
-        await uow.CompleteAsync();
+        var result = await OrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert - ORD001(Pending=1), ORD002(Completed=3), ORD003(Processing=2)
         Assert.Equal(3, result.Count);
@@ -280,8 +280,8 @@ public class AuthEfCoreRepositoryAdvancedTests : AuthEfCoreTestBase
 
         // Act
         using var uow = UnitOfWorkManager.Begin();
-        var result = await OrderRepository.GetListAsync();
-        await uow.CompleteAsync();
+        var result = await OrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert - 只有 ORD002 (Completed=3)
         Assert.Single(result);
@@ -325,8 +325,8 @@ public class AuthEfCoreRepositoryAdvancedTests : AuthEfCoreTestBase
 
         // Act
         using var uow = UnitOfWorkManager.Begin();
-        var result = await OrderRepository.GetListAsync();
-        await uow.CompleteAsync();
+        var result = await OrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert - ORD002(Completed=3), ORD004(Cancelled=4), ORD005(Refunded=5)
         Assert.Equal(3, result.Count);
@@ -369,8 +369,8 @@ public class AuthEfCoreRepositoryAdvancedTests : AuthEfCoreTestBase
 
         // Act
         using var uow = UnitOfWorkManager.Begin();
-        var result = await OrderRepository.GetListAsync();
-        await uow.CompleteAsync();
+        var result = await OrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert - ORD001(Pending=1), ORD003(Processing=2)
         Assert.Equal(2, result.Count);

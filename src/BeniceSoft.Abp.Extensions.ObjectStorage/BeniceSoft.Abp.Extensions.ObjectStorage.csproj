@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" />
+    <PackageReference Include="Volo.Abp.Core" />
+    <PackageReference Include="Volo.Abp.Timing" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Aliyun.OSS.SDK.NetCore" />
+    <PackageReference Include="Minio" />
+    <PackageReference Include="HuaweiCloud.ESDK.OBS.Core" />
+  </ItemGroup>
+</Project>

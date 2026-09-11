@@ -28,8 +28,8 @@ public class TrackingCapabilityTests : ShardingTestBase
         var batch = NewBatch("trk-a1");
         using (var seed = _uow.Begin(requiresNew: true, isTransactional: true))
         {
-            await _buckets.InsertAsync(new ShardBucket(id, "a1", 10, batch), autoSave: true);
-            await seed.CompleteAsync();
+            await _buckets.InsertAsync(new ShardBucket(id, "a1", 10, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await seed.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         using var scope = App.CreateScope();
@@ -38,7 +38,7 @@ public class TrackingCapabilityTests : ShardingTestBase
 
         var entity = await db.Set<ShardBucket>()
             .AsNoTracking()
-            .SingleAsync(x => x.Id == id && x.BatchTag == batch);
+            .SingleAsync(x => x.Id == id && x.BatchTag == batch, cancellationToken: TestContext.Current.CancellationToken);
 
         db.Attach(entity);
         var entry1 = db.Entry(entity);
@@ -49,7 +49,7 @@ public class TrackingCapabilityTests : ShardingTestBase
         entry2.Entity.ShouldBeSameAs(entity);
         db.ChangeTracker.Entries<ShardBucket>().Any(e => ReferenceEquals(e.Entity, entity)).ShouldBeTrue();
 
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>A2：AsTracking 查询后实体进入物理追踪，壳 ChangeTracker 可见。</summary>
@@ -60,8 +60,8 @@ public class TrackingCapabilityTests : ShardingTestBase
         var batch = NewBatch("trk-a2");
         using (var seed = _uow.Begin(requiresNew: true, isTransactional: true))
         {
-            await _buckets.InsertAsync(new ShardBucket(id, "a2", 11, batch), autoSave: true);
-            await seed.CompleteAsync();
+            await _buckets.InsertAsync(new ShardBucket(id, "a2", 11, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await seed.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         using var scope = App.CreateScope();
@@ -71,12 +71,12 @@ public class TrackingCapabilityTests : ShardingTestBase
         var entity = await db.Set<ShardBucket>()
             .AsTracking()
             .Where(x => x.Id == id && x.BucketKey == 11 && x.BatchTag == batch)
-            .SingleAsync();
+            .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         db.ChangeTracker.Entries<ShardBucket>().Any(e => e.Entity.Id == id).ShouldBeTrue();
         db.Entry(entity).State.ShouldBe(EntityState.Unchanged);
 
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>A3：GetOrCreateEntry 按传入类型追踪（同 ClrType 时与 Attach 一致）。</summary>
@@ -99,8 +99,8 @@ public class TrackingCapabilityTests : ShardingTestBase
         db.Entry(entity).State.ShouldBe(EntityState.Added);
         db.ChangeTracker.Entries<ShardBucket>().Count(e => e.Entity.Id == id).ShouldBe(1);
 
-        await db.SaveChangesAsync();
-        await uow.CompleteAsync();
+        await db.SaveChangesAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>A4：TrackGraph 在壳上应把根实体挂到物理库，而不是静默空操作。</summary>
@@ -123,8 +123,8 @@ public class TrackingCapabilityTests : ShardingTestBase
         db.ChangeTracker.Entries<ShardBucket>().Any(e => e.Entity.Id == id && e.State == EntityState.Added)
             .ShouldBeTrue();
 
-        await db.SaveChangesAsync();
-        await uow.CompleteAsync();
+        await db.SaveChangesAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>A5：Local / Entries / Clear 与物理追踪对齐。</summary>
@@ -135,8 +135,8 @@ public class TrackingCapabilityTests : ShardingTestBase
         var batch = NewBatch("trk-a5");
         using (var seed = _uow.Begin(requiresNew: true, isTransactional: true))
         {
-            await _buckets.InsertAsync(new ShardBucket(id, "a5", 10, batch), autoSave: true);
-            await seed.CompleteAsync();
+            await _buckets.InsertAsync(new ShardBucket(id, "a5", 10, batch), autoSave: true, cancellationToken: TestContext.Current.CancellationToken);
+            await seed.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         using var scope = App.CreateScope();
@@ -145,7 +145,7 @@ public class TrackingCapabilityTests : ShardingTestBase
 
         var entity = await db.Set<ShardBucket>()
             .AsNoTracking()
-            .SingleAsync(x => x.Id == id && x.BatchTag == batch);
+            .SingleAsync(x => x.Id == id && x.BatchTag == batch, cancellationToken: TestContext.Current.CancellationToken);
         db.Attach(entity);
 
         db.ChangeTracker.HasChanges().ShouldBeFalse();
@@ -160,7 +160,7 @@ public class TrackingCapabilityTests : ShardingTestBase
         db.ChangeTracker.Entries<ShardBucket>().Any(e => e.Entity.Id == id).ShouldBeFalse();
         db.Set<ShardBucket>().Local.Any(e => e.Id == id).ShouldBeFalse();
 
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>A6：壳有 Executor 且 IsExecutor=false；物理库无 Executor 且 IsExecutor=true，GetExecutor 抛错。</summary>

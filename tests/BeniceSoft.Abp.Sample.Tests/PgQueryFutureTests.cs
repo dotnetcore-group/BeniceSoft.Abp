@@ -54,7 +54,7 @@ public class PgQueryFutureTests : AbpIntegratedTest<PgBulkIntegrationTestModule>
                 $"n-{i}",
                 i + 1,
                 batchTag)).ToList();
-            await db.BulkInsertAsync(items);
+            await db.BulkInsertAsync(items, cancellationToken: TestContext.Current.CancellationToken);
 
             var futureList = db.BulkDemoItems.AsNoTracking()
                 .Where(x => x.BatchTag == batchTag)
@@ -66,8 +66,8 @@ public class PgQueryFutureTests : AbpIntegratedTest<PgBulkIntegrationTestModule>
                 .Select(x => x.Quantity)
                 .Future();
 
-            var list = await futureList.ToListAsync();
-            var qtys = await futureQtys.ToListAsync();
+            var list = await futureList.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
+            var qtys = await futureQtys.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
 
             list.Count.ShouldBe(5);
             qtys.Count.ShouldBe(5);
@@ -77,8 +77,8 @@ public class PgQueryFutureTests : AbpIntegratedTest<PgBulkIntegrationTestModule>
             batchCommands[0].ShouldContain("BeniceSoft Query Future: 1 of 2");
             batchCommands[0].ShouldContain("BeniceSoft Query Future: 2 of 2");
 
-            await db.BulkDeleteAsync(list);
-            await uow.CompleteAsync();
+            await db.BulkDeleteAsync(list, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
         finally
         {
@@ -101,19 +101,19 @@ public class PgQueryFutureTests : AbpIntegratedTest<PgBulkIntegrationTestModule>
             await db.BulkInsertAsync([
                 new BulkDemoItem(Guid.NewGuid(), $"{batchTag}-1", "a", 1, batchTag),
                 new BulkDemoItem(Guid.NewGuid(), $"{batchTag}-2", "b", 2, batchTag)
-            ]);
+            ], cancellationToken: TestContext.Current.CancellationToken);
 
             var f1 = db.BulkDemoItems.AsNoTracking().Where(x => x.BatchTag == batchTag).Future();
             var f2 = db.BulkDemoItems.AsNoTracking().Where(x => x.BatchTag == batchTag && x.Quantity == 2).Future();
 
-            var all = await f1.ToListAsync();
-            var one = await f2.ToListAsync();
+            var all = await f1.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
+            var one = await f2.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
 
             all.Count.ShouldBe(2);
             one.Count.ShouldBe(1);
 
-            await db.BulkDeleteAsync(all);
-            await uow.CompleteAsync();
+            await db.BulkDeleteAsync(all, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
         finally
         {
@@ -138,7 +138,7 @@ public class PgQueryFutureTests : AbpIntegratedTest<PgBulkIntegrationTestModule>
             await db.BulkInsertAsync([
                 new BulkDemoItem(Guid.NewGuid(), $"{batchTag}-1", "a", 10, batchTag),
                 new BulkDemoItem(Guid.NewGuid(), $"{batchTag}-2", "b", 20, batchTag)
-            ]);
+            ], cancellationToken: TestContext.Current.CancellationToken);
 
             var futureList = db.BulkDemoItems.AsNoTracking().Where(x => x.BatchTag == batchTag).Future();
             var futureMax = db.BulkDemoItems.AsNoTracking()
@@ -148,15 +148,15 @@ public class PgQueryFutureTests : AbpIntegratedTest<PgBulkIntegrationTestModule>
                 .Take(1)
                 .FutureValue();
 
-            var list = await futureList.ToListAsync();
-            var max = await futureMax.ValueAsync();
+            var list = await futureList.ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
+            var max = await futureMax.ValueAsync(cancellationToken: TestContext.Current.CancellationToken);
 
             list.Count.ShouldBe(2);
             max.ShouldBe(20);
             batchCommands.Count.ShouldBe(1);
 
-            await db.BulkDeleteAsync(list);
-            await uow.CompleteAsync();
+            await db.BulkDeleteAsync(list, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
         finally
         {

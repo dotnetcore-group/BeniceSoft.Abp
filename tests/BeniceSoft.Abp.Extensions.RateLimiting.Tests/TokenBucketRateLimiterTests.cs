@@ -111,7 +111,7 @@ public class TokenBucketRateLimiterTests
         before.ShouldBeFalse();
 
         // 等待一段时间让令牌补充
-        await Task.Delay(200); // 200ms = 2 tokens refilled
+        await Task.Delay(200, TestContext.Current.CancellationToken); // 200ms = 2 tokens refilled
 
         // Act
         var (isAllowed, _) = _mockRedisConnection.SimulateTokenBucket(key, capacity, tokensPerSecond);
@@ -209,7 +209,7 @@ public class TokenBucketRateLimiterTests
             {
                 var (isAllowed, _) = _mockRedisConnection.SimulateTokenBucket(key, capacity, tokensPerSecond);
                 if (isAllowed) Interlocked.Increment(ref successCount);
-            }));
+            }, TestContext.Current.CancellationToken));
         }
 
         //Task.WaitAll([.. tasks]);

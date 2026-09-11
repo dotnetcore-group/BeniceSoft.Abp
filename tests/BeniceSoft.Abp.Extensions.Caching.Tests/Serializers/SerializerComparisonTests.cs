@@ -3,7 +3,6 @@ using BeniceSoft.Abp.Extensions.Caching.MessagePack;
 using BeniceSoft.Abp.Extensions.Caching.SystemTextJson;
 using Shouldly;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace BeniceSoft.Abp.Extensions.Caching.Tests.Serializers;
 

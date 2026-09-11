@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using BeniceSoft.Abp.Extensions.DistributedLock.Abstractions;
 using Shouldly;
 using Xunit;
@@ -121,7 +121,7 @@ public class AutoRenewTests
             TimeSpan.FromMinutes(1),
             TimeSpan.FromSeconds(5),
             TimeSpan.FromMilliseconds(100),
-            autoRenew: true);
+            autoRenew: true, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldBeTrue();
@@ -150,7 +150,7 @@ public class AutoRenewTests
         var result = await mockProvider.Object.TryAcquireAsync(
             "test:resource",
             TimeSpan.FromMinutes(1),
-            autoRenew: true);
+            autoRenew: true, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldBeTrue();

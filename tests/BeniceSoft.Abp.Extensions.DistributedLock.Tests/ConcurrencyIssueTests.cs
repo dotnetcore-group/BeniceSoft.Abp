@@ -1,4 +1,4 @@
-﻿using Shouldly;
+using Shouldly;
 using Xunit;
 
 namespace BeniceSoft.Abp.Extensions.DistributedLock.Tests;
@@ -77,7 +77,7 @@ public class ConcurrencyIssueTests
                 {
                     Interlocked.Increment(ref failCount);
                 }
-            }));
+            }, cancellationToken: TestContext.Current.CancellationToken));
         }
 
         await Task.WhenAll(tasks);
@@ -142,7 +142,7 @@ public class ConcurrencyIssueTests
             attempts++;
             if (attempts < maxAttempts)
             {
-                await Task.Delay(interval); // Correct: yields thread
+                await Task.Delay(interval, cancellationToken: TestContext.Current.CancellationToken); // Correct: yields thread
             }
         }
 

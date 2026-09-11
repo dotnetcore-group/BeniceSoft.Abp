@@ -7,11 +7,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" />
     <PackageReference Include="NetEscapades.Configuration.Yaml" />
 
     <PackageReference Include="Volo.Abp.EventBus.RabbitMQ" />
-    <PackageReference Include="Winton.Extensions.Configuration.Consul" />
   </ItemGroup>
 
   <ItemGroup>

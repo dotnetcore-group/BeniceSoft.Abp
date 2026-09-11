@@ -11,7 +11,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Shouldly" />
-    <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -25,6 +24,7 @@
     <PackageReference Include="Volo.Abp.Security" />
     <PackageReference Include="Volo.Abp.MultiTenancy" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="xunit.v3" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using BeniceSoft.Abp.Auth.Core.Models;
 using BeniceSoft.Abp.Auth.EntityFrameworkCore.Tests.Entities;
 using BeniceSoft.Abp.Auth.EntityFrameworkCore.Tests.Mocks;
@@ -23,13 +23,13 @@ public class ColumnPermissionInterceptorTests : AuthEfCoreTestBase
     public async Task Should_Allow_Update_When_No_Column_Permission_Configured()
     {
         var order = new TestOrder(100, "ORD-100", "Pending", OrderStatus.Pending, 1, 1, 100m);
-        await _repository.InsertAsync(order);
+        await _repository.InsertAsync(order, cancellationToken: TestContext.Current.CancellationToken);
 
         order.Amount = 200m;
         order.Status = "Completed";
-        await _repository.UpdateAsync(order);
+        await _repository.UpdateAsync(order, cancellationToken: TestContext.Current.CancellationToken);
 
-        var updated = await _repository.GetAsync(100);
+        var updated = await _repository.GetAsync(100, cancellationToken: TestContext.Current.CancellationToken);
         updated.Amount.ShouldBe(200m);
         updated.Status.ShouldBe("Completed");
     }
@@ -53,13 +53,13 @@ public class ColumnPermissionInterceptorTests : AuthEfCoreTestBase
         };
 
         var order = new TestOrder(101, "ORD-101", "Pending", OrderStatus.Pending, 1, 1, 100m);
-        await _repository.InsertAsync(order);
+        await _repository.InsertAsync(order, cancellationToken: TestContext.Current.CancellationToken);
 
         order.Amount = 999m;
         order.Status = "Completed";
-        await _repository.UpdateAsync(order);
+        await _repository.UpdateAsync(order, cancellationToken: TestContext.Current.CancellationToken);
 
-        var updated = await _repository.GetAsync(101);
+        var updated = await _repository.GetAsync(101, cancellationToken: TestContext.Current.CancellationToken);
         updated.Amount.ShouldBe(100m);
         updated.Status.ShouldBe("Completed");
     }
@@ -83,12 +83,12 @@ public class ColumnPermissionInterceptorTests : AuthEfCoreTestBase
         };
 
         var order = new TestOrder(102, "ORD-102", "Pending", OrderStatus.Pending, 1, 1, 100m);
-        await _repository.InsertAsync(order);
+        await _repository.InsertAsync(order, cancellationToken: TestContext.Current.CancellationToken);
 
         order.Amount = 500m;
-        await _repository.UpdateAsync(order);
+        await _repository.UpdateAsync(order, cancellationToken: TestContext.Current.CancellationToken);
 
-        var updated = await _repository.GetAsync(102);
+        var updated = await _repository.GetAsync(102, cancellationToken: TestContext.Current.CancellationToken);
         updated.Amount.ShouldBe(500m);
     }
 
@@ -111,13 +111,13 @@ public class ColumnPermissionInterceptorTests : AuthEfCoreTestBase
         };
 
         var order = new TestOrder(103, "ORD-103", "Pending", OrderStatus.Pending, 1, 1, 100m);
-        await _repository.InsertAsync(order);
+        await _repository.InsertAsync(order, cancellationToken: TestContext.Current.CancellationToken);
 
         order.Status = "Cancelled";
         order.Amount = 300m;
-        await _repository.UpdateAsync(order);
+        await _repository.UpdateAsync(order, cancellationToken: TestContext.Current.CancellationToken);
 
-        var updated = await _repository.GetAsync(103);
+        var updated = await _repository.GetAsync(103, cancellationToken: TestContext.Current.CancellationToken);
         updated.Status.ShouldBe("Pending");
         updated.Amount.ShouldBe(300m);
     }
@@ -148,13 +148,13 @@ public class ColumnPermissionInterceptorTests : AuthEfCoreTestBase
         };
 
         var order = new TestOrder(104, "ORD-104", "Pending", OrderStatus.Pending, 1, 1, 100m);
-        await _repository.InsertAsync(order);
+        await _repository.InsertAsync(order, cancellationToken: TestContext.Current.CancellationToken);
 
         order.Amount = 888m;
         order.Status = "Completed";
-        await _repository.UpdateAsync(order);
+        await _repository.UpdateAsync(order, cancellationToken: TestContext.Current.CancellationToken);
 
-        var updated = await _repository.GetAsync(104);
+        var updated = await _repository.GetAsync(104, cancellationToken: TestContext.Current.CancellationToken);
         updated.Amount.ShouldBe(100m);
         updated.Status.ShouldBe("Pending");
     }

@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Core.Models;
+using BeniceSoft.Abp.Auth.Core.Models;
 using BeniceSoft.Abp.Auth.EntityFrameworkCore.Tests.Mocks;
 using BeniceSoft.Core;
 using Volo.Abp.Uow;
@@ -17,8 +17,8 @@ public class AuthEfCoreRepositoryTests : AuthEfCoreTestBase
 
         // Act
         using var uow = UnitOfWorkManager.Begin();
-        var result = await OrderRepository.GetListAsync();
-        await uow.CompleteAsync();
+        var result = await OrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(5, result.Count);
@@ -68,8 +68,8 @@ public class AuthEfCoreRepositoryTests : AuthEfCoreTestBase
 
         // Act
         using var uow = UnitOfWorkManager.Begin();
-        var result = await OrderRepository.GetListAsync();
-        await uow.CompleteAsync();
+        var result = await OrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert - 用户 1002 拥有 ORD002 和 ORD005，DepartmentId=100 的有 ORD001 和 ORD002
         // 结果应该是 ORD001, ORD002, ORD005 共 3 条
@@ -121,8 +121,8 @@ public class AuthEfCoreRepositoryTests : AuthEfCoreTestBase
 
         // Act
         using var uow = UnitOfWorkManager.Begin();
-        var result = await OrderRepository.GetListAsync();
-        await uow.CompleteAsync();
+        var result = await OrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert - 用户 1001 拥有 ORD001 和 ORD003
         Assert.Equal(2, result.Count);
@@ -167,8 +167,8 @@ public class AuthEfCoreRepositoryTests : AuthEfCoreTestBase
 
         // Act
         using var uow = UnitOfWorkManager.Begin();
-        var result = await OrderRepository.GetListAsync();
-        await uow.CompleteAsync();
+        var result = await OrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(5, result.Count);

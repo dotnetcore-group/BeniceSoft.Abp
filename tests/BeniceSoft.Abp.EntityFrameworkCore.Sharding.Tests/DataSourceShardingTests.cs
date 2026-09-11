@@ -36,15 +36,15 @@ public class DataSourceShardingTests : ShardingTestBase
         var a = await (await _repo.GetQueryableAsync())
             .AsNoTracking()
             .Where(x => x.Area == "A" && x.BatchTag == batch)
-            .SingleAsync();
+            .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
         a.Id.ShouldBe(aId);
 
         var b = await (await _repo.GetQueryableAsync())
             .AsNoTracking()
             .Where(x => x.Area == "B" && x.BatchTag == batch)
-            .SingleAsync();
+            .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
         b.Id.ShouldBe(bId);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -59,16 +59,16 @@ public class DataSourceShardingTests : ShardingTestBase
             .AsNoTracking()
             .AsRoute(ctx => ctx.MustDataSource[typeof(ShardAreaOrder)] = new HashSet<string> { "ds1" })
             .Where(x => x.Id == id)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         wrong.Where(x => x is not null).ShouldBeEmpty();
 
         var ok = await (await _repo.GetQueryableAsync())
             .AsNoTracking()
             .AsRoute(ctx => ctx.MustDataSource[typeof(ShardAreaOrder)] = new HashSet<string> { "ds0" })
             .Where(x => x.Id == id)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         ok.Where(x => x is not null).Count().ShouldBe(1);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -82,9 +82,9 @@ public class DataSourceShardingTests : ShardingTestBase
         var all = await (await _repo.GetQueryableAsync())
             .AsNoTracking()
             .Where(x => x.BatchTag == batch)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: TestContext.Current.CancellationToken);
         all.Where(x => x is not null).Count().ShouldBe(2);
-        await uow.CompleteAsync();
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
     }
 
     [Fact]

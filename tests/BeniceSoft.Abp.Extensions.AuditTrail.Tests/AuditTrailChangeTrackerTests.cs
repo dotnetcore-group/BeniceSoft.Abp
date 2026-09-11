@@ -82,7 +82,7 @@ public class AuditTrailChangeTrackerTests : IDisposable
             InternalRemark = "备注"
         };
         _dbContext.Products.Add(product);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // 修改部分字段
         product.Name = "新名称";
@@ -118,7 +118,7 @@ public class AuditTrailChangeTrackerTests : IDisposable
             InternalRemark = "备注"
         };
         _dbContext.Products.Add(product);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         _dbContext.Products.Remove(product);
 
@@ -165,7 +165,7 @@ public class AuditTrailChangeTrackerTests : IDisposable
             InternalRemark = "初始备注"
         };
         _dbContext.Products.Add(product);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // 只修改未标记的属性
         product.InternalRemark = "修改后的备注";
@@ -205,7 +205,7 @@ public class AuditTrailChangeTrackerTests : IDisposable
         var product1 = new TestProduct { Id = 1, Name = "产品1", Price = 10m, Status = "Active" };
         var product2 = new TestProduct { Id = 2, Name = "产品2", Price = 20m, Status = "Active" };
         _dbContext.Products.AddRange(product1, product2);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         product1.Price = 15m;
         product2.Name = "产品2修改";
@@ -240,7 +240,7 @@ public class AuditTrailChangeTrackerTests : IDisposable
             InternalRemark = "备注"
         };
         _dbContext.Products.Add(product);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         // 同时修改多个被追踪的属性
         product.Name = "新名称";

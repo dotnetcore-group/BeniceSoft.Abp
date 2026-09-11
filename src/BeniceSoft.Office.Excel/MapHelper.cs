@@ -289,7 +289,7 @@ public partial class MapHelper
                 break;
 
             case CellType.Error:
-            case CellType.Unknown:
+            case CellType._None:
             case CellType.Blank:
                 // Dose nothing to keep return value null.
                 break;

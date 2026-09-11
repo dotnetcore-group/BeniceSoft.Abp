@@ -7,11 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Wecharmer.AM.Sdk" />
     <PackageReference Include="Wecharmer.PermissionCenter.Sdk" />
-    <PackageReference Include="Wecharmer.WorkflowCenter.Sdk" />
-    <!-- *Center.Sdk 传递引用 NuGet/Release 版 Http.Client，Debug 会弹「仅我的代码」；屏蔽其 assets，改用本地工程 -->
-    <PackageReference Include="BeniceSoft.Abp.Http.Client" VersionOverride="10.0.16-dev" ExcludeAssets="all" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

@@ -52,18 +52,18 @@ public class SoftDeleteTests : AuthEfCoreTestBase
         // Act - 软删除一条记录
         using (var uow = UnitOfWorkManager.Begin())
         {
-            var order = await AuditedOrderRepository.GetAsync(1);
-            await AuditedOrderRepository.DeleteAsync(order);
-            await uow.CompleteAsync();
+            var order = await AuditedOrderRepository.GetAsync(1, cancellationToken: TestContext.Current.CancellationToken);
+            await AuditedOrderRepository.DeleteAsync(order, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         // Assert - 正常查询应该查不到被删除的记录
         using (var uow = UnitOfWorkManager.Begin())
         {
-            var orders = await AuditedOrderRepository.GetListAsync();
+            var orders = await AuditedOrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
             orders.Count.ShouldBe(2);
             orders.ShouldNotContain(x => x.Id == 1);
-            await uow.CompleteAsync();
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         // Assert - 禁用软删除过滤器后应该能查到
@@ -71,7 +71,7 @@ public class SoftDeleteTests : AuthEfCoreTestBase
         {
             using (DataFilter.Disable<ISoftDelete>())
             {
-                var allOrders = await AuditedOrderRepository.GetListAsync();
+                var allOrders = await AuditedOrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
                 allOrders.Count.ShouldBe(3);
 
                 var deletedOrder = allOrders.First(x => x.Id == 1);
@@ -81,7 +81,7 @@ public class SoftDeleteTests : AuthEfCoreTestBase
                 deletedOrder.DeletionTime.ShouldNotBeNull($"DeletionTime should be set. IsDeleted={deletedOrder.IsDeleted}");
                 deletedOrder.DeleterId.ShouldBe(1001, $"DeleterId should be set. Actual={deletedOrder.DeleterId}");
             }
-            await uow.CompleteAsync();
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
     }
 
@@ -94,20 +94,20 @@ public class SoftDeleteTests : AuthEfCoreTestBase
         // 软删除两条记录
         using (var uow = UnitOfWorkManager.Begin())
         {
-            var order1 = await AuditedOrderRepository.GetAsync(1);
-            var order2 = await AuditedOrderRepository.GetAsync(2);
-            await AuditedOrderRepository.DeleteAsync(order1);
-            await AuditedOrderRepository.DeleteAsync(order2);
-            await uow.CompleteAsync();
+            var order1 = await AuditedOrderRepository.GetAsync(1, cancellationToken: TestContext.Current.CancellationToken);
+            var order2 = await AuditedOrderRepository.GetAsync(2, cancellationToken: TestContext.Current.CancellationToken);
+            await AuditedOrderRepository.DeleteAsync(order1, cancellationToken: TestContext.Current.CancellationToken);
+            await AuditedOrderRepository.DeleteAsync(order2, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         // Act & Assert - 默认查询不应返回软删除的记录
         using (var uow = UnitOfWorkManager.Begin())
         {
-            var orders = await AuditedOrderRepository.GetListAsync();
+            var orders = await AuditedOrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
             orders.Count.ShouldBe(1);
             orders.First().Id.ShouldBe(3);
-            await uow.CompleteAsync();
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
     }
 
@@ -120,9 +120,9 @@ public class SoftDeleteTests : AuthEfCoreTestBase
         // 软删除一条记录
         using (var uow = UnitOfWorkManager.Begin())
         {
-            var order = await AuditedOrderRepository.GetAsync(2);
-            await AuditedOrderRepository.DeleteAsync(order);
-            await uow.CompleteAsync();
+            var order = await AuditedOrderRepository.GetAsync(2, cancellationToken: TestContext.Current.CancellationToken);
+            await AuditedOrderRepository.DeleteAsync(order, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         // Act & Assert - 禁用过滤器后应返回所有记录
@@ -130,7 +130,7 @@ public class SoftDeleteTests : AuthEfCoreTestBase
         {
             using (DataFilter.Disable<ISoftDelete>())
             {
-                var allOrders = await AuditedOrderRepository.GetListAsync();
+                var allOrders = await AuditedOrderRepository.GetListAsync(cancellationToken: TestContext.Current.CancellationToken);
                 allOrders.Count.ShouldBe(3);
 
                 var deletedCount = allOrders.Count(x => x.IsDeleted);
@@ -139,7 +139,7 @@ public class SoftDeleteTests : AuthEfCoreTestBase
                 var notDeletedCount = allOrders.Count(x => !x.IsDeleted);
                 notDeletedCount.ShouldBe(2);
             }
-            await uow.CompleteAsync();
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
     }
 
@@ -152,17 +152,17 @@ public class SoftDeleteTests : AuthEfCoreTestBase
         // 软删除记录
         using (var uow = UnitOfWorkManager.Begin())
         {
-            var order = await AuditedOrderRepository.GetAsync(1);
-            await AuditedOrderRepository.DeleteAsync(order);
-            await uow.CompleteAsync();
+            var order = await AuditedOrderRepository.GetAsync(1, cancellationToken: TestContext.Current.CancellationToken);
+            await AuditedOrderRepository.DeleteAsync(order, cancellationToken: TestContext.Current.CancellationToken);
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
 
         // Act & Assert - FindAsync 应该返回 null
         using (var uow = UnitOfWorkManager.Begin())
         {
-            var order = await AuditedOrderRepository.FindAsync(1);
+            var order = await AuditedOrderRepository.FindAsync(1, cancellationToken: TestContext.Current.CancellationToken);
             order.ShouldBeNull();
-            await uow.CompleteAsync();
+            await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         }
     }
 }

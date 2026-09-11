@@ -10,7 +10,6 @@ using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.Testing;
 using Volo.Abp.Uow;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace BeniceSoft.Abp.Sample.Tests;
 
@@ -72,8 +71,8 @@ public class PgBulkPerfTests : AbpIntegratedTest<PgBulkIntegrationTestModule>
             using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true))
             {
                 var db = await _dbContextProvider.GetDbContextAsync();
-                inserted = await db.BulkInsertAsync(items, atom => atom.WithCommandTimeout(600).WithBulkCopyTimeout(600));
-                await uow.CompleteAsync();
+                inserted = await db.BulkInsertAsync(items, atom => atom.WithCommandTimeout(600).WithBulkCopyTimeout(600), cancellationToken: TestContext.Current.CancellationToken);
+                await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
             }
 
             insertSw.Stop();
@@ -93,8 +92,8 @@ public class PgBulkPerfTests : AbpIntegratedTest<PgBulkIntegrationTestModule>
             using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true))
             {
                 var db = await _dbContextProvider.GetDbContextAsync();
-                updated = await db.BulkUpdateAsync(items, atom => atom.WithCommandTimeout(600).WithBulkCopyTimeout(600));
-                await uow.CompleteAsync();
+                updated = await db.BulkUpdateAsync(items, atom => atom.WithCommandTimeout(600).WithBulkCopyTimeout(600), cancellationToken: TestContext.Current.CancellationToken);
+                await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
             }
 
             updateSw.Stop();
@@ -105,15 +104,15 @@ public class PgBulkPerfTests : AbpIntegratedTest<PgBulkIntegrationTestModule>
             using (var uow = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true))
             {
                 var db = await _dbContextProvider.GetDbContextAsync();
-                var count = await db.BulkDemoItems.CountAsync(x => x.BatchTag == batchTag);
+                var count = await db.BulkDemoItems.CountAsync(x => x.BatchTag == batchTag, cancellationToken: TestContext.Current.CancellationToken);
                 count.ShouldBe(RowCount);
 
                 var sample = await db.BulkDemoItems.AsNoTracking()
                     .Where(x => x.Code == $"{batchTag}-000000")
-                    .SingleAsync();
+                    .SingleAsync(cancellationToken: TestContext.Current.CancellationToken);
                 sample.Quantity.ShouldBe(1);
                 sample.Version.ShouldBe(2);
-                await uow.CompleteAsync();
+                await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
             }
 
             _output.WriteLine(
@@ -128,8 +127,8 @@ public class PgBulkPerfTests : AbpIntegratedTest<PgBulkIntegrationTestModule>
                 {
                     var db = await _dbContextProvider.GetDbContextAsync();
                     await db.Database.ExecuteSqlInterpolatedAsync(
-                        $"DELETE FROM bulk_demo_items WHERE \"BatchTag\" = {batchTag}");
-                    await uow.CompleteAsync();
+                        $"DELETE FROM bulk_demo_items WHERE \"BatchTag\" = {batchTag}", cancellationToken: TestContext.Current.CancellationToken);
+                    await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
                 }
 
                 cleanSw.Stop();

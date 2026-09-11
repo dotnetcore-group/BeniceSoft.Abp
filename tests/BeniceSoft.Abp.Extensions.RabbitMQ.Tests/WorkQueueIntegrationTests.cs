@@ -14,7 +14,7 @@ public class WorkQueueIntegrationTests : RabbitMqTestBase
     {
         var connection = GetRequiredService<IRabbitConnection>();
 
-        await using var channel = await connection.CreateChannelAsync();
+        await using var channel = await connection.CreateChannelAsync(TestContext.Current.CancellationToken);
 
         channel.IsOpen.ShouldBeTrue();
     }
@@ -41,7 +41,7 @@ public class WorkQueueIntegrationTests : RabbitMqTestBase
             prefetchCount: 1,
             messageContextPropagator: messageContext);
 
-        await subscriber.StartAsync();
+        await subscriber.StartAsync(TestContext.Current.CancellationToken);
 
         var expected = new TestWorkMessage
         {
@@ -51,10 +51,10 @@ public class WorkQueueIntegrationTests : RabbitMqTestBase
 
         using (var publisher = ServiceProvider.CreateWorkPublisher(queueName))
         {
-            await publisher.PublishAsync(expected);
+            await publisher.PublishAsync(expected, cancellationToken: TestContext.Current.CancellationToken);
         }
 
-        var (actual, _) = await waiter.Task.WaitAsync(TimeSpan.FromSeconds(15));
+        var (actual, _) = await waiter.Task.WaitAsync(TimeSpan.FromSeconds(15), TestContext.Current.CancellationToken);
 
         actual.Id.ShouldBe(expected.Id);
         actual.Payload.ShouldBe(expected.Payload);
@@ -86,7 +86,7 @@ public class WorkQueueIntegrationTests : RabbitMqTestBase
             prefetchCount: 1,
             messageContextPropagator: messageContext);
 
-        await subscriber.StartAsync();
+        await subscriber.StartAsync(TestContext.Current.CancellationToken);
 
         var expected = new TestWorkMessage
         {
@@ -103,10 +103,10 @@ public class WorkQueueIntegrationTests : RabbitMqTestBase
         using (currentTenant.Change(expectedTenantId))
         using (var publisher = ServiceProvider.CreateWorkPublisher(queueName))
         {
-            await publisher.PublishAsync(expected);
+            await publisher.PublishAsync(expected, cancellationToken: TestContext.Current.CancellationToken);
         }
 
-        var (actual, captured) = await waiter.Task.WaitAsync(TimeSpan.FromSeconds(15));
+        var (actual, captured) = await waiter.Task.WaitAsync(TimeSpan.FromSeconds(15), TestContext.Current.CancellationToken);
 
         actual.Id.ShouldBe(expected.Id);
         captured.UserId.ShouldBe(expectedUserId);
