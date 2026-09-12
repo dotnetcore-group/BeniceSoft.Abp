@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Extensions.ObjectStorage;
+﻿namespace BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions;
 
 /// <summary>
 /// 对象存储 ObjectKey 统一生成：{scene}/{yyyy}-{MM}-{dd}/{guid}{ext}

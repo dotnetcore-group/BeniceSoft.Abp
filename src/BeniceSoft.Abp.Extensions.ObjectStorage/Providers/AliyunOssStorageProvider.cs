@@ -1,5 +1,6 @@
 using Aliyun.OSS;
 using Aliyun.OSS.Common;
+using BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions;
 using Microsoft.Extensions.Options;
 using Volo.Abp;
 using Volo.Abp.Timing;

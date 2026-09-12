@@ -17,4 +17,8 @@
     <PackageReference Include="Minio" />
     <PackageReference Include="HuaweiCloud.ESDK.OBS.Core" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions\BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions.csproj" />
+  </ItemGroup>
 </Project>

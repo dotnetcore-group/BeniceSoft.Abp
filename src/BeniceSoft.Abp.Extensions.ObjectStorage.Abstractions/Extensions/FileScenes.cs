@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Extensions.ObjectStorage;
+﻿namespace BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions;
 
 public static class FileScenes
 {

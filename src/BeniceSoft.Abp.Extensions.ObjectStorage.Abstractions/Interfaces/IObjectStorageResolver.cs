@@ -1,4 +1,4 @@
-namespace BeniceSoft.Abp.Extensions.ObjectStorage;
+﻿namespace BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions;
 
 /// <summary>
 /// 对象存储提供者解析器

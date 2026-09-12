@@ -1,3 +1,4 @@
+using BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Modularity;
 using Volo.Abp.Timing;

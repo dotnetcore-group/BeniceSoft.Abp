@@ -1,3 +1,4 @@
+using BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions;
 using Microsoft.Extensions.Options;
 using OBS;
 using OBS.Model;

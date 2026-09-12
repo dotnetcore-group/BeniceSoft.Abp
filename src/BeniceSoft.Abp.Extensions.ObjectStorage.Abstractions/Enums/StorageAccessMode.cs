@@ -1,9 +1,9 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
-namespace BeniceSoft.Abp.Extensions.ObjectStorage;
+namespace BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions;
 
 /// <summary>
-/// 对象存储访问模式（决定公私桶与下载方式）
+/// 对象存储访问模式
 /// </summary>
 public enum StorageAccessMode
 {
