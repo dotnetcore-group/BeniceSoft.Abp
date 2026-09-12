@@ -12,6 +12,7 @@ public class BeniceSoftAbpObjectStorageModule : AbpModule
         var configuration = context.Services.GetConfiguration();
         context.Services.Configure<ObjectStorageOptions>(configuration.GetSection(ObjectStorageOptions.Section));
 
+
         context.Services.AddSingleton<IObjectStorageProvider, AliyunOssStorageProvider>();
         context.Services.AddSingleton<IObjectStorageProvider, HuaweiObsStorageProvider>();
         context.Services.AddSingleton<IObjectStorageProvider, LocalStorageProvider>();

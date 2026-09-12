@@ -27,11 +27,6 @@ public class ObjectStorageOptions
     /// </summary>
     public string PublicBaseUrl { get; set; } = string.Empty;
 
-    /// <summary>
-    /// 上传时是否生成缩略图（与前端入参无关）
-    /// </summary>
-    public ThumbnailOptions Thumbnail { get; set; } = new();
-
     public LocalStorageOptions Local { get; set; } = new();
 
     public AliyunOssOptions AliyunOss { get; set; } = new();
@@ -74,22 +69,6 @@ public class ObjectStorageOptions
 
         return $"{PublicBaseUrl.TrimEnd('/')}/{objectKey.TrimStart('/')}";
     }
-}
-
-/// <summary>
-/// 缩略图生成配置（启用后 Upload / 直传完成时自动二次 Put）
-/// </summary>
-public class ThumbnailOptions
-{
-    public bool Enabled { get; set; }
-
-    /// <summary>最长边限制（等比缩小）</summary>
-    public int MaxWidth { get; set; } = 200;
-
-    public int MaxHeight { get; set; } = 200;
-
-    /// <summary>输出 JPEG 质量 1–100</summary>
-    public int JpegQuality { get; set; } = 75;
 }
 
 public class LocalStorageOptions
