@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Core.Users;
+using BeniceSoft.Abp.Core.Users;
 using BeniceSoft.Abp.Ddd.Domain.Entity;
 using BeniceSoft.Abp.Extensions.AuditTrail.Abstractions;
 using Microsoft.EntityFrameworkCore;
