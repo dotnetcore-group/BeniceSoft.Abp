@@ -1,4 +1,3 @@
-using BeniceSoft.Abp.Extensions.RateLimiting.Abstractions;
 using BeniceSoft.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -39,7 +38,7 @@ public class ExceptionHandlingMiddleware : IMiddleware, ITransientDependency
             _logger.LogError(new EventId(1, Guid.NewGuid().ToString()), exception.GetBaseException(),
                 exception.Message);
 
-            // À´×ÔÔ¶³Ì·şÎñµ÷ÓÃµÄÇëÇó
+            // æ¥è‡ªè¿œç¨‹æœåŠ¡è°ƒç”¨çš„è¯·æ±‚
             if (context.Request.Headers.TryGetValue(BeniceSoftHttpConstant.RequestedFrom, out var requestedFrom) &&
                 string.Equals(BeniceSoftHttpConstant.RequestedFromRemoteServiceCall, requestedFrom, StringComparison.OrdinalIgnoreCase))
             {
@@ -82,7 +81,7 @@ public class ExceptionHandlingMiddleware : IMiddleware, ITransientDependency
         context.Response.StatusCode = result.Code;
         context.Response.ContentType = "application/json;charset=utf-8";
         await context.Response.WriteAsync(JsonUtils.Serialize(result) 
-            ?? "{\"code\": 500, \"message\": \"ÏµÍ³³öÏÖ²»¿ÉÔ¤ÆÚµÄ´íÎó\"}")
+            ?? "{\"code\": 500, \"message\": \"ç³»ç»Ÿå‡ºç°ä¸å¯é¢„æœŸçš„é”™è¯¯\"}")
             .ConfigureAwait(false);
         await context.Response.CompleteAsync();
     }
@@ -101,18 +100,18 @@ public class ExceptionHandlingMiddleware : IMiddleware, ITransientDependency
                 => new(HttpStatusCode.BadRequest, string.Join(';', validationException.ValidationErrors.Select(x => x.ErrorMessage))),
 
             EntityNotFoundException entityNotFoundException =>
-                new(HttpStatusCode.NotFound, $"Ëù²Ù×÷µÄ¶ÔÏó{entityNotFoundException.Id}²»´æÔÚ"),
+                new(HttpStatusCode.NotFound, $"æ‰€æ“ä½œçš„å¯¹è±¡{entityNotFoundException.Id}ä¸å­˜åœ¨"),
 
             SynchronizationLockException
-                => new(HttpStatusCode.Locked, "×ÊÔ´ÒÑ±»Õ¼ÓÃ£¬ÇëÉÔºòÔÙÊÔ"),
+                => new(HttpStatusCode.Locked, "èµ„æºå·²è¢«å ç”¨ï¼Œè¯·ç¨å€™å†è¯•"),
 
             AbpRemoteCallException remoteCallException
-                => new(HttpStatusCode.ServiceUnavailable, $"Ô¶³Ì·şÎñ²»¿ÉÓÃ({remoteCallException.HttpStatusCode})"),
+                => new(HttpStatusCode.ServiceUnavailable, $"è¿œç¨‹æœåŠ¡ä¸å¯ç”¨({remoteCallException.HttpStatusCode})"),
 
             RateLimitExceededException rateLimitException
                 => new(HttpStatusCode.TooManyRequests, rateLimitException.Message),
 
-            _ => new(HttpStatusCode.InternalServerError, "ÏµÍ³³öÏÖ²»¿ÉÔ¤ÆÚµÄ´íÎó")
+            _ => new(HttpStatusCode.InternalServerError, "ç³»ç»Ÿå‡ºç°ä¸å¯é¢„æœŸçš„é”™è¯¯")
         };
     }
 }
@@ -120,7 +119,7 @@ public class ExceptionHandlingMiddleware : IMiddleware, ITransientDependency
 public static class ApplicationBuilderExtensions
 {
     /// <summary>
-    /// Òì³£´¦Àí
+    /// å¼‚å¸¸å¤„ç†
     /// </summary>
     /// <param name="app"></param>
     public static void UseBeniceSoftExceptionHandlingMiddleware(this IApplicationBuilder app)

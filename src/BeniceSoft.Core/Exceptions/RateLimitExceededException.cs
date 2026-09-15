@@ -1,8 +1,5 @@
-namespace BeniceSoft.Abp.Extensions.RateLimiting.Abstractions;
+namespace BeniceSoft.Core;
 
-/// <summary>
-/// 超出速率限制异常
-/// </summary>
 public class RateLimitExceededException : Exception
 {
     /// <summary>
@@ -34,4 +31,3 @@ public class RateLimitExceededException : Exception
         RetryAfterSeconds = retryAfterSeconds;
     }
 }
-

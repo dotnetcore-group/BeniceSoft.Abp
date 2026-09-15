@@ -1,4 +1,4 @@
-using BeniceSoft.Abp.Extensions.RateLimiting.Abstractions;
+using BeniceSoft.Core;
 using Shouldly;
 using Xunit;
 
