@@ -29,7 +29,7 @@ docs/      # 架构与接入文档
 
 | 文档 | 说明 |
 |------|------|
-| [docs/GRPC-SDK-ARCHITECTURE.md](./docs/GRPC-SDK-ARCHITECTURE.md) | gRPC Sdk / 编译期 proto |
+| [docs/使用说明.md](./docs/使用说明.md) | 框架使用说明（宿主、数据、权限、消息等） |
 | [docs/分库分表使用指南.md](./docs/分库分表使用指南.md) | 分库分表接入（WarehouseCenter 举例） |
 
 ## 类库
@@ -162,7 +162,7 @@ public class YourHostModule : AbpModule
 
 声明式 AOP（需 `virtual` + Autofac）：`[Cacheable]`、`[DistributedLock]`、`[RateLimit]`、`[OperationLog]`。
 
-EF 提供程序：依赖 **PostgreSql** 或 **SqlServer** 模块。分库分表见 [docs/分库分表使用指南.md](./docs/分库分表使用指南.md)。样例 API：`samples/BeniceSoft.Abp.Sample.Host`。
+EF 提供程序：依赖 **PostgreSql** 或 **SqlServer** 模块。用法见 [docs/使用说明.md](./docs/使用说明.md)。分库分表见 [docs/分库分表使用指南.md](./docs/分库分表使用指南.md)。样例 API：`samples/BeniceSoft.Abp.Sample.Host`。
 
 ```bash
 dotnet build BeniceSoft.Abp.sln

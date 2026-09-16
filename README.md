@@ -29,6 +29,7 @@ docs/      # architecture & how-tos
 
 | Doc | Topic |
 |-----|--------|
+| [docs/使用说明.md](./docs/使用说明.md) | Framework usage index |
 | [docs/分库分表使用指南.md](./docs/分库分表使用指南.md) | Sharding integration (WarehouseCenter example) |
 
 ## Packages
@@ -161,7 +162,7 @@ public class YourHostModule : AbpModule
 
 Declarative AOP (needs `virtual` + Autofac): `[Cacheable]`, `[DistributedLock]`, `[RateLimit]`, `[OperationLog]`.
 
-EF provider: depend on **PostgreSql** or **SqlServer** module. Sharding: see [docs/分库分表使用指南.md](./docs/分库分表使用指南.md). Sample APIs under `samples/BeniceSoft.Abp.Sample.Host`.
+EF provider: depend on **PostgreSql** or **SqlServer** module. Usage: [docs/使用说明.md](./docs/使用说明.md). Sharding: [docs/分库分表使用指南.md](./docs/分库分表使用指南.md). Sample APIs under `samples/BeniceSoft.Abp.Sample.Host`.
 
 ```bash
 dotnet build BeniceSoft.Abp.sln
