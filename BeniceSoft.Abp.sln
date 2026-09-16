@@ -95,7 +95,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE = LICENSE
 		NuGet.Config = NuGet.Config
 		README.md = README.md
-		docs\分库分表使用指南.md = docs\分库分表使用指南.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeniceSoft.Abp.Extensions.Redis", "src\BeniceSoft.Abp.Extensions.Redis\BeniceSoft.Abp.Extensions.Redis.csproj", "{5D96DA2E-C5FD-52A9-A75D-154108E2566F}"
@@ -161,6 +160,22 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeniceSoft.Abp.Extensions.ObjectStorage", "src\BeniceSoft.Abp.Extensions.ObjectStorage\BeniceSoft.Abp.Extensions.ObjectStorage.csproj", "{61BF495D-0141-4A83-AF57-4930315CF1E7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions", "src\BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions\BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions.csproj", "{7076A10C-C5F7-4DEF-A7AF-5A6414BAE642}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{FC2A5B8A-7060-41B4-885F-D76E0BB6E7B8}"
+	ProjectSection(SolutionItems) = preProject
+		docs\HTTP与发现.md = docs\HTTP与发现.md
+		docs\使用说明.md = docs\使用说明.md
+		docs\分库分表使用指南.md = docs\分库分表使用指南.md
+		docs\动态查询.md = docs\动态查询.md
+		docs\变更审计.md = docs\变更审计.md
+		docs\声明式能力.md = docs\声明式能力.md
+		docs\宿主接入.md = docs\宿主接入.md
+		docs\数据访问.md = docs\数据访问.md
+		docs\文件与对象存储.md = docs\文件与对象存储.md
+		docs\消息与事务.md = docs\消息与事务.md
+		docs\认证与数据权限.md = docs\认证与数据权限.md
+		docs\领域与应用服务.md = docs\领域与应用服务.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
