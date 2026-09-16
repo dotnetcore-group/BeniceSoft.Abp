@@ -29,7 +29,8 @@ docs/      # architecture & how-tos
 
 | Doc | Topic |
 |-----|--------|
-| [docs/使用说明.md](./docs/使用说明.md) | Framework usage index |
+| [docs/使用说明.md](./docs/使用说明.md) | Usage index |
+| [docs/Core.md](./docs/Core.md) | `BeniceSoft.Core` |
 | [docs/分库分表使用指南.md](./docs/分库分表使用指南.md) | Sharding integration (WarehouseCenter example) |
 
 ## Packages

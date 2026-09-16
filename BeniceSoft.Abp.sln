@@ -163,6 +163,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeniceSoft.Abp.Extensions.O
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{FC2A5B8A-7060-41B4-885F-D76E0BB6E7B8}"
 	ProjectSection(SolutionItems) = preProject
+		docs\Core.md = docs\Core.md
 		docs\HTTP与发现.md = docs\HTTP与发现.md
 		docs\使用说明.md = docs\使用说明.md
 		docs\分库分表使用指南.md = docs\分库分表使用指南.md

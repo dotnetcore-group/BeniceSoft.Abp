@@ -29,7 +29,8 @@ docs/      # 架构与接入文档
 
 | 文档 | 说明 |
 |------|------|
-| [docs/使用说明.md](./docs/使用说明.md) | 框架使用说明（宿主、数据、权限、消息等） |
+| [docs/使用说明.md](./docs/使用说明.md) | 框架使用说明 |
+| [docs/Core.md](./docs/Core.md) | `BeniceSoft.Core` |
 | [docs/分库分表使用指南.md](./docs/分库分表使用指南.md) | 分库分表接入（WarehouseCenter 举例） |
 
 ## 类库
