@@ -1,4 +1,4 @@
-﻿# BeniceSoft.Abp
+# BeniceSoft.Abp
 
 Enterprise .NET framework on [ABP](https://abp.io/). Shared infrastructure for DDD, EF Core (Bulk / QueryFuture / Sharding), auth & data permission, caching, distributed lock, rate limiting, dynamic query, operation logging, audit trail, DTM event bus, RabbitMQ, Redis, Swagger, service discovery, Excel/PDF.
 
@@ -29,7 +29,6 @@ docs/      # architecture & how-tos
 
 | Doc | Topic |
 |-----|--------|
-| [docs/GRPC-SDK-ARCHITECTURE.md](./docs/GRPC-SDK-ARCHITECTURE.md) | gRPC Sdk / compile-time proto |
 | [docs/分库分表使用指南.md](./docs/分库分表使用指南.md) | Sharding integration (WarehouseCenter example) |
 
 ## Packages
