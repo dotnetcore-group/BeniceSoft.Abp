@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Http.Client.Proxying;
+using Volo.Abp.MultiTenancy;
 
 namespace BeniceSoft.Abp.Http.Client;
 
@@ -11,11 +12,16 @@ public class BeniceSoftProxyHttpClientFactory : IProxyHttpClientFactory, ITransi
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ICurrentTenant _currentTenant;
 
-    public BeniceSoftProxyHttpClientFactory(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+    public BeniceSoftProxyHttpClientFactory(
+        IHttpClientFactory httpClientFactory,
+        IHttpContextAccessor httpContextAccessor,
+        ICurrentTenant currentTenant)
     {
         _httpClientFactory = httpClientFactory;
         _httpContextAccessor = httpContextAccessor;
+        _currentTenant = currentTenant;
     }
 
     public HttpClient Create()
@@ -27,10 +33,10 @@ public class BeniceSoftProxyHttpClientFactory : IProxyHttpClientFactory, ITransi
     {
         var httpClient = _httpClientFactory.CreateClient();
 
-        // 不做全局的响应格式化
+        // 涓嶅仛鍏ㄥ眬鐨勫搷搴旀牸寮忓寲
         httpClient.DefaultRequestHeaders.Add(BeniceSoftHttpConstant.IgnoreJsonFormat, bool.TrueString);
 
-        // 标识请求来自远程服务调用
+        // 鏍囪瘑璇锋眰鏉ヨ嚜杩滅▼鏈嶅姟璋冪敤
         httpClient.DefaultRequestHeaders.Add(BeniceSoftHttpConstant.RequestedFrom, BeniceSoftHttpConstant.RequestedFromRemoteServiceCall);
 
         // Authorization
@@ -38,6 +44,21 @@ public class BeniceSoftProxyHttpClientFactory : IProxyHttpClientFactory, ITransi
             _httpContextAccessor.HttpContext?.Request.Headers.TryGetValue(BeniceSoftHttpConstant.Authorization, out var accessToken) == true)
         {
             httpClient.DefaultRequestHeaders.Add(BeniceSoftHttpConstant.Authorization, (string?)accessToken ?? string.Empty);
+        }
+
+        // Tenant
+        var tenantKey = TenantResolverConsts.DefaultTenantKey;
+        if (!httpClient.DefaultRequestHeaders.Contains(tenantKey))
+        {
+            if (_httpContextAccessor.HttpContext?.Request.Headers.TryGetValue(tenantKey, out var tenantFromRequest) == true &&
+                !string.IsNullOrWhiteSpace(tenantFromRequest))
+            {
+                httpClient.DefaultRequestHeaders.Add(tenantKey, (string?)tenantFromRequest);
+            }
+            else if (_currentTenant.Id.HasValue)
+            {
+                httpClient.DefaultRequestHeaders.Add(tenantKey, _currentTenant.Id.Value.ToString("D"));
+            }
         }
 
         return httpClient;
