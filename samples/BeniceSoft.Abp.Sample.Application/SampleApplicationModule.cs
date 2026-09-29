@@ -1,4 +1,5 @@
 ﻿using BeniceSoft.Abp.Ddd.Application;
+using BeniceSoft.Abp.Http.Client;
 using BeniceSoft.Abp.OperationLogging;
 using BeniceSoft.Abp.OperationLogging.Abstractions;
 using BeniceSoft.Abp.Sample.Application.Contracts;
@@ -10,6 +11,7 @@ namespace BeniceSoft.Abp.Sample.Application;
 
 [DependsOn(
     typeof(BeniceSoftAbpDddApplicationModule),
+    typeof(BeniceSoftAbpHttpClientModule),
     typeof(BeniceSoftAbpOperationLoggingModule),
     typeof(SampleApplicationContractsModule)
 )]

@@ -19,6 +19,7 @@
     <ProjectReference Include="..\..\src\BeniceSoft.Abp.EntityFrameworkCore.PostgreSql\BeniceSoft.Abp.EntityFrameworkCore.PostgreSql.csproj" />
     <ProjectReference Include="..\..\src\BeniceSoft.Abp.Extensions.Caching.Abstractions\BeniceSoft.Abp.Extensions.Caching.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\BeniceSoft.Abp.Extensions.RateLimiting.Abstractions\BeniceSoft.Abp.Extensions.RateLimiting.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Http.Client\BeniceSoft.Abp.Http.Client.csproj" />
     <ProjectReference Include="..\..\src\BeniceSoft.Abp.OperationLogging\BeniceSoft.Abp.OperationLogging.csproj" />
     <ProjectReference Include="..\..\src\BeniceSoft.Abp.EventBus.Dtm.Http\BeniceSoft.Abp.EventBus.Dtm.Http.csproj" />
     <ProjectReference Include="..\..\src\BeniceSoft.Core\BeniceSoft.Core.csproj" />
