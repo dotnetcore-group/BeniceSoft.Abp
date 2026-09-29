@@ -18,12 +18,15 @@ using BeniceSoft.Abp.Sample.Host.RabbitMqDemo;
 using BeniceSoft.Abp.Sample.RemoteService.Implements;
 using BeniceSoft.Abp.ServiceDiscovery;
 using BeniceSoft.Abp.Swagger;
+using Hangfire;
+using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.IdentityModel.Logging;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Mvc.AntiForgery;
+using Volo.Abp.BackgroundJobs.Hangfire;
 using Volo.Abp.Modularity;
 using Volo.Abp.MultiTenancy;
 using Volo.Abp.Timing;
@@ -43,7 +46,8 @@ namespace BeniceSoft.Abp.Sample.Host;
     typeof(BeniceSoftAbpRabbitMqModule),
     typeof(RemoteServiceModule),
     typeof(SampleApplicationModule),
-    typeof(SampleEntityFrameworkCoreModule)
+    typeof(SampleEntityFrameworkCoreModule),
+    typeof(AbpBackgroundJobsHangfireModule)
 )]
 public class SampleHostModule : AbpModule
 {
@@ -120,6 +124,20 @@ public class SampleHostModule : AbpModule
         {
             configuration.GetSection("ServiceDiscovery").Bind(options);
         });
+
+        ConfigureHangfire(context, configuration);
+    }
+
+    private static void ConfigureHangfire(ServiceConfigurationContext context, IConfiguration configuration)
+    {
+        var redisOptions = new RedisStorageOptions();
+        configuration.GetSection("Hangfire:Redis").Bind(redisOptions);
+        var connectionString = configuration.GetValue<string>("Hangfire:Redis:ConnectionString");
+        context.Services.AddHangfire(config =>
+        {
+            config.UseRedisStorage(connectionString, redisOptions);
+            config.UseFilter(new AutomaticRetryAttribute { Attempts = 3 });
+        });
     }
 
     public override void OnApplicationInitialization(ApplicationInitializationContext context)
@@ -159,11 +177,13 @@ public class SampleHostModule : AbpModule
         // 认证授权
         app.UseBeniceSoftAuthorization();
 
-        // 用户权限
-        //app.UseBeniceSoftUserPermission();
+        // 用户权限（探测 UserPermission 未初始化时必须打开）
+        app.UseBeniceSoftUserPermission();
 
         // 使用 BeniceSoft Swagger
         app.UseBeniceSoftSwagger();
+
+        app.UseHangfireDashboard();
 
         app.UseConfiguredEndpoints(endpoints =>
         {

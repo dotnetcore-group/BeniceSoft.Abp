@@ -19,6 +19,11 @@ public interface IRemoteTenantProbeAppService
     /// 完整回路：Change → Factory.Create → 带出站头请求本机 EchoTenant，对比两端租户。
     /// </summary>
     Task<RemoteTenantRoundTripDto> RoundTripUnderTenantChangeAsync(Guid? tenantId, string? echoBaseUrl = null);
+
+    /// <summary>
+    /// 带机器 Token + __tenant 调 FileCenter CreateExport，触发集成事件（由 Sample Job 回调 Report）。
+    /// </summary>
+    Task<TriggerFileCenterExportDto> TriggerFileCenterExportAsync(Guid tenantId);
 }
 
 public class RemoteTenantEchoDto
@@ -62,4 +67,15 @@ public class RemoteTenantRoundTripDto
     public int? EchoHttpStatus { get; set; }
 
     public string? Error { get; set; }
+}
+
+public class TriggerFileCenterExportDto
+{
+    public int HttpStatus { get; set; }
+
+    public string? ResponseBody { get; set; }
+
+    public string? Error { get; set; }
+
+    public string? TokenHint { get; set; }
 }

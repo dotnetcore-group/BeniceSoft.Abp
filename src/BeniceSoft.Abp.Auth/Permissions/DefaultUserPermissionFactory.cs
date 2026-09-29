@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Core;
+using BeniceSoft.Abp.Auth.Core;
 using BeniceSoft.Abp.Auth.Core.Models;
 using BeniceSoft.Core;
 using Microsoft.AspNetCore.Http;
@@ -10,22 +10,19 @@ using static BeniceSoft.Abp.Auth.Core.BeniceSoftAuthConstants;
 namespace BeniceSoft.Abp.Auth.Permissions;
 
 /// <summary>
-/// 用户权限工厂：按 Row / Field / Function 三个维度分片缓存，请求时组装为 UserPermission。
+/// 用户权限工厂：按 Row / Field / Function 三个维度分片缓存，请求时组装为 UserPermission
 /// </summary>
 public class DefaultUserPermissionFactory : IUserPermissionFactory
 {
-    private readonly ICurrentUserPermissionAccessor _userPermissionAccessor;
     private readonly IPermissionCenterClient _permissionCenterClient;
     private readonly ILogger<DefaultUserPermissionFactory> _logger;
     private readonly IDistributedCache _distributedCache;
 
     public DefaultUserPermissionFactory(
-        ICurrentUserPermissionAccessor userPermissionAccessor,
         IPermissionCenterClient permissionCenterClient,
         ILogger<DefaultUserPermissionFactory> logger,
         IDistributedCache distributedCache)
     {
-        _userPermissionAccessor = userPermissionAccessor;
         _permissionCenterClient = permissionCenterClient;
         _logger = logger;
         _distributedCache = distributedCache;
@@ -48,8 +45,7 @@ public class DefaultUserPermissionFactory : IUserPermissionFactory
             FunctionPermissions = functionPermissions,
         };
 
-        _userPermissionAccessor.UserPermission = userPermission;
-        _logger.LogInformation("Initialized user {0} permissions.", userPermission.UserId);
+        _logger.LogInformation("Created user {0} permissions (caller must assign to accessor).", userPermission.UserId);
 
         return userPermission;
     }
@@ -68,8 +64,7 @@ public class DefaultUserPermissionFactory : IUserPermissionFactory
             FunctionPermissions = functionPermissions,
         };
 
-        _userPermissionAccessor.UserPermission = userPermission;
-        _logger.LogInformation("Initialized user {0} permissions.", userPermission.UserId);
+        _logger.LogInformation("Created user {0} permissions for background (caller must assign to accessor).", userPermission.UserId);
 
         return userPermission;
     }

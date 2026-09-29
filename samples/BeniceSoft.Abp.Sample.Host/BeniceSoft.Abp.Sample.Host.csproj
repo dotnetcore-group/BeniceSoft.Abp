@@ -10,6 +10,8 @@
     <PackageReference Include="NetEscapades.Configuration.Yaml" />
 
     <PackageReference Include="Volo.Abp.EventBus.RabbitMQ" />
+    <PackageReference Include="Hangfire.Redis.StackExchange" />
+    <PackageReference Include="Volo.Abp.BackgroundJobs.HangFire" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Core;
+using BeniceSoft.Abp.Auth.Core;
 using BeniceSoft.Abp.Core.Users;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -38,6 +38,7 @@ public class PermissionMiddleware : IMiddleware, ITransientDependency
 
                 var userPermission = await _userPermissionFactory.CreateAsync(userId, context);
 
+                _currentUserPermissionAccessor.UserPermission = userPermission;
                 context.Features.Set(userPermission);
             }
 

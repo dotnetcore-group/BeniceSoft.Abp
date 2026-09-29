@@ -1,6 +1,9 @@
+using System.Net.Http.Headers;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using BeniceSoft.Abp.Core.Users;
+using BeniceSoft.Abp.Http.Client;
 using BeniceSoft.Abp.Sample.Application.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -28,6 +31,7 @@ public class RemoteTenantProbeAppService : SampleAppServiceBase, IRemoteTenantPr
     private readonly IProxyHttpClientFactory _proxyHttpClientFactory;
     private readonly IConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IMachineAccessTokenProvider _machineAccessTokenProvider;
 
     public RemoteTenantProbeAppService(
         ICurrentTenant currentTenant,
@@ -35,7 +39,8 @@ public class RemoteTenantProbeAppService : SampleAppServiceBase, IRemoteTenantPr
         IHttpContextAccessor httpContextAccessor,
         IProxyHttpClientFactory proxyHttpClientFactory,
         IConfiguration configuration,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        IMachineAccessTokenProvider machineAccessTokenProvider)
     {
         _currentTenant = currentTenant;
         _currentUser = currentUser;
@@ -43,6 +48,7 @@ public class RemoteTenantProbeAppService : SampleAppServiceBase, IRemoteTenantPr
         _proxyHttpClientFactory = proxyHttpClientFactory;
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
+        _machineAccessTokenProvider = machineAccessTokenProvider;
     }
 
     public Task<RemoteTenantEchoDto> EchoTenantAsync()
@@ -167,5 +173,43 @@ public class RemoteTenantProbeAppService : SampleAppServiceBase, IRemoteTenantPr
         {
             return null;
         }
+    }
+
+    public async Task<TriggerFileCenterExportDto> TriggerFileCenterExportAsync(Guid tenantId)
+    {
+        var token = await _machineAccessTokenProvider.GetAccessTokenAsync();
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return new TriggerFileCenterExportDto
+            {
+                Error = "机器 Token 为空，检查 Sample Auth:ClientId/ClientSecret",
+                TokenHint = "null"
+            };
+        }
+
+        var baseUrl = (_configuration["RemoteServices:Wecharmer.FileCenter:BaseUrl"] ?? "http://localhost:6008/")
+            .TrimEnd('/');
+        var url = $"{baseUrl}/api/file/import-export/export";
+        var payload = JsonSerializer.Serialize(new
+        {
+            bizType = "sample-probe",
+            title = "sample-export-probe",
+            paramsJson = (string?)null
+        });
+
+        using var client = _httpClientFactory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Post, url);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        request.Headers.TryAddWithoutValidation(TenantResolverConsts.DefaultTenantKey, tenantId.ToString("D"));
+        request.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+
+        using var response = await client.SendAsync(request);
+        var body = await response.Content.ReadAsStringAsync();
+        return new TriggerFileCenterExportDto
+        {
+            HttpStatus = (int)response.StatusCode,
+            ResponseBody = body,
+            TokenHint = token.Length > 12 ? token[..12] + "..." : token
+        };
     }
 }

@@ -21,8 +21,13 @@ public class BeniceSoftCurrentUserTenantResolveContributor : TenantResolveContri
             return Task.CompletedTask;
         }
 
+        if (!currentUser.TenantId.HasValue)
+        {
+            return Task.CompletedTask;
+        }
+
         context.Handled = true;
-        context.TenantIdOrName = currentUser.TenantId?.ToString();
+        context.TenantIdOrName = currentUser.TenantId.Value.ToString("D");
         return Task.CompletedTask;
     }
 }

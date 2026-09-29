@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Wecharmer.PermissionCenter.Sdk" />
+    <PackageReference Include="Wecharmer.FileCenter.Sdk" />
   </ItemGroup>
 
   <ItemGroup>
