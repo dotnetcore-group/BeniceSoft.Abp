@@ -38,7 +38,7 @@ fi
 
 echo -e "\n============ Build Solution (Release) ============\n"
 echo "nupkg will be generated to ${package_dir} via GeneratePackageOnBuild"
-dotnet build ../BeniceSoft.Abp.sln -c Release
+dotnet build ../BeniceSoft.Abp.slnx -c Release
 
 echo -e "\n============ Push Packages to GitHub Packages ============\n"
 shopt -s nullglob

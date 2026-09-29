@@ -166,7 +166,7 @@ Declarative AOP (needs `virtual` + Autofac): `[Cacheable]`, `[DistributedLock]`,
 EF provider: depend on **PostgreSql** or **SqlServer** module. Usage: [docs/使用说明.md](./docs/使用说明.md). Sharding: [docs/分库分表使用指南.md](./docs/分库分表使用指南.md). Sample APIs under `samples/BeniceSoft.Abp.Sample.Host`.
 
 ```bash
-dotnet build BeniceSoft.Abp.sln
+dotnet build BeniceSoft.Abp.slnx
 cd samples/BeniceSoft.Abp.Sample.Host && dotnet run
 ```
 

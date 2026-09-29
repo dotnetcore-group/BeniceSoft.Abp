@@ -166,7 +166,7 @@ public class YourHostModule : AbpModule
 EF 提供程序：依赖 **PostgreSql** 或 **SqlServer** 模块。用法见 [docs/使用说明.md](./docs/使用说明.md)。分库分表见 [docs/分库分表使用指南.md](./docs/分库分表使用指南.md)。样例 API：`samples/BeniceSoft.Abp.Sample.Host`。
 
 ```bash
-dotnet build BeniceSoft.Abp.sln
+dotnet build BeniceSoft.Abp.slnx
 cd samples/BeniceSoft.Abp.Sample.Host && dotnet run
 ```
 

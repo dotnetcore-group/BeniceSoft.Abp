@@ -39,7 +39,7 @@ if errorlevel 1 (
 echo.
 echo ============ Build Solution (Release) ============
 echo nupkg will be generated to %package_dir% via GeneratePackageOnBuild
-dotnet build ..\BeniceSoft.Abp.sln -c Release
+dotnet build ..\BeniceSoft.Abp.slnx -c Release
 if errorlevel 1 exit /b 1
 
 echo.
