@@ -1,0 +1,114 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/docs/">
+    <File Path="docs/Core.md" />
+    <File Path="docs/HTTP与发现.md" />
+    <File Path="docs/使用说明.md" />
+    <File Path="docs/分库分表使用指南.md" />
+    <File Path="docs/动态查询.md" />
+    <File Path="docs/变更审计.md" />
+    <File Path="docs/声明式能力.md" />
+    <File Path="docs/宿主接入.md" />
+    <File Path="docs/数据访问.md" />
+    <File Path="docs/文件与对象存储.md" />
+    <File Path="docs/消息与事务.md" />
+    <File Path="docs/认证与数据权限.md" />
+    <File Path="docs/领域与应用服务.md" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/BeniceSoft.Abp.Sample.Application.Contracts/BeniceSoft.Abp.Sample.Application.Contracts.csproj" />
+    <Project Path="samples/BeniceSoft.Abp.Sample.Application/BeniceSoft.Abp.Sample.Application.csproj" />
+    <Project Path="samples/BeniceSoft.Abp.Sample.Domain.Shared/BeniceSoft.Abp.Sample.Domain.Shared.csproj" />
+    <Project Path="samples/BeniceSoft.Abp.Sample.Domain/BeniceSoft.Abp.Sample.Domain.csproj" />
+    <Project Path="samples/BeniceSoft.Abp.Sample.EntityFrameworkCore/BeniceSoft.Abp.Sample.EntityFrameworkCore.csproj" />
+    <Project Path="samples/BeniceSoft.Abp.Sample.Host/BeniceSoft.Abp.Sample.Host.csproj" />
+  </Folder>
+  <Folder Name="/samples/remote-service/">
+    <Project Path="samples/BeniceSoft.Abp.Sample.RemoteService.Abstractions/BeniceSoft.Abp.Sample.RemoteService.Abstractions.csproj" />
+    <Project Path="samples/BeniceSoft.Abp.Sample.RemoteService.Implements/BeniceSoft.Abp.Sample.RemoteService.Implements.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="common.props" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="LICENSE" />
+    <File Path="NuGet.Config" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/BeniceSoft.Abp.AspNetCore/BeniceSoft.Abp.AspNetCore.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Core/BeniceSoft.Abp.Core.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Http.Client/BeniceSoft.Abp.Http.Client.csproj" />
+    <Project Path="src/BeniceSoft.Abp.MultiTenancy/BeniceSoft.Abp.MultiTenancy.csproj" />
+    <Project Path="src/BeniceSoft.Abp.ServiceDiscovery/BeniceSoft.Abp.ServiceDiscovery.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Swagger/BeniceSoft.Abp.Swagger.csproj" />
+    <Project Path="src/BeniceSoft.Core/BeniceSoft.Core.csproj" />
+    <Project Path="src/BeniceSoft.Office.Excel/BeniceSoft.Office.Excel.csproj" />
+    <Project Path="src/BeniceSoft.Office.Pdf/BeniceSoft.Office.Pdf.csproj" />
+  </Folder>
+  <Folder Name="/src/Auth/">
+    <Project Path="src/BeniceSoft.Abp.Auth.Core/BeniceSoft.Abp.Auth.Core.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Auth.EntityFrameworkCore/BeniceSoft.Abp.Auth.EntityFrameworkCore.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Auth.Repository/BeniceSoft.Abp.Auth.Repository.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Auth/BeniceSoft.Abp.Auth.csproj" />
+  </Folder>
+  <Folder Name="/src/DDD/">
+    <Project Path="src/BeniceSoft.Abp.Ddd.Application.Contracts/BeniceSoft.Abp.Ddd.Application.Contracts.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Ddd.Application/BeniceSoft.Abp.Ddd.Application.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Ddd.Domain/BeniceSoft.Abp.Ddd.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Eventbus/">
+    <Project Path="src/BeniceSoft.Abp.EventBus.Dtm.EntityFrameworkCore/BeniceSoft.Abp.EventBus.Dtm.EntityFrameworkCore.csproj" />
+    <Project Path="src/BeniceSoft.Abp.EventBus.Dtm.Http/BeniceSoft.Abp.EventBus.Dtm.Http.csproj" />
+    <Project Path="src/BeniceSoft.Abp.EventBus.Dtm/BeniceSoft.Abp.EventBus.Dtm.csproj" />
+  </Folder>
+  <Folder Name="/src/Extensions/">
+    <Project Path="src/BeniceSoft.Abp.Extensions.AuditTrail.Abstractions/BeniceSoft.Abp.Extensions.AuditTrail.Abstractions.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.AuditTrail.EventBus/BeniceSoft.Abp.Extensions.AuditTrail.EventBus.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.Caching.Abstractions/BeniceSoft.Abp.Extensions.Caching.Abstractions.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.Caching.MessagePack/BeniceSoft.Abp.Extensions.Caching.MessagePack.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.Caching.SystemTextJson/BeniceSoft.Abp.Extensions.Caching.SystemTextJson.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.Caching/BeniceSoft.Abp.Extensions.Caching.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.DistributedLock.Abstractions/BeniceSoft.Abp.Extensions.DistributedLock.Abstractions.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.DistributedLock/BeniceSoft.Abp.Extensions.DistributedLock.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.DynamicQuery.EfCore/BeniceSoft.Abp.Extensions.DynamicQuery.EfCore.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.DynamicQuery.Sql/BeniceSoft.Abp.Extensions.DynamicQuery.Sql.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.Emailing/BeniceSoft.Abp.Extensions.Emailing.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions/BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.ObjectStorage/BeniceSoft.Abp.Extensions.ObjectStorage.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.RabbitMQ/BeniceSoft.Abp.Extensions.RabbitMQ.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.RateLimiting.Abstractions/BeniceSoft.Abp.Extensions.RateLimiting.Abstractions.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.RateLimiting/BeniceSoft.Abp.Extensions.RateLimiting.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.Redis/BeniceSoft.Abp.Extensions.Redis.csproj" />
+  </Folder>
+  <Folder Name="/src/Logging/">
+    <Project Path="src/BeniceSoft.Abp.OperationLogging.Abstractions/BeniceSoft.Abp.OperationLogging.Abstractions.csproj" />
+    <Project Path="src/BeniceSoft.Abp.OperationLogging.EventBus/BeniceSoft.Abp.OperationLogging.EventBus.csproj" />
+    <Project Path="src/BeniceSoft.Abp.OperationLogging.Redis/BeniceSoft.Abp.OperationLogging.Redis.csproj" />
+    <Project Path="src/BeniceSoft.Abp.OperationLogging/BeniceSoft.Abp.OperationLogging.csproj" />
+  </Folder>
+  <Folder Name="/src/Persistence/">
+    <Project Path="src/BeniceSoft.Abp.EntityFrameworkCore.PostgreSql/BeniceSoft.Abp.EntityFrameworkCore.PostgreSql.csproj" />
+    <Project Path="src/BeniceSoft.Abp.EntityFrameworkCore.Sharding/BeniceSoft.Abp.EntityFrameworkCore.Sharding.csproj" />
+    <Project Path="src/BeniceSoft.Abp.EntityFrameworkCore.SqlServer/BeniceSoft.Abp.EntityFrameworkCore.SqlServer.csproj" />
+    <Project Path="src/BeniceSoft.Abp.EntityFrameworkCore/BeniceSoft.Abp.EntityFrameworkCore.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BeniceSoft.Abp.Auth.EntityFrameworkCore.Tests/BeniceSoft.Abp.Auth.EntityFrameworkCore.Tests.csproj" />
+    <Project Path="tests/BeniceSoft.Abp.EntityFrameworkCore.Sharding.Tests/BeniceSoft.Abp.EntityFrameworkCore.Sharding.Tests.csproj" />
+    <Project Path="tests/BeniceSoft.Abp.Extensions.AuditTrail.Tests/BeniceSoft.Abp.Extensions.AuditTrail.Tests.csproj" />
+    <Project Path="tests/BeniceSoft.Abp.Extensions.Caching.Tests/BeniceSoft.Abp.Extensions.Caching.Tests.csproj" />
+    <Project Path="tests/BeniceSoft.Abp.Extensions.DistributedLock.Tests/BeniceSoft.Abp.Extensions.DistributedLock.Tests.csproj" />
+    <Project Path="tests/BeniceSoft.Abp.Extensions.DynamicQuery.EfCore.Tests/BeniceSoft.Abp.Extensions.DynamicQuery.EfCore.Tests.csproj" />
+    <Project Path="tests/BeniceSoft.Abp.Extensions.DynamicQuery.Sql.Tests/BeniceSoft.Abp.Extensions.DynamicQuery.Sql.Tests.csproj" />
+    <Project Path="tests/BeniceSoft.Abp.Extensions.RabbitMQ.Tests/BeniceSoft.Abp.Extensions.RabbitMQ.Tests.csproj" />
+    <Project Path="tests/BeniceSoft.Abp.Extensions.RateLimiting.Tests/BeniceSoft.Abp.Extensions.RateLimiting.Tests.csproj" />
+    <Project Path="tests/BeniceSoft.Abp.OperationLogging.Tests/BeniceSoft.Abp.OperationLogging.Tests.csproj" />
+    <Project Path="tests/BeniceSoft.Abp.Sample.Tests/BeniceSoft.Abp.Sample.Tests.csproj" />
+    <Project Path="tests/BeniceSoft.Core.Tests/BeniceSoft.Core.Tests.csproj" />
+  </Folder>
+</Solution>
