@@ -1,4 +1,4 @@
-﻿using Volo.Abp;
+using Volo.Abp;
 
 namespace BeniceSoft.Abp.Ddd.Domain.Entity;
 

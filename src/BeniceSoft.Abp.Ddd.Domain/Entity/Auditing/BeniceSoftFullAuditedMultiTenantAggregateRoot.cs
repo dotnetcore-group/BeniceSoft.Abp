@@ -1,4 +1,4 @@
-﻿using Volo.Abp.MultiTenancy;
+using Volo.Abp.MultiTenancy;
 
 namespace BeniceSoft.Abp.Ddd.Domain.Entity;
 

@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Core;
+using BeniceSoft.Abp.Auth.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

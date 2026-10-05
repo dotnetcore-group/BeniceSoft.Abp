@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Core.Users;
+using BeniceSoft.Abp.Core.Users;
 
 namespace BeniceSoft.Abp.Auth.Core;
 

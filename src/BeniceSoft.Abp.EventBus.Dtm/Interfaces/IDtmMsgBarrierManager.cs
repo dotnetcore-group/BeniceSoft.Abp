@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using Volo.Abp.Uow;
 
 namespace BeniceSoft.Abp.EventBus.Dtm;

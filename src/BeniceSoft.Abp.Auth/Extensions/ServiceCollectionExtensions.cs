@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Authentication;
+using BeniceSoft.Abp.Auth.Authentication;
 using BeniceSoft.Abp.Auth.Authorization;
 using BeniceSoft.Abp.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

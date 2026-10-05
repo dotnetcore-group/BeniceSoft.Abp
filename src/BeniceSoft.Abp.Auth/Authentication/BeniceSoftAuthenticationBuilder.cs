@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Core;
+using BeniceSoft.Abp.Core;
 using Microsoft.AspNetCore.Authentication;
 
 namespace BeniceSoft.Abp.Auth.Authentication;

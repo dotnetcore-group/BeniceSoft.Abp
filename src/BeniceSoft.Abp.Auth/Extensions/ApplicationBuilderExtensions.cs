@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Permissions;
+using BeniceSoft.Abp.Auth.Permissions;
 using Microsoft.AspNetCore.Builder;
 
 namespace BeniceSoft.Abp.Auth.Extensions;

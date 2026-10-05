@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Ddd.Domain;
+namespace BeniceSoft.Abp.Ddd.Domain;
 
 public interface ISqlExecuter<out TContext> where TContext : ISqlExecutionContext
 {

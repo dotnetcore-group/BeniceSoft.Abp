@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.EventBus.Dtm;
+namespace BeniceSoft.Abp.EventBus.Dtm;
 
 /// <summary>
 /// DTM 请求头名称常量类

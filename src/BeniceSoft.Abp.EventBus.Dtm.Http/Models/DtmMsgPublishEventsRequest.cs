@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.EventBus.Dtm.Http;
+namespace BeniceSoft.Abp.EventBus.Dtm.Http;
 
 internal class DtmMsgPublishEventsRequest
 {

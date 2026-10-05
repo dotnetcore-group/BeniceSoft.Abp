@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using BeniceSoft.Core;
 using BeniceSoft.Extensions.DynamicQuery;
 

@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.EventBus.Dtm;
+namespace BeniceSoft.Abp.EventBus.Dtm;
 
 /// <summary>
 /// DTM 请求头构建接口，用于自定义 DTM 请求头的构建

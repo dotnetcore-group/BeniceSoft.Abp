@@ -1,4 +1,4 @@
-﻿using Volo.Abp.EntityFrameworkCore;
+using Volo.Abp.EntityFrameworkCore;
 
 namespace BeniceSoft.Abp.EventBus.Dtm.EntityFrameworkCore;
 

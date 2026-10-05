@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using BeniceSoft.Core;
 
 namespace BeniceSoft.Abp.Auth.Core;

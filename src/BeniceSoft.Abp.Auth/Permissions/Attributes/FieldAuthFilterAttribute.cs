@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using BeniceSoft.Abp.Auth.Core;
 using BeniceSoft.Abp.Auth.Core.Models;
 using BeniceSoft.Core;

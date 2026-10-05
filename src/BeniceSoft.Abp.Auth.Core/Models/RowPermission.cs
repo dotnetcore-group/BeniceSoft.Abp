@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Auth.Core.Models;
+namespace BeniceSoft.Abp.Auth.Core.Models;
 
 public class RowPermission
 {

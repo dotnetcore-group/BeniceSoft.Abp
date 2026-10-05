@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Core;
+using BeniceSoft.Abp.Auth.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 

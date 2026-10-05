@@ -1,4 +1,4 @@
-﻿using DtmCommon;
+using DtmCommon;
 
 namespace BeniceSoft.Abp.EventBus.Dtm.EntityFrameworkCore;
 

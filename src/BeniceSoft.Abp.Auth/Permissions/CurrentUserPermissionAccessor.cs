@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Core;
+using BeniceSoft.Abp.Auth.Core;
 using Microsoft.Extensions.Logging;
 
 namespace BeniceSoft.Abp.Auth.Permissions;

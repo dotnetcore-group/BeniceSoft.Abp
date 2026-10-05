@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.EventBus.Dtm;
+namespace BeniceSoft.Abp.EventBus.Dtm;
 
 public static class InboxBarrierProperties
 {

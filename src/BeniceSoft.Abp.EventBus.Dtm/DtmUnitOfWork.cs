@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using Volo.Abp.Uow;
 
 namespace BeniceSoft.Abp.EventBus.Dtm;

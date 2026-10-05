@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Core;
+using BeniceSoft.Abp.Auth.Core;
 using BeniceSoft.Abp.Auth.Repository;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.Domain.Entities;

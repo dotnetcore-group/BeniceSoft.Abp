@@ -1,4 +1,4 @@
-﻿using Volo.Abp.DependencyInjection;
+using Volo.Abp.DependencyInjection;
 using Volo.Abp.Guids;
 
 namespace BeniceSoft.Abp.EventBus.Dtm;

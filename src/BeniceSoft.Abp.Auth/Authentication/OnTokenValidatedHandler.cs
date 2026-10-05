@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Core;
+using BeniceSoft.Abp.Auth.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using OpenIddict.Abstractions;
 using Volo.Abp.DependencyInjection;

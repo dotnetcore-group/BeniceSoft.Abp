@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using DtmCommon;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;

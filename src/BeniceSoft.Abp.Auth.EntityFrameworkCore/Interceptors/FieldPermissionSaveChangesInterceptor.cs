@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using BeniceSoft.Abp.Auth.Core;
 using BeniceSoft.Abp.Auth.Core.Models;

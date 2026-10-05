@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using JetBrains.Annotations;
 using Volo.Abp.DependencyInjection;

@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Dtmcli;
 using DtmCommon;
 using Microsoft.Extensions.Options;

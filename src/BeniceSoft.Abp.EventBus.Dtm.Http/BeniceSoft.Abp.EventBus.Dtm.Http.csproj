@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<Import Project="..\..\common.props" />
 	<ItemGroup>
+	  <Content Remove="C:\Users\33276\.nuget\packages\volo.abp.aspnetcore\10.6.0\contentFiles\any\net10.0\Volo.Abp.AspNetCore.abppkg.analyze.json" />
 	  <Content Remove="C:\Users\Administrator\.nuget\packages\volo.abp.aspnetcore\10.6.0\contentFiles\any\net10.0\Volo.Abp.AspNetCore.abppkg.analyze.json" />
 	</ItemGroup>
 

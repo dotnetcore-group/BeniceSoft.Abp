@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Core.Users;
+using BeniceSoft.Abp.Core.Users;
 using BeniceSoft.Abp.Ddd.Domain;
 using Volo.Abp.Application.Services;
 

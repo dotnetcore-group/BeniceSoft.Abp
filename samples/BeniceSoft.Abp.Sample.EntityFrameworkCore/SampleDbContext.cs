@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.EntityFrameworkCore;
+using BeniceSoft.Abp.EntityFrameworkCore;
 using BeniceSoft.Abp.EntityFrameworkCore.Sharding;
 using BeniceSoft.Abp.Sample.Domain;
 using BeniceSoft.Core.Strategy;

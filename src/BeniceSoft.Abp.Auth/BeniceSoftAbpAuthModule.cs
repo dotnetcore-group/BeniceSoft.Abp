@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Permissions;
+using BeniceSoft.Abp.Auth.Permissions;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Authorization;
 using Volo.Abp.Caching.StackExchangeRedis;

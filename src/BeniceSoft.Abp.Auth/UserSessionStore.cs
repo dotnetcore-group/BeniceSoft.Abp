@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Core;
+using BeniceSoft.Abp.Auth.Core;
 using Microsoft.Extensions.Caching.Distributed;
 using static BeniceSoft.Abp.Auth.Core.BeniceSoftAuthConstants;
 

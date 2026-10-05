@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.EntityFrameworkCore.Interceptors;
+using BeniceSoft.Abp.Auth.EntityFrameworkCore.Interceptors;
 using BeniceSoft.Abp.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
 using Volo.Abp.Modularity;

@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Ddd.Domain.Entity;
+namespace BeniceSoft.Abp.Ddd.Domain.Entity;
 
 [Serializable]
 public abstract class BeniceSoftAuditedEntity : Volo.Abp.Domain.Entities.Entity, IBeniceSoftAudited

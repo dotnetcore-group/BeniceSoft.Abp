@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Ddd.Domain.Entity;
+namespace BeniceSoft.Abp.Ddd.Domain.Entity;
 
 /// <summary>
 /// 拥有者接口

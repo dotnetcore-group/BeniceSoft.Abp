@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Auth.Core;
+using BeniceSoft.Abp.Auth.Core;
 using BeniceSoft.Abp.Core.Users;
 using OpenIddict.Abstractions;
 using System.Security.Claims;

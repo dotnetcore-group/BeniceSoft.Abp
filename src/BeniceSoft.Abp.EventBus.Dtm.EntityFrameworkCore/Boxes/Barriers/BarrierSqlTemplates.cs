@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.EventBus.Dtm.EntityFrameworkCore;
+namespace BeniceSoft.Abp.EventBus.Dtm.EntityFrameworkCore;
 
 public static class BarrierSqlTemplates
 {

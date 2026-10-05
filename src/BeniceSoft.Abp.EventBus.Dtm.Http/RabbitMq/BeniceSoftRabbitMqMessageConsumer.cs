@@ -1,4 +1,4 @@
-﻿using RabbitMQ.Client;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.ExceptionHandling;

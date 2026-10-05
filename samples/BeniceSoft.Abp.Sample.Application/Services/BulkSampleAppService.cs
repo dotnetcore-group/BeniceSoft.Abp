@@ -158,7 +158,6 @@ public class BulkSampleAppService : SampleAppServiceBase, IBulkSampleAppService
         var item = await db.BulkDemoItems.FirstOrDefaultAsync(x => x.BatchTag == batchTag)
                    ?? throw new InvalidOperationException($"No BulkDemoItem found for batchTag={batchTag}. Call BulkInsert first.");
 
-        // 模拟外部已更�?Version，制造并发冲�?
         await db.Database.ExecuteSqlInterpolatedAsync(
             $"UPDATE bulk_demo_items SET \"Version\" = \"Version\" + 1 WHERE \"Id\" = {item.Id}");
 

@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Auth.Core;
+namespace BeniceSoft.Abp.Auth.Core;
 
 public static class BeniceSoftAuthConstants
 {

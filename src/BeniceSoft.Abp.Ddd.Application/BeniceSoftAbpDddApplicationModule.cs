@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Ddd.Application.Contracts;
+using BeniceSoft.Abp.Ddd.Application.Contracts;
 using BeniceSoft.Abp.Ddd.Domain;
 using Volo.Abp.Application;
 using Volo.Abp.Modularity;

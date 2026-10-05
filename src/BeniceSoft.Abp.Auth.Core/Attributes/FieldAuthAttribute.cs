@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Auth.Core;
+namespace BeniceSoft.Abp.Auth.Core;
 
 /// <summary>
 /// 字段权限过滤标签
