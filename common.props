@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<LangVersion>latest</LangVersion>
 		<Version>10.0.24-dev</Version>
-		<NoWarn>$(NoWarn);CS1591;CS0436;IDE0028;IDE0130;IDE0290;IDE0305</NoWarn>
+		<NoWarn>$(NoWarn);CS1591;CS0436;IDE0028;IDE0130;IDE0290;IDE0300;IDE0305</NoWarn>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<OutputPath>..\bin</OutputPath>

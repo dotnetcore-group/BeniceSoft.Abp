@@ -19,14 +19,64 @@ public class DynamicQueryEfCoreTests
 
     private static List<TestEntity> CreateTestData()
     {
-        return new List<TestEntity>
-        {
-            new() { Id = 1, Name = "Alice", Age = 25, TotalCount = 1000000000L, Price = 100.5, IsActive = true, CreatedAt = new DateTime(2024, 1, 1), UniqueId = Guid.Parse("11111111-1111-1111-1111-111111111111"), Tags = new List<string> { "tag1", "tag2" } },
-            new() { Id = 2, Name = "Bob", Age = 30, TotalCount = 2000000000L, Price = 200.0, IsActive = false, CreatedAt = new DateTime(2024, 2, 1), UniqueId = Guid.Parse("22222222-2222-2222-2222-222222222222"), Tags = new List<string> { "tag2", "tag3" } },
-            new() { Id = 3, Name = "Charlie", Age = 35, TotalCount = 3000000000L, Price = 150.75, IsActive = true, CreatedAt = new DateTime(2024, 3, 1), UniqueId = Guid.Parse("33333333-3333-3333-3333-333333333333"), Tags = new List<string> { "tag1" } },
-            new() { Id = 4, Name = "David", Age = 28, TotalCount = 4000000000L, Price = 300.0, IsActive = true, CreatedAt = new DateTime(2024, 4, 1), UniqueId = Guid.Parse("44444444-4444-4444-4444-444444444444"), Tags = new List<string> { "tag3", "tag4" } },
-            new() { Id = 5, Name = "Eve", Age = 22, TotalCount = 5000000000L, Price = 50.25, IsActive = false, CreatedAt = new DateTime(2024, 5, 1), UniqueId = Guid.Parse("55555555-5555-5555-5555-555555555555"), Tags = new List<string>() }
-        };
+        return
+        [
+            new()
+            {
+                Id = 1, Name = "Alice", Age = 25, TotalCount = 1000000000L, Price = 100.5, IsActive = true,
+                CreatedAt = new DateTime(2024, 1, 1),
+                OccurredAt = new DateTimeOffset(2024, 1, 1, 10, 0, 0, TimeSpan.Zero),
+                BizDate = new DateOnly(2024, 1, 1),
+                CutOffTime = new TimeOnly(9, 0),
+                UniqueId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Tags = ["tag1", "tag2"],
+                Nested = new TestNestedEntity { Code = "A", Value = 1 }
+            },
+            new()
+            {
+                Id = 2, Name = "Bob", Age = 30, TotalCount = 2000000000L, Price = 200.0, IsActive = false,
+                CreatedAt = new DateTime(2024, 2, 1),
+                OccurredAt = new DateTimeOffset(2024, 2, 1, 10, 0, 0, TimeSpan.Zero),
+                BizDate = new DateOnly(2024, 2, 1),
+                CutOffTime = new TimeOnly(12, 0),
+                UniqueId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                Tags = ["tag2", "tag3"],
+                Nested = new TestNestedEntity { Code = "B", Value = 2 }
+            },
+            new()
+            {
+                Id = 3, Name = "Charlie", Age = 35, TotalCount = 3000000000L, Price = 150.75, IsActive = true,
+                CreatedAt = new DateTime(2024, 3, 1),
+                OccurredAt = new DateTimeOffset(2024, 3, 1, 10, 0, 0, TimeSpan.Zero),
+                BizDate = new DateOnly(2024, 3, 1),
+                CutOffTime = new TimeOnly(15, 30),
+                UniqueId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                Tags = ["tag1"],
+                Nested = new TestNestedEntity { Code = "C", Value = 3 }
+            },
+            new()
+            {
+                Id = 4, Name = "David", Age = 28, TotalCount = 4000000000L, Price = 300.0, IsActive = true,
+                CreatedAt = new DateTime(2024, 4, 1),
+                OccurredAt = new DateTimeOffset(2024, 4, 1, 10, 0, 0, TimeSpan.Zero),
+                BizDate = new DateOnly(2024, 4, 1),
+                CutOffTime = new TimeOnly(18, 0),
+                UniqueId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+                Tags = ["tag3", "tag4"],
+                Nested = new TestNestedEntity { Code = "D", Value = 4 }
+            },
+            new()
+            {
+                Id = 5, Name = "Eve", Age = 22, TotalCount = 5000000000L, Price = 50.25, IsActive = false,
+                CreatedAt = new DateTime(2024, 5, 1),
+                OccurredAt = new DateTimeOffset(2024, 5, 1, 10, 0, 0, TimeSpan.Zero),
+                BizDate = new DateOnly(2024, 5, 1),
+                CutOffTime = new TimeOnly(8, 0),
+                UniqueId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+                Tags = [],
+                Nested = new TestNestedEntity { Code = "E", Value = 5 }
+            }
+        ];
     }
 
     #region Equal Operator Tests
@@ -318,31 +368,208 @@ public class DynamicQueryEfCoreTests
     #region Between Operator Tests
 
     [Fact]
-    public void DynamicQueryBy_Between_Integer_ShouldReturnMatchingRecords()
+    public void DynamicQueryBy_Between_Integer_ShouldBeClosedInterval_IncludingBothEnds()
     {
-        // Arrange
         var request = CreateRequest("Age", BeniceSoftTypeNameConstant.Integer, ExprOperator.Between, "25", "30");
 
-        // Act
         var result = _testData.DynamicQueryBy(request).ToList();
 
-        // Assert
-        result.Count.ShouldBe(3); // Age 25, 28, 30
-        result.All(x => x.Age >= 25 && x.Age <= 30).ShouldBeTrue();
+        // 闭区间：上下界 25、30 必须都在结果中
+        result.Select(x => x.Name).ShouldBe(["Alice", "Bob", "David"], ignoreOrder: true);
+        result.Select(x => x.Age).ShouldContain(25);
+        result.Select(x => x.Age).ShouldContain(30);
     }
 
     [Fact]
-    public void DynamicQueryBy_Between_DateTime_ShouldReturnMatchingRecords()
+    public void DynamicQueryBy_Between_DateTime_ShouldBeHalfOpen_ExcludingExclusiveEnd()
     {
-        // Arrange
+        // David.CreatedAt == 2024-04-01，恰好等于互斥上界；若误用 <= 会多出 David
         var request = CreateRequest("CreatedAt", BeniceSoftTypeNameConstant.DateTime, ExprOperator.Between, "2024-02-01", "2024-04-01");
 
-        // Act
         var result = _testData.DynamicQueryBy(request).ToList();
 
-        // Assert
-        result.Count.ShouldBe(3); // Feb, Mar, Apr
-        result.All(x => x.CreatedAt >= new DateTime(2024, 2, 1) && x.CreatedAt <= new DateTime(2024, 4, 1)).ShouldBeTrue();
+        result.Select(x => x.Name).ShouldBe(["Bob", "Charlie"], ignoreOrder: true);
+        result.Any(x => x.Name == "David").ShouldBeFalse();
+    }
+
+    [Fact]
+    public void DynamicQueryBy_Between_Integer_OnlyStart_ShouldApplyLowerBound()
+    {
+        var request = CreateRequest("Age", BeniceSoftTypeNameConstant.Integer, ExprOperator.Between, "30", "");
+
+        var result = _testData.DynamicQueryBy(request).ToList();
+
+        result.Select(x => x.Name).ShouldBe(["Bob", "Charlie"], ignoreOrder: true);
+    }
+
+    [Fact]
+    public void DynamicQueryBy_Between_Integer_OnlyEnd_ShouldIncludeUpperBound()
+    {
+        var request = CreateRequest("Age", BeniceSoftTypeNameConstant.Integer, ExprOperator.Between, "", "28");
+
+        var result = _testData.DynamicQueryBy(request).ToList();
+
+        result.Select(x => x.Name).ShouldBe(["Alice", "David", "Eve"], ignoreOrder: true);
+        result.Any(x => x.Age == 28).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void DynamicQueryBy_Between_DateTime_OnlyStart_ShouldApplyLowerBound()
+    {
+        var request = CreateRequest("CreatedAt", BeniceSoftTypeNameConstant.DateTime, ExprOperator.Between, "2024-04-01", "");
+
+        var result = _testData.DynamicQueryBy(request).ToList();
+
+        result.Select(x => x.Name).ShouldBe(["David", "Eve"], ignoreOrder: true);
+    }
+
+    [Fact]
+    public void DynamicQueryBy_Between_DateTime_OnlyEnd_ShouldExcludeExclusiveEnd()
+    {
+        var request = CreateRequest("CreatedAt", BeniceSoftTypeNameConstant.DateTime, ExprOperator.Between, "", "2024-03-01");
+
+        var result = _testData.DynamicQueryBy(request).ToList();
+
+        result.Select(x => x.Name).ShouldBe(["Alice", "Bob"], ignoreOrder: true);
+        result.Any(x => x.Name == "Charlie").ShouldBeFalse();
+    }
+
+    [Fact]
+    public void DynamicQueryBy_Between_BothEmpty_ShouldThrow()
+    {
+        var request = CreateRequest("Age", BeniceSoftTypeNameConstant.Integer, ExprOperator.Between, "", "");
+
+        Should.Throw<DynamicQueryException>(() => _testData.DynamicQueryBy(request).ToList());
+    }
+
+    #endregion
+
+    #region Date / Time / DateTimeOffset / FieldType Tests
+
+    [Fact]
+    public void DynamicQueryBy_Equal_DateOnly_WithFieldTypeDate_ShouldMatch()
+    {
+        var request = CreateRequest("BizDate", BeniceSoftTypeNameConstant.Date, ExprOperator.Equal, "2024-03-01");
+
+        var result = _testData.DynamicQueryBy(request).ToList();
+
+        result.Select(x => x.Name).ShouldBe(["Charlie"]);
+    }
+
+    [Fact]
+    public void DynamicQueryBy_Between_DateOnly_ShouldBeHalfOpen_ExcludingExclusiveEnd()
+    {
+        var request = CreateRequest("BizDate", BeniceSoftTypeNameConstant.Date, ExprOperator.Between, "2024-02-01", "2024-04-01");
+
+        var result = _testData.DynamicQueryBy(request).ToList();
+
+        result.Select(x => x.Name).ShouldBe(["Bob", "Charlie"], ignoreOrder: true);
+        result.Any(x => x.Name == "David").ShouldBeFalse();
+    }
+
+    [Fact]
+    public void DynamicQueryBy_FieldTypeDate_OnDateTime_ShouldAllow_AndConvertByPropertyType()
+    {
+        var request = CreateRequest("CreatedAt", BeniceSoftTypeNameConstant.Date, ExprOperator.Equal, "2024-02-01");
+
+        var result = _testData.DynamicQueryBy(request).ToList();
+
+        result.Select(x => x.Name).ShouldBe(["Bob"]);
+    }
+
+    [Fact]
+    public void DynamicQueryBy_FieldTypeDate_OnDateTimeOffset_ShouldConvertByPropertyType_NotDateOnly()
+    {
+        // FieldType=date 若误用 DateOnly 做常量再 Convert 到 DateTimeOffset，构建/执行会失败或结果不对
+        var request = CreateRequest("OccurredAt", BeniceSoftTypeNameConstant.Date, ExprOperator.Equal, "2024-02-01T10:00:00+00:00");
+
+        var result = _testData.DynamicQueryBy(request).ToList();
+
+        result.Select(x => x.Name).ShouldBe(["Bob"]);
+    }
+
+    [Fact]
+    public void DynamicQueryBy_Equal_DateTimeOffset_WithFieldTypeDateTime_ShouldMatchExactInstant()
+    {
+        var request = CreateRequest("OccurredAt", BeniceSoftTypeNameConstant.DateTime, ExprOperator.Equal, "2024-02-01T10:00:00+00:00");
+
+        var result = _testData.DynamicQueryBy(request).ToList();
+
+        result.Select(x => x.Name).ShouldBe(["Bob"]);
+    }
+
+    [Fact]
+    public void DynamicQueryBy_Between_DateTimeOffset_ShouldBeHalfOpen_ExcludingExclusiveEnd()
+    {
+        var request = CreateRequest(
+            "OccurredAt",
+            BeniceSoftTypeNameConstant.DateTime,
+            ExprOperator.Between,
+            "2024-02-01T00:00:00+00:00",
+            "2024-04-01T00:00:00+00:00");
+
+        var result = _testData.DynamicQueryBy(request).ToList();
+
+        result.Select(x => x.Name).ShouldBe(["Bob", "Charlie"], ignoreOrder: true);
+        result.Any(x => x.Name == "David").ShouldBeFalse();
+    }
+
+    [Fact]
+    public void DynamicQueryBy_Equal_TimeOnly_WithFieldTypeTime_ShouldMatch()
+    {
+        var request = CreateRequest("CutOffTime", BeniceSoftTypeNameConstant.Time, ExprOperator.Equal, "15:30");
+
+        var result = _testData.DynamicQueryBy(request).ToList();
+
+        result.Select(x => x.Name).ShouldBe(["Charlie"]);
+    }
+
+    [Fact]
+    public void DynamicQueryBy_Between_TimeOnly_ShouldBeHalfOpen_ExcludingExclusiveEnd()
+    {
+        var request = CreateRequest("CutOffTime", BeniceSoftTypeNameConstant.Time, ExprOperator.Between, "09:00", "18:00");
+
+        var result = _testData.DynamicQueryBy(request).ToList();
+
+        result.Select(x => x.Name).ShouldBe(["Alice", "Bob", "Charlie"], ignoreOrder: true);
+        result.Any(x => x.Name == "David").ShouldBeFalse();
+    }
+
+    [Fact]
+    public void DynamicQueryBy_FieldTypeTime_OnDateTime_ShouldThrow()
+    {
+        var request = CreateRequest("CreatedAt", BeniceSoftTypeNameConstant.Time, ExprOperator.Equal, "10:00");
+
+        var ex = Should.Throw<DynamicQueryException>(() => _testData.DynamicQueryBy(request).ToList());
+        ex.Message.ShouldContain("only supports TimeOnly");
+    }
+
+    [Fact]
+    public void DynamicQueryBy_FieldTypeDate_OnInteger_ShouldThrow()
+    {
+        var request = CreateRequest("Age", BeniceSoftTypeNameConstant.Date, ExprOperator.Equal, "2024-01-01");
+
+        var ex = Should.Throw<DynamicQueryException>(() => _testData.DynamicQueryBy(request).ToList());
+        ex.Message.ShouldContain("only supports DateOnly/DateTime/DateTimeOffset");
+    }
+
+    [Fact]
+    public void DynamicQueryBy_FieldTypeDateTime_OnDateOnly_ShouldThrow()
+    {
+        var request = CreateRequest("BizDate", BeniceSoftTypeNameConstant.DateTime, ExprOperator.Equal, "2024-01-01");
+
+        var ex = Should.Throw<DynamicQueryException>(() => _testData.DynamicQueryBy(request).ToList());
+        ex.Message.ShouldContain("only supports DateTime/DateTimeOffset");
+    }
+
+    [Fact]
+    public void DynamicQueryBy_EmptyFieldType_ShouldConvertByPropertyType()
+    {
+        var request = CreateRequest("Age", "", ExprOperator.Equal, "30");
+
+        var result = _testData.DynamicQueryBy(request).ToList();
+
+        result.Select(x => x.Name).ShouldBe(["Bob"]);
     }
 
     #endregion

@@ -1,6 +1,6 @@
-using System.Linq.Expressions;
 using BeniceSoft.Core;
 using BeniceSoft.Extensions.DynamicQuery;
+using System.Linq.Expressions;
 
 namespace BeniceSoft.Abp.Ddd.Domain;
 
@@ -37,6 +37,13 @@ public interface IQueryableWrapper<TEntity> where TEntity : class
     /// <typeparam name="TKey"></typeparam>
     /// <returns></returns>
     IQueryableWrapper<TEntity> OrderByDescending<TKey>(Expression<Func<TEntity, TKey>> keySelector);
+
+    /// <summary>
+    /// 动态排序
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    IQueryableWrapper<TEntity> OrderByDynamic(IDynamicOrderByRequest? request);
 
     /// <summary>
     /// 通过关键字查询

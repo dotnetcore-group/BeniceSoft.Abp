@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
 namespace BeniceSoft.Abp.Extensions.DynamicQuery.EfCore.Extensions;
 
@@ -8,7 +8,7 @@ public static class ExpressionExtensions
 
         ParameterExpression p = a.Parameters[0];
 
-        SubstExpressionVisitor visitor = new SubstExpressionVisitor();
+        var visitor = new SubstExpressionVisitor();
         visitor.subst[b.Parameters[0]] = p;
 
         Expression body = Expression.AndAlso(a.Body, visitor.Visit(b.Body));
@@ -19,7 +19,7 @@ public static class ExpressionExtensions
 
         ParameterExpression p = a.Parameters[0];
 
-        SubstExpressionVisitor visitor = new SubstExpressionVisitor();
+        var visitor = new SubstExpressionVisitor();
         visitor.subst[b.Parameters[0]] = p;
 
         Expression body = Expression.OrElse(a.Body, visitor.Visit(b.Body));

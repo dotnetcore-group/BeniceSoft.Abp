@@ -1,9 +1,10 @@
-﻿using System.ComponentModel;
-using System.Linq.Expressions;
-using System.Reflection;
 using BeniceSoft.Core;
 using BeniceSoft.Core.Constants;
 using BeniceSoft.Extensions.DynamicQuery;
+using System.ComponentModel;
+using System.Globalization;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace BeniceSoft.Abp.Extensions.DynamicQuery.EfCore.Extensions;
 
@@ -51,7 +52,7 @@ public static class DynamicQueryExtensions
         var whereCallExp = Expression.Call(
             typeof(Queryable),
             nameof(Queryable.Where),
-            new[] { queryable.ElementType },
+            [queryable.ElementType],
             queryable.Expression,
             expression);
 
@@ -63,10 +64,10 @@ public static class DynamicQueryExtensions
     private static Expression<Func<T, bool>>? BuildLambdaExpression<T>(IDynamicQueryRequest request, out string queryString, bool skipNullableCheck)
     {
         queryString = string.Empty;
-        if (!(request.ConditionGroups?.Any() ?? false)) return null;
+        if (request.ConditionGroups is not { Count: > 0 })
+            return null;
 
         var trueConstantExp = Expression.Constant(true);
-        // var properties = typeof(T).GetProperties();
         var parameterExp = Expression.Parameter(typeof(T), "x");
 
         // 最终查询的条件
@@ -85,25 +86,18 @@ public static class DynamicQueryExtensions
 
                 if (string.IsNullOrWhiteSpace(condition.FieldName)) continue;
 
-                var type = GetCSharpType(condition.FieldType);
                 Expression conditionExp;
 
                 var propertyList = condition.FieldName.Split('.');
                 if (propertyList.Length > 1)
                 {
                     using var propertiesEnumerator = propertyList.AsEnumerable().GetEnumerator();
-                    conditionExp = BuildNestedExpression(parameterExp, propertiesEnumerator, condition, type, skipNullableCheck);
+                    conditionExp = BuildNestedExpression(parameterExp, propertiesEnumerator, condition, skipNullableCheck);
                 }
                 else
                 {
                     var propertyExp = Expression.Property(parameterExp, condition.FieldName);
-                    // Date 类型
-                    if (condition.FieldType == BeniceSoftTypeNameConstant.Date)
-                    {
-                        propertyExp = Expression.MakeMemberAccess(propertyExp, typeof(DateTime).GetProperty(nameof(DateTime.Date))!);
-                    }
-
-                    conditionExp = BuildOperatorExpression(propertyExp, condition, type, skipNullableCheck);
+                    conditionExp = BuildConditionFromProperty(propertyExp, condition, skipNullableCheck);
                 }
 
                 var lambdaExp = Expression.Lambda<Func<T, bool>>(conditionExp, parameterExp);
@@ -134,16 +128,27 @@ public static class DynamicQueryExtensions
     }
 
     /// <summary>
+    /// 根据属性真实类型 + FieldType 构建条件
+    /// </summary>
+    private static Expression BuildConditionFromProperty(
+        Expression propertyExp,
+        DynamicQueryCondition condition,
+        bool skipNullableCheck)
+    {
+        var clrType = Nullable.GetUnderlyingType(propertyExp.Type) ?? propertyExp.Type;
+        var fieldType = BeniceSoftTypeNameConstant.Normalize(condition.FieldType);
+        EnsureFieldTypeMatchesProperty(fieldType, clrType);
+        return BuildOperatorExpression(propertyExp, condition, clrType, skipNullableCheck);
+    }
+
+    /// <summary>
     /// 构建嵌套表达式
     /// </summary>
-    /// <param name="expression"></param>
-    /// <param name="propertiesEnumerator"></param>
-    /// <param name="condition"></param>
-    /// <param name="type"></param>
-    /// <param name="skipNullableCheck"></param>
-    /// <returns></returns>
-    private static Expression BuildNestedExpression(Expression expression, IEnumerator<string> propertiesEnumerator,
-        DynamicQueryCondition condition, Type type, bool skipNullableCheck)
+    private static Expression BuildNestedExpression(
+        Expression expression,
+        IEnumerator<string> propertiesEnumerator,
+        DynamicQueryCondition condition,
+        bool skipNullableCheck)
     {
         while (propertiesEnumerator.MoveNext())
         {
@@ -152,80 +157,99 @@ public static class DynamicQueryExtensions
             expression = Expression.Property(expression, property);
 
             var propertyType = property.PropertyType;
-            // property is IEnumerable<TItem>
             if (propertyType != typeof(string) && propertyType.IsCollectionType())
             {
-                // TItem
                 var elementType = propertyType.GetGenericArguments()[0];
                 var predicateFuncType = typeof(Func<,>).MakeGenericType(elementType, typeof(bool));
                 var parameterExp = Expression.Parameter(elementType);
 
-                var body = BuildNestedExpression(parameterExp, propertiesEnumerator, condition, type, skipNullableCheck);
+                var body = BuildNestedExpression(parameterExp, propertiesEnumerator, condition, skipNullableCheck);
                 var predicate = Expression.Lambda(predicateFuncType, body, parameterExp);
 
-                var queryable = Expression.Call(typeof(Queryable), nameof(Queryable.AsQueryable), new[] { elementType }, expression);
+                var queryable = Expression.Call(typeof(Queryable), nameof(Queryable.AsQueryable), [elementType], expression);
 
                 return Expression.Call(
                     typeof(Queryable),
                     nameof(Queryable.Any),
-                    new[] { elementType },
+                    [elementType],
                     queryable,
                     predicate);
             }
         }
 
-        return BuildOperatorExpression(expression, condition, type, skipNullableCheck);
+        return BuildConditionFromProperty(expression, condition, skipNullableCheck);
     }
 
     /// <summary>
     /// 构建比较表达式
     /// </summary>
-    /// <param name="propertyExp"></param>
-    /// <param name="condition"></param>
-    /// <param name="type"></param>
-    /// <param name="skipNullableCheck"></param>
-    /// <returns></returns>
-    /// <DynamicQueryException cref="DynamicQueryException"></DynamicQueryException>
     private static Expression BuildOperatorExpression(Expression propertyExp, DynamicQueryCondition condition, Type type, bool skipNullableCheck)
     {
-        var expression = condition.Operator switch
+        return condition.Operator switch
         {
             ExprOperator.Equal => Equal(type, condition.Value, propertyExp, skipNullableCheck),
             ExprOperator.NotEqual => NotEqual(type, condition.Value, propertyExp, skipNullableCheck),
-            ExprOperator.GreaterThan => GreaterThan(type, condition.Value, propertyExp, skipNullableCheck),
-            ExprOperator.GreaterThanOrEqual => GreaterThanOrEqual(type, condition.Value, propertyExp, skipNullableCheck),
-            ExprOperator.LessThan => LessThan(type, condition.Value, propertyExp, skipNullableCheck),
-            ExprOperator.LessThanOrEqual => LessThanOrEqual(type, condition.Value, propertyExp, skipNullableCheck),
-            ExprOperator.StartsWith => StartsWith(type, condition.Value, propertyExp, skipNullableCheck),
-            ExprOperator.EndsWith => EndsWith(type, condition.Value, propertyExp, skipNullableCheck),
-            ExprOperator.Contains => Contains(type, condition.Value, propertyExp, skipNullableCheck),
-            ExprOperator.NotContains => NotContains(type, condition.Value, propertyExp, skipNullableCheck),
-            ExprOperator.Between => Between(type, condition.Value, propertyExp, skipNullableCheck),
+            ExprOperator.GreaterThan => GreaterThan(type, condition.Value, propertyExp),
+            ExprOperator.GreaterThanOrEqual => GreaterThanOrEqual(type, condition.Value, propertyExp),
+            ExprOperator.LessThan => LessThan(type, condition.Value, propertyExp),
+            ExprOperator.LessThanOrEqual => LessThanOrEqual(type, condition.Value, propertyExp),
+            ExprOperator.StartsWith => StartsWith(condition.Value, propertyExp, skipNullableCheck),
+            ExprOperator.EndsWith => EndsWith(condition.Value, propertyExp, skipNullableCheck),
+            ExprOperator.Contains => Contains(condition.Value, propertyExp, skipNullableCheck),
+            ExprOperator.NotContains => NotContains(condition.Value, propertyExp, skipNullableCheck),
+            ExprOperator.Between => Between(type, condition.Value, propertyExp),
             ExprOperator.In => In(type, condition.Value, propertyExp, skipNullableCheck),
             ExprOperator.NotIn => NotIn(type, condition.Value, propertyExp, skipNullableCheck),
             _ => throw new DynamicQueryException($"Unknown expression operator: {condition.Operator}")
         };
-
-        return expression;
     }
 
     #region Operator Expressions
 
-    private static Expression Between(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
+    private static BinaryExpression Between(Type type, List<string> value, Expression propertyExp)
     {
-        var values = GetConstantExpressions(type, value);
-        if (values.Count < 2) throw new DynamicQueryException("Between needs two values");
+        // 时间类型：左闭右开 [start, end)；数值等其它类型：闭区间 [start, end]
+        var startRaw = value.ElementAtOrDefault(0);
+        var endRaw = value.ElementAtOrDefault(1);
+        var hasStart = !string.IsNullOrWhiteSpace(startRaw);
+        var hasEnd = !string.IsNullOrWhiteSpace(endRaw);
 
-        var belowExp = Expression.GreaterThanOrEqual(propertyExp, Expression.Convert(values[0], propertyExp.Type));
-        var aboveExp = Expression.LessThanOrEqual(propertyExp, Expression.Convert(values[1], propertyExp.Type));
+        if (!hasStart && !hasEnd)
+        {
+            throw new DynamicQueryException("Between needs at least a start or end value.");
+        }
 
-        return Expression.And(belowExp, aboveExp);
+        BinaryExpression? lowerBound = null;
+        BinaryExpression? upperBound = null;
+        var halfOpenUpper = IsTemporalType(type);
+
+        if (hasStart)
+        {
+            var startExp = Expression.Constant(ConvertToClr(type, startRaw!), type);
+            lowerBound = Expression.GreaterThanOrEqual(propertyExp, Expression.Convert(startExp, propertyExp.Type));
+        }
+
+        if (hasEnd)
+        {
+            var endExp = Expression.Constant(ConvertToClr(type, endRaw!), type);
+            var convertedEnd = Expression.Convert(endExp, propertyExp.Type);
+            upperBound = halfOpenUpper
+                ? Expression.LessThan(propertyExp, convertedEnd)
+                : Expression.LessThanOrEqual(propertyExp, convertedEnd);
+        }
+
+        if (lowerBound is not null && upperBound is not null)
+        {
+            return Expression.AndAlso(lowerBound, upperBound);
+        }
+
+        return lowerBound ?? upperBound!;
     }
 
-    private static Expression NotContains(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
-        => Expression.Not(Contains(type, value, propertyExp, skipNullableCheck));
+    private static UnaryExpression NotContains(List<string> value, Expression propertyExp, bool skipNullableCheck)
+        => Expression.Not(Contains(value, propertyExp, skipNullableCheck));
 
-    private static Expression Contains(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
+    private static BinaryExpression Contains(List<string> value, Expression propertyExp, bool skipNullableCheck)
     {
         var firstValue = EnsureFirstValueNotEmpty(value);
         var nullCheckExp = skipNullableCheck ? Expression.Constant(true) : GetNullCheckExpression(propertyExp);
@@ -258,9 +282,8 @@ public static class DynamicQueryExtensions
                 typeof(Guid).GetMethod(nameof(Guid.ToString), Type.EmptyTypes)!);
         }
 
-        var containsMethod = (toStringExp ?? propertyExp).Type.GetMethod("Contains", new[] { typeof(string) });
-        if (containsMethod is null)
-            throw new DynamicQueryException($"Type {propertyExp.Type} not defined Contains.");
+        var containsMethod = (toStringExp ?? propertyExp).Type.GetMethod("Contains", [typeof(string)])
+            ?? throw new DynamicQueryException($"Type {propertyExp.Type} not defined Contains.");
 
         var toLowerExp = Expression.Call(
             toStringExp ?? propertyExp,
@@ -269,7 +292,7 @@ public static class DynamicQueryExtensions
         return Expression.AndAlso(nullCheckExp, Expression.Call(toLowerExp, containsMethod, valueExp));
     }
 
-    private static Expression EndsWith(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
+    private static BinaryExpression EndsWith(List<string> value, Expression propertyExp, bool skipNullableCheck)
     {
         var firstValue = EnsureFirstValueNotEmpty(value);
         var valueExp = Expression.Constant(firstValue.ToLower(), typeof(string));
@@ -283,9 +306,8 @@ public static class DynamicQueryExtensions
                 typeof(Guid).GetMethod(nameof(Guid.ToString), Type.EmptyTypes)!);
         }
 
-        var endsWithMethod = (toStringExp ?? propertyExp).Type.GetMethod("EndsWith", new[] { typeof(string) });
-        if (endsWithMethod is null)
-            throw new DynamicQueryException($"Type {propertyExp.Type} not defined EndsWith.");
+        var endsWithMethod = (toStringExp ?? propertyExp).Type.GetMethod("EndsWith", [typeof(string)])
+            ?? throw new DynamicQueryException($"Type {propertyExp.Type} not defined EndsWith.");
 
         var toLowerExp = Expression.Call(
             toStringExp ?? propertyExp,
@@ -294,7 +316,7 @@ public static class DynamicQueryExtensions
         return Expression.AndAlso(nullCheckExp, Expression.Call(toLowerExp, endsWithMethod, valueExp));
     }
 
-    private static Expression StartsWith(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
+    private static BinaryExpression StartsWith(List<string> value, Expression propertyExp, bool skipNullableCheck)
     {
         var firstValue = EnsureFirstValueNotEmpty(value);
         var valueExp = Expression.Constant(firstValue.ToLower(), typeof(string));
@@ -308,9 +330,8 @@ public static class DynamicQueryExtensions
                 typeof(Guid).GetMethod(nameof(Guid.ToString), Type.EmptyTypes)!);
         }
 
-        var startsWithMethod = (toStringExp ?? propertyExp).Type.GetMethod("StartsWith", new[] { typeof(string) });
-        if (startsWithMethod is null)
-            throw new DynamicQueryException($"Type {propertyExp.Type} not defined StartsWith.");
+        var startsWithMethod = (toStringExp ?? propertyExp).Type.GetMethod("StartsWith", [typeof(string)])
+            ?? throw new DynamicQueryException($"Type {propertyExp.Type} not defined StartsWith.");
 
         var toLowerExp = Expression.Call(
             toStringExp ?? propertyExp,
@@ -319,38 +340,38 @@ public static class DynamicQueryExtensions
         return Expression.AndAlso(nullCheckExp, Expression.Call(toLowerExp, startsWithMethod, valueExp));
     }
 
-    private static Expression LessThanOrEqual(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
+    private static BinaryExpression LessThanOrEqual(Type type, List<string> value, Expression propertyExp)
     {
         var valueExp = GetConstantExpressions(type, value).First();
 
         return Expression.LessThanOrEqual(propertyExp, Expression.Convert(valueExp, propertyExp.Type));
     }
 
-    private static Expression LessThan(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
+    private static BinaryExpression LessThan(Type type, List<string> value, Expression propertyExp)
     {
         var valueExp = GetConstantExpressions(type, value).First();
 
         return Expression.LessThan(propertyExp, Expression.Convert(valueExp, propertyExp.Type));
     }
 
-    private static Expression GreaterThanOrEqual(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
+    private static BinaryExpression GreaterThanOrEqual(Type type, List<string> value, Expression propertyExp)
     {
         var valueExp = GetConstantExpressions(type, value).First();
 
         return Expression.GreaterThanOrEqual(propertyExp, Expression.Convert(valueExp, propertyExp.Type));
     }
 
-    private static Expression GreaterThan(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
+    private static BinaryExpression GreaterThan(Type type, List<string> value, Expression propertyExp)
     {
         var valueExp = GetConstantExpressions(type, value).First();
 
         return Expression.GreaterThan(propertyExp, Expression.Convert(valueExp, propertyExp.Type));
     }
 
-    private static Expression NotEqual(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
+    private static UnaryExpression NotEqual(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
         => Expression.Not(Equal(type, value, propertyExp, skipNullableCheck));
 
-    private static Expression Equal(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
+    private static BinaryExpression Equal(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
     {
         var valueExp = GetConstantExpressions(type, value).First();
 
@@ -378,7 +399,7 @@ public static class DynamicQueryExtensions
         return Expression.Equal(propertyExp, Expression.Convert(valueExp, propertyExp.Type));
     }
 
-    private static Expression In(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
+    private static BinaryExpression In(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
     {
         var values = GetConstantExpressions(type, value);
         var nullCheck = skipNullableCheck ? Expression.Constant(true) : GetNullCheckExpression(propertyExp);
@@ -458,78 +479,196 @@ public static class DynamicQueryExtensions
                 }
             }
         }
+        else if (type == typeof(string))
+        {
+            Expression? toStringExp = null;
+            if (propertyExp.Type.IsGuid())
+            {
+                toStringExp = Expression.Call(
+                    propertyExp,
+                    propertyExp.Type.GetMethod(nameof(Guid.ToString), Type.EmptyTypes)!);
+            }
+
+            var toLowerExp = Expression.Call(
+                toStringExp ?? propertyExp,
+                typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes)!);
+            var valueToLower = Expression.Call(
+                values[0],
+                typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes)!);
+            containsExp = Expression.Equal(toLowerExp, valueToLower);
+        }
         else
         {
-            if (type == typeof(string))
-            {
-                Expression? toStringExp = null;
-                if (propertyExp.Type.IsGuid())
-                {
-                    toStringExp = Expression.Call(
-                        propertyExp,
-                        propertyExp.Type.GetMethod(nameof(Guid.ToString), Type.EmptyTypes)!);
-                }
-
-                var toLowerExp = Expression.Call(
-                    toStringExp ?? propertyExp,
-                    typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes)!);
-                var valueToLower = Expression.Call(
-                    values[0],
-                    typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes)!);
-                containsExp = Expression.Equal(toLowerExp, valueToLower);
-            }
-            else
-            {
-                containsExp = Expression.Equal(propertyExp, Expression.Convert(values[0], propertyExp.Type));
-            }
+            containsExp = Expression.Equal(propertyExp, Expression.Convert(values[0], propertyExp.Type));
         }
 
         return Expression.And(nullCheck, containsExp);
     }
 
-    private static Expression NotIn(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
+    private static UnaryExpression NotIn(Type type, List<string> value, Expression propertyExp, bool skipNullableCheck)
         => Expression.Not(In(type, value, propertyExp, skipNullableCheck));
 
     #endregion
 
+    /// <summary>
+    /// 是否时间类型
+    /// </summary>
+    private static bool IsTemporalType(Type type)
+    {
+        return type == typeof(DateOnly)
+               || type == typeof(TimeOnly)
+               || type == typeof(DateTime)
+               || type == typeof(DateTimeOffset);
+    }
+
+    /// <summary>
+    /// 确保第一个值不为空
+    /// </summary>
     private static string EnsureFirstValueNotEmpty(List<string> value)
     {
         var firstValue = value.FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(firstValue))
+        return string.IsNullOrWhiteSpace(firstValue)
+            ? throw new DynamicQueryException("Value can not be null or empty")
+            : firstValue;
+    }
+
+    /// <summary>
+    /// FieldType 语义与属性 CLR 类型匹配校验
+    /// </summary>
+    private static void EnsureFieldTypeMatchesProperty(string? fieldType, Type clrType)
+    {
+        if (string.IsNullOrEmpty(fieldType))
         {
-            throw new DynamicQueryException("Value can not be null or empty");
+            return;
         }
 
-        return firstValue;
+        switch (fieldType)
+        {
+            case BeniceSoftTypeNameConstant.Date:
+                if (clrType != typeof(DateOnly) &&
+                    clrType != typeof(DateTime) &&
+                    clrType != typeof(DateTimeOffset))
+                {
+                    throw new DynamicQueryException(
+                        $"FieldType 'date' only supports DateOnly/DateTime/DateTimeOffset, but property is {clrType.Name}.");
+                }
+
+                break;
+            case BeniceSoftTypeNameConstant.Time:
+                if (clrType != typeof(TimeOnly))
+                {
+                    throw new DynamicQueryException(
+                        $"FieldType 'time' only supports TimeOnly, but property is {clrType.Name}.");
+                }
+
+                break;
+            case BeniceSoftTypeNameConstant.DateTime:
+                if (clrType != typeof(DateTime) && clrType != typeof(DateTimeOffset))
+                {
+                    throw new DynamicQueryException(
+                        $"FieldType 'datetime' only supports DateTime/DateTimeOffset, but property is {clrType.Name}.");
+                }
+
+                break;
+        }
     }
 
     private static List<ConstantExpression> GetConstantExpressions(Type type, List<string> value)
     {
-        if (type == typeof(DateTime))
+        return value.Select(item => Expression.Constant(ConvertToClr(type, item), type)).ToList();
+    }
+
+    /// <summary>
+    /// 按属性真实 CLR 类型转换
+    /// </summary>
+    private static object ConvertToClr(Type targetType, string raw)
+    {
+        if (targetType == typeof(string))
         {
-            DateTime dateTime;
-            var constants = new List<ConstantExpression>();
-            foreach (var item in value)
+            return raw;
+        }
+
+        if (targetType == typeof(Guid))
+        {
+            return Guid.Parse(raw);
+        }
+
+        if (targetType == typeof(DateOnly))
+        {
+            if (DateOnly.TryParse(raw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateOnly) ||
+                DateOnly.TryParse(raw, out dateOnly))
             {
-                var dt = DateTime.TryParse(item, out dateTime) ? (DateTime?)dateTime : null;
-                constants.Add(Expression.Constant(dt, type));
+                return dateOnly;
             }
 
-            return constants;
+            throw new DynamicQueryException($"Cannot convert '{raw}' to DateOnly.");
         }
 
-        var typeConverter = TypeDescriptor.GetConverter(type);
-
-        if (type == typeof(string))
+        if (targetType == typeof(TimeOnly))
         {
-            return value
-                .Select(x => Expression.Constant(x, type))
-                .ToList();
+            if (TimeOnly.TryParse(raw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var timeOnly) ||
+                TimeOnly.TryParse(raw, out timeOnly))
+            {
+                return timeOnly;
+            }
+
+            throw new DynamicQueryException($"Cannot convert '{raw}' to TimeOnly.");
         }
 
-        return value
-            .Select(x => Expression.Constant(typeConverter.ConvertFromString(x), type))
-            .ToList();
+        if (targetType == typeof(DateTime))
+        {
+            if (DateTime.TryParse(raw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTime) ||
+                DateTime.TryParse(raw, out dateTime))
+            {
+                return dateTime;
+            }
+
+            throw new DynamicQueryException($"Cannot convert '{raw}' to DateTime.");
+        }
+
+        if (targetType == typeof(DateTimeOffset))
+        {
+            if (DateTimeOffset.TryParse(raw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ||
+                DateTimeOffset.TryParse(raw, out dto))
+            {
+                return dto;
+            }
+
+            throw new DynamicQueryException($"Cannot convert '{raw}' to DateTimeOffset.");
+        }
+
+        if (targetType.IsEnum)
+        {
+            return Enum.Parse(targetType, raw, ignoreCase: true);
+        }
+
+        var typeConverter = TypeDescriptor.GetConverter(targetType);
+        if (typeConverter.CanConvertFrom(typeof(string)))
+        {
+            try
+            {
+                return typeConverter.ConvertFromInvariantString(raw)
+                       ?? typeConverter.ConvertFromString(raw)
+                       ?? throw new DynamicQueryException($"Cannot convert '{raw}' to {targetType.Name}.");
+            }
+            catch (DynamicQueryException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DynamicQueryException($"Cannot convert '{raw}' to {targetType.Name}: {ex.Message}");
+            }
+        }
+
+        try
+        {
+            return Convert.ChangeType(raw, targetType, CultureInfo.InvariantCulture)!;
+        }
+        catch (Exception ex)
+        {
+            throw new DynamicQueryException($"Cannot convert '{raw}' to {targetType.Name}: {ex.Message}");
+        }
     }
 
     private static Expression GetNullCheckExpression(Expression propertyExp)
@@ -537,34 +676,12 @@ public static class DynamicQueryExtensions
         var isNullable = !propertyExp.Type.IsValueType ||
                          Nullable.GetUnderlyingType(propertyExp.Type) is not null;
 
-        if (isNullable)
-        {
-            return Expression.NotEqual(
+        return isNullable
+            ? Expression.NotEqual(
                 propertyExp,
-                Expression.Constant(propertyExp.Type.GetDefaultValue(),
-                    propertyExp.Type));
-        }
-
-        return Expression.Constant(true, typeof(bool));
+                Expression.Constant(propertyExp.Type.GetDefaultValue(), propertyExp.Type))
+            : Expression.Constant(true, typeof(bool));
     }
-
-    private static Type GetCSharpType(string typeName)
-    {
-        return typeName switch
-        {
-            BeniceSoftTypeNameConstant.Integer => typeof(int),
-            BeniceSoftTypeNameConstant.Long => typeof(long),
-            BeniceSoftTypeNameConstant.Double => typeof(double),
-            BeniceSoftTypeNameConstant.Decimal => typeof(decimal),
-            BeniceSoftTypeNameConstant.String => typeof(string),
-            BeniceSoftTypeNameConstant.Date => typeof(DateTime),
-            BeniceSoftTypeNameConstant.DateTime => typeof(DateTime),
-            BeniceSoftTypeNameConstant.Boolean => typeof(bool),
-            BeniceSoftTypeNameConstant.Guid => typeof(Guid),
-            _ => throw new DynamicQueryException($"Unexpected data type {typeName}")
-        };
-    }
-
 
     private static readonly MethodInfo ContainsMethodInfo = typeof(Enumerable).GetMethods()
         .Where(x => x.Name == nameof(Enumerable.Contains))

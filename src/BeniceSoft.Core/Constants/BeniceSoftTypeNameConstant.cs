@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Core.Constants;
+namespace BeniceSoft.Core.Constants;
 
 public static class BeniceSoftTypeNameConstant
 {
@@ -11,6 +11,8 @@ public static class BeniceSoftTypeNameConstant
     public const string Decimal = "decimal";
 
     public const string String = "string";
+
+    public const string Time = "time";
 
     public const string Date = "date";
 
@@ -30,6 +32,7 @@ public static class BeniceSoftTypeNameConstant
         Double,
         Decimal,
         String,
+        Time,
         Date,
         DateTime,
         Boolean,
@@ -45,6 +48,7 @@ public static class BeniceSoftTypeNameConstant
         [Double] = "浮点数",
         [Decimal] = "精确小数",
         [String] = "字符串",
+        [Time] = "时间",
         [Date] = "日期",
         [DateTime] = "日期时间",
         [Boolean] = "布尔",

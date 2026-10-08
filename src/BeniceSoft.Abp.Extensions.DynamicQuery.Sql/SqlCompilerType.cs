@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Extensions.DynamicQuery.Sql;
+namespace BeniceSoft.Abp.Extensions.DynamicQuery.Sql;
 
 public enum SqlCompilerType
 {

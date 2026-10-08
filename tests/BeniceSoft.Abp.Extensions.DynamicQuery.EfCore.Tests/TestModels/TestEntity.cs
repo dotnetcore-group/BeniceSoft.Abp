@@ -13,6 +13,9 @@ public class TestEntity
     public double Price { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTimeOffset OccurredAt { get; set; }
+    public DateOnly BizDate { get; set; }
+    public TimeOnly CutOffTime { get; set; }
     public Guid UniqueId { get; set; }
     public List<string> Tags { get; set; } = new();
     public TestNestedEntity? Nested { get; set; }
@@ -34,4 +37,3 @@ public class TestDynamicQueryRequest : BeniceSoft.Extensions.DynamicQuery.IDynam
 {
     public List<BeniceSoft.Extensions.DynamicQuery.DynamicQueryConditionGroup>? ConditionGroups { get; set; }
 }
-

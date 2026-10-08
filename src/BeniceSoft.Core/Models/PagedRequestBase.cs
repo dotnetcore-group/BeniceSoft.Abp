@@ -1,9 +1,11 @@
+using BeniceSoft.Extensions.DynamicQuery;
+
 namespace BeniceSoft.Core;
 
 /// <summary>
 /// 分页请求基类
 /// </summary>
-public abstract class PagedRequestBase
+public abstract class PagedRequestBase : IDynamicOrderByRequest
 {
     /// <summary>
     /// 页码（从1开始）
@@ -19,4 +21,9 @@ public abstract class PagedRequestBase
     /// 关键词搜索
     /// </summary>
     public string? SearchKey { get; set; }
+
+    /// <summary>
+    /// 排序字段列表
+    /// </summary>
+    public List<DynamicOrderBy>? OrderBys { get; set; }
 }

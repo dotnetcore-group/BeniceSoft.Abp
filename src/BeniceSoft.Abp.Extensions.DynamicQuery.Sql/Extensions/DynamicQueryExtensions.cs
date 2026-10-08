@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Core;
+using BeniceSoft.Core;
 using BeniceSoft.Core.Constants;
 using BeniceSoft.Extensions.DynamicQuery;
 using SqlKata;
@@ -75,6 +75,7 @@ public static class DynamicQueryExtensions
             ExprOperator.Equal => Equal(q, condition),
             ExprOperator.NotEqual => NotEqual(q, condition),
             ExprOperator.In => In(q, condition),
+
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -103,7 +104,9 @@ public static class DynamicQueryExtensions
 
     private static string GetFormattedValue(string fieldType, string? value)
     {
-        if (string.IsNullOrWhiteSpace(value)) throw new DynamicQueryException("value is null or empty");
+        if (string.IsNullOrWhiteSpace(value)) 
+            throw new DynamicQueryException("value is null or empty");
+
         if (fieldType == BeniceSoftTypeNameConstant.DateTime ||
             fieldType == BeniceSoftTypeNameConstant.Date ||
             fieldType == BeniceSoftTypeNameConstant.Guid ||

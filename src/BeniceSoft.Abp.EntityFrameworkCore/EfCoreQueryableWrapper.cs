@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Ddd.Domain;
+using BeniceSoft.Abp.Ddd.Domain;
 using BeniceSoft.Abp.Extensions.DynamicQuery.EfCore.Extensions;
 using BeniceSoft.Core;
 using BeniceSoft.Extensions.DynamicQuery;
@@ -48,6 +48,12 @@ public class EfCoreQueryableWrapper<TEntity> : IQueryableWrapper<TEntity> where 
     public IQueryableWrapper<TEntity> OrderByDescending<TKey>(Expression<Func<TEntity, TKey>> keySelector)
     {
         _queryable = _queryable.OrderByDescending(keySelector);
+        return this;
+    }
+
+    public IQueryableWrapper<TEntity> OrderByDynamic(IDynamicOrderByRequest? request)
+    {
+        _queryable = _queryable.OrderByDynamic(request);
         return this;
     }
 
