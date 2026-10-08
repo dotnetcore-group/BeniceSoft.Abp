@@ -42,7 +42,7 @@ public class HttpServiceRegistry : IServiceRegistry
         response.EnsureSuccessStatusCode();
 
         _logger.LogInformation(
-            "Service registered: {ServiceName} at {Address}",
+            "Service registered successfully: {ServiceName} at {Address}",
             instance.ServiceName, instance.Address);
     }
 
