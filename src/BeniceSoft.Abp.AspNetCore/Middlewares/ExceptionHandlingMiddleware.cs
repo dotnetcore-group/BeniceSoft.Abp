@@ -35,14 +35,15 @@ public class ExceptionHandlingMiddleware : IMiddleware, ITransientDependency
         catch (Exception e)
         {
             var exception = e.GetBaseException();
-            _logger.LogError(new EventId(1, Guid.NewGuid().ToString()), exception.GetBaseException(),
-                exception.Message);
+            var result = WarpExceptionToJsonResult(exception);
+
+            _logger.LogError(new EventId(1, Guid.NewGuid().ToString()), exception.GetBaseException(), exception.Message);
 
             // 来自远程服务调用的请求
-            if (context.Request.Headers.TryGetValue(BeniceSoftHttpConstant.RequestedFrom, out var requestedFrom) &&
-                string.Equals(BeniceSoftHttpConstant.RequestedFromRemoteServiceCall, requestedFrom, StringComparison.OrdinalIgnoreCase))
+            if (context.Request.Headers.TryGetValue(BeniceSoftHttpConstant.RequestedFrom, out var requestedFrom)
+               && string.Equals(BeniceSoftHttpConstant.RequestedFromRemoteServiceCall, requestedFrom, StringComparison.OrdinalIgnoreCase))
             {
-                await HandleRemoteServiceErrorResponse(context, exception);
+                await HandleRemoteServiceErrorResponse(context, result, exception);
                 return;
             }
 
@@ -53,24 +54,25 @@ public class ExceptionHandlingMiddleware : IMiddleware, ITransientDependency
                 return;
             }
 
-            var result = WarpExceptionToJsonResult(exception);
+
             await HandleResponseAsync(context, result, e.Message);
         }
     }
 
-    private static async Task HandleRemoteServiceErrorResponse(HttpContext context, Exception exception)
+    private static async Task HandleRemoteServiceErrorResponse(HttpContext context, ResponseResult result, Exception exception)
     {
         var errorInfo = new RemoteServiceErrorInfo
         {
-            Code = "500",
+            Code = result.Code.ToString(),
             Message = exception.Message,
             Data = exception.Data
         };
         var remoteServiceErrorResponse = new RemoteServiceErrorResponse(errorInfo);
 
+        context.Response.StatusCode = result.Code;
         context.Response.Headers.TryAdd(AbpHttpConsts.AbpErrorFormat, bool.TrueString);
         context.Response.ContentType = "application/json;charset=utf-8";
-        await context.Response.WriteAsync(JsonUtils.Serialize(remoteServiceErrorResponse) 
+        await context.Response.WriteAsync(JsonUtils.Serialize(remoteServiceErrorResponse)
             ?? string.Empty)
             .ConfigureAwait(false);
         await context.Response.CompleteAsync();
@@ -80,7 +82,7 @@ public class ExceptionHandlingMiddleware : IMiddleware, ITransientDependency
     {
         context.Response.StatusCode = result.Code;
         context.Response.ContentType = "application/json;charset=utf-8";
-        await context.Response.WriteAsync(JsonUtils.Serialize(result) 
+        await context.Response.WriteAsync(JsonUtils.Serialize(result)
             ?? "{\"code\": 500, \"message\": \"系统出现不可预期的错误\"}")
             .ConfigureAwait(false);
         await context.Response.CompleteAsync();
