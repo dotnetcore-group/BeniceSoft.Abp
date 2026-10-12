@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using Volo.Abp;
+using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Http;
@@ -107,8 +108,12 @@ public class ExceptionHandlingMiddleware : IMiddleware, ITransientDependency
             SynchronizationLockException
                 => new(HttpStatusCode.Locked, "资源已被占用，请稍候再试"),
 
+            AbpDbConcurrencyException
+                => new(HttpStatusCode.Conflict, "发生开放式并发冲突，请刷新后再试"),
+
+            // 远程服务调用异常，直接透传远程服务返回的异常信息
             AbpRemoteCallException remoteCallException
-                => new(HttpStatusCode.ServiceUnavailable, $"远程服务不可用({remoteCallException.HttpStatusCode})"),
+                => new((HttpStatusCode)remoteCallException.HttpStatusCode, remoteCallException.Error?.Message ?? remoteCallException.Message),
 
             RateLimitExceededException rateLimitException
                 => new(HttpStatusCode.TooManyRequests, rateLimitException.Message),
