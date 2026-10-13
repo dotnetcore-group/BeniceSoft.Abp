@@ -69,5 +69,10 @@ public class ServiceRegistryOptions
     /// 启动时最大重试次数（仅当 BlockStartupOnRegistrationFailure = true 时有效，默认 3 次）
     /// </summary>
     public int MaxStartupRetries { get; set; } = 3;
+
+    /// <summary>
+    /// 注册成功后的心跳间隔（默认 10 秒）。再次调用注册接口刷新网关 LastHeartbeat。
+    /// </summary>
+    public TimeSpan HeartbeatInterval { get; set; } = TimeSpan.FromSeconds(10);
 }
 

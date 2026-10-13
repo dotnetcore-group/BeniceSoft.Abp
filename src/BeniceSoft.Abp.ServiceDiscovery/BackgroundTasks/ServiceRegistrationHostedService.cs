@@ -85,7 +85,39 @@ public class ServiceRegistrationHostedService : BackgroundService
             }
         }
 
-        await Task.Delay(Timeout.InfiniteTimeSpan, stoppingToken);
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await Task.Delay(_options.HeartbeatInterval, stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+
+            try
+            {
+                if (!await TryRegisterAsync())
+                {
+                    _isRegistered = false;
+                    _logger.LogWarning(
+                        "Service heartbeat registration failed: {ServiceName}/{InstanceId}",
+                        _options.ServiceName, _instanceId);
+                }
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                _isRegistered = false;
+                _logger.LogError(ex,
+                    "Service heartbeat registration error: {ServiceName}/{InstanceId}",
+                    _options.ServiceName, _instanceId);
+            }
+        }
     }
 
     private async Task<bool> TryRegisterAsync()
@@ -126,7 +158,7 @@ public class ServiceRegistrationHostedService : BackgroundService
 
         await base.StopAsync(cancellationToken);
     }
-    
+
     private ServiceInstance BuildServiceInstance()
     {
         string address;
@@ -158,13 +190,13 @@ public class ServiceRegistrationHostedService : BackgroundService
             Metadata = _options.Metadata
         };
     }
-    
+
     private string GenerateInstanceId()
     {
         var machineName = Environment.MachineName.ToLowerInvariant();
         var timestamp = DateTime.UtcNow.Ticks;
         var random = Guid.NewGuid().ToString("N")[..8];
-        
+
         return $"{_options.ServiceName}-{machineName}-{timestamp}-{random}";
     }
 }
