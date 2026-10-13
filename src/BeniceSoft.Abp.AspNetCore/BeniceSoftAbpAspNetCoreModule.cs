@@ -1,5 +1,6 @@
 ﻿using BeniceSoft.Abp.AspNetCore.Filters;
 using BeniceSoft.Abp.AspNetCore.Localizations;
+using BeniceSoft.Abp.Extensions.OpenTelemetry;
 using BeniceSoft.Abp.MultiTenancy;
 using Microsoft.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.MultiTenancy;
@@ -14,7 +15,8 @@ namespace BeniceSoft.Abp.AspNetCore;
     typeof(AbpAutofacModule),
     typeof(AbpAspNetCoreMvcModule),
     typeof(AbpAspNetCoreMultiTenancyModule),
-    typeof(BeniceSoftAbpMultiTenancyModule)
+    typeof(BeniceSoftAbpMultiTenancyModule),
+    typeof(BeniceSoftAbpOpenTelemetryModule)
 )]
 public class BeniceSoftAbpAspNetCoreModule : AbpModule
 {

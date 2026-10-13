@@ -15,6 +15,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\BeniceSoft.Abp.Core\BeniceSoft.Abp.Core.csproj" />
 		<ProjectReference Include="..\BeniceSoft.Abp.MultiTenancy\BeniceSoft.Abp.MultiTenancy.csproj" />
+		<ProjectReference Include="..\BeniceSoft.Abp.Extensions.OpenTelemetry\BeniceSoft.Abp.Extensions.OpenTelemetry.csproj" />
 	</ItemGroup>
 
 </Project>

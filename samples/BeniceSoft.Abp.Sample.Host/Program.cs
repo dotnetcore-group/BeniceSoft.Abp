@@ -26,6 +26,7 @@ public class Program
             .Enrich.FromLogContext()
             .ReadFrom.Configuration(configuration)
             .WriteTo.Console()
+            .WriteTo.OtlpIfConfigured()
             .CreateLogger();
 
         try

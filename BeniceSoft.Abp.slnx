@@ -78,6 +78,7 @@
     <Project Path="src/BeniceSoft.Abp.Extensions.DynamicQuery.EfCore/BeniceSoft.Abp.Extensions.DynamicQuery.EfCore.csproj" />
     <Project Path="src/BeniceSoft.Abp.Extensions.DynamicQuery.Sql/BeniceSoft.Abp.Extensions.DynamicQuery.Sql.csproj" />
     <Project Path="src/BeniceSoft.Abp.Extensions.Emailing/BeniceSoft.Abp.Extensions.Emailing.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.OpenTelemetry/BeniceSoft.Abp.Extensions.OpenTelemetry.csproj" />
     <Project Path="src/BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions/BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions.csproj" />
     <Project Path="src/BeniceSoft.Abp.Extensions.ObjectStorage/BeniceSoft.Abp.Extensions.ObjectStorage.csproj" />
     <Project Path="src/BeniceSoft.Abp.Extensions.RabbitMQ/BeniceSoft.Abp.Extensions.RabbitMQ.csproj" />
