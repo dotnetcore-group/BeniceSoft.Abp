@@ -103,10 +103,7 @@ public class FieldAuthFilterAttribute : ActionFilterAttribute
     /// </summary>
     private static PropertyReflector[] GetPropertyReflectors(Type type)
     {
-        return PropertyReflectorCache.GetOrAdd(type, t =>
-            t.GetProperties()
-             .Select(p => p.GetReflector())
-             .ToArray());
+        return PropertyReflectorCache.GetOrAdd(type, t => t.GetProperties().Select(p => p.GetReflector()).ToArray());
     }
 
     private void FilterFields(object? tData, Dictionary<string, FieldPermission> dic)

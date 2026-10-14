@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Core;
+namespace BeniceSoft.Abp.Core;
 
 /// <summary>
 /// 忽略模型绑定

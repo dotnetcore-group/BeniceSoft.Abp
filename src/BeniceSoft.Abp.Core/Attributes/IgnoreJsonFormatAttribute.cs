@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Core;
+namespace BeniceSoft.Abp.Core;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class IgnoreJsonFormatAttribute : Attribute

@@ -1,4 +1,4 @@
-﻿using Volo.Abp.DependencyInjection;
+using Volo.Abp.DependencyInjection;
 
 namespace BeniceSoft.Abp.Core.Defaults;
 
@@ -9,7 +9,7 @@ public class NullBasicDataValueFiller : IBasicDataValueFiller, ITransientDepende
         return Task.CompletedTask;
     }
 
-    public Task ParallelFillAsync<T>(IReadOnlyList<T> source) where T : class
+    public Task FillManyAsync<T>(IReadOnlyList<T> source) where T : class
     {
         return Task.CompletedTask;
     }
