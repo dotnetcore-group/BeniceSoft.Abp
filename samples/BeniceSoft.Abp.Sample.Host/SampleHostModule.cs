@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.AspNetCore;
+using BeniceSoft.Abp.AspNetCore;
 using BeniceSoft.Abp.AspNetCore.Extensions;
 using BeniceSoft.Abp.AspNetCore.Middlewares;
 using BeniceSoft.Abp.Auth;
@@ -120,6 +120,14 @@ public class SampleHostModule : AbpModule
             options.PrefetchCount = 5;
         });
 
+        // Reliable messaging (opt-in, needs BeniceSoft.Abp.Extensions.RabbitMQ.EntityFrameworkCore):
+        // 1) [DependsOn(typeof(BeniceSoftAbpRabbitMqEntityFrameworkCoreModule))] - tables are auto-created, no migration.
+        // 2) Several DbContexts? Configure<RabbitOutboxOptions>(o => o.DbContextType = typeof(SampleDbContext));
+        // 3) Publish inside a UoW: await _outboxPublisher.PublishToQueueAsync("order.amazon.import", batch);
+        // 4) Consumer: options.Idempotent = true; options.MaxExceptionRetryTimes = 3;
+        //    options.Relational = RabbitRelational.Work(new RabbitQueueDeclare { Name = "order.amazon.import" }
+        //        .SetDeadLetter(string.Empty, "order.amazon.import.dlq"));
+        // 5) Ops replay: await sp.GetRequiredService<IRabbitDeadLetterReplayer>().ReplayAsync("order.amazon.import.dlq", 100);
         context.Services.AddHttpServiceDiscovery(options =>
         {
             configuration.GetSection("ServiceDiscovery").Bind(options);

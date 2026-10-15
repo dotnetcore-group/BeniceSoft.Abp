@@ -18,6 +18,11 @@ public static class BeniceSoftRabbitMqServiceCollectionExtensions
 
         services.TryAddSingleton<RabbitMessageContextPropagator>();
 
+        services.TryAddSingleton<IRabbitDeadLetterReplayer>(sp => new RabbitDeadLetterReplayer(
+            sp.GetRequiredService<IRabbitConnection>(),
+            sp.GetService<IConnectionPool>(),
+            sp.GetService<ILogger<RabbitDeadLetterReplayer>>()));
+
         services.TryAddSingleton(sp =>
         {
             var logger = sp.GetService<ILogger<RabbitPublisher>>();

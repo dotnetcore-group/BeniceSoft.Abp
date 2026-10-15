@@ -82,6 +82,7 @@
     <Project Path="src/BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions/BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions.csproj" />
     <Project Path="src/BeniceSoft.Abp.Extensions.ObjectStorage/BeniceSoft.Abp.Extensions.ObjectStorage.csproj" />
     <Project Path="src/BeniceSoft.Abp.Extensions.RabbitMQ/BeniceSoft.Abp.Extensions.RabbitMQ.csproj" />
+    <Project Path="src/BeniceSoft.Abp.Extensions.RabbitMQ.EntityFrameworkCore/BeniceSoft.Abp.Extensions.RabbitMQ.EntityFrameworkCore.csproj" />
     <Project Path="src/BeniceSoft.Abp.Extensions.RateLimiting.Abstractions/BeniceSoft.Abp.Extensions.RateLimiting.Abstractions.csproj" />
     <Project Path="src/BeniceSoft.Abp.Extensions.RateLimiting/BeniceSoft.Abp.Extensions.RateLimiting.csproj" />
     <Project Path="src/BeniceSoft.Abp.Extensions.Redis/BeniceSoft.Abp.Extensions.Redis.csproj" />

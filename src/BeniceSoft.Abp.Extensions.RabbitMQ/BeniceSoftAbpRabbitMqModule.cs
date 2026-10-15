@@ -1,5 +1,4 @@
 using BeniceSoft.Abp.Core;
-using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Modularity;
 using Volo.Abp.RabbitMQ;
 

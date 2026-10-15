@@ -67,6 +67,10 @@ public class RabbitPublisher : IRabbitPublisher
             DeliveryMode = DeliveryModes.Persistent
         };
         setup?.Invoke(properties);
+        if (properties.MessageId.IsNull())
+        {
+            properties.MessageId = Guid.NewGuid().ToString("N");
+        }
 
         if (propagateUserContext)
         {

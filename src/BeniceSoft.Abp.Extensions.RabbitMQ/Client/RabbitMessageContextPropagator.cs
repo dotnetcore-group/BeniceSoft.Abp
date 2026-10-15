@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using BeniceSoft.Abp.Core.Messaging;
 using BeniceSoft.Abp.Core.Users;
 using BeniceSoft.Core;
@@ -6,13 +5,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
+using System.Security.Claims;
 using Volo.Abp.MultiTenancy;
 using Volo.Abp.Security.Claims;
 
 namespace BeniceSoft.Abp.Extensions.RabbitMQ;
 
 /// <summary>
-/// 发布时写入、消费时还原当前用户 / 租户（对齐 DTM EventBus Header 约定）。
+/// 发布时写入、消费时还原当前用户 / 租户
 /// </summary>
 public sealed class RabbitMessageContextPropagator
 {

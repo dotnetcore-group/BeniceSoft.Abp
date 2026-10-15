@@ -58,7 +58,14 @@ internal sealed class RabbitConsumerHostedService : IHostedService
                 options.PrefetchCount,
                 options.MaxRedeliveryTimes,
                 _logger,
-                messageContext);
+                messageContext)
+            {
+                MaxExceptionRetryTimes = options.MaxExceptionRetryTimes,
+                RetryExhaustedAction = options.RetryExhaustedAction,
+                InboxConsumerName = options.Idempotent
+                    ? options.ConsumerName ?? registration.HandlerType.FullName
+                    : null
+            };
 
             await subscriber.StartAsync(cancellationToken);
             _subscribers.Add(subscriber);

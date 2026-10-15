@@ -110,39 +110,108 @@ public class RabbitSubscriber : IAsyncDisposable
             _handlerType.Name);
     }
 
+    /// <summary>Max retries for unhandled handler exceptions; &lt;0 = legacy unbounded requeue.</summary>
+    public int MaxExceptionRetryTimes { get; set; } = 3;
+
+    /// <summary>Action when retries are exhausted.</summary>
+    public RabbitRetryExhaustedAction RetryExhaustedAction { get; set; } = RabbitRetryExhaustedAction.Auto;
+
+    /// <summary>Non-empty enables idempotent consumption via <see cref="IRabbitInboxStore"/>.</summary>
+    public string? InboxConsumerName { get; set; }
+
+    private bool HasDeadLetterExchange =>
+        _relational?.QueueDeclare?.Arguments?.ContainsKey("x-dead-letter-exchange") == true;
+
     private async Task OnReceivedAsync(object sender, BasicDeliverEventArgs e)
     {
         var messageText = Encoding.UTF8.GetString(e.Body.ToArray());
+        RabbitMessageResult result;
         try
         {
             using var scope = _scopeFactory.CreateScope();
             using var userContext = _messageContextPropagator?.Restore(scope.ServiceProvider, e.BasicProperties);
-            var handler = scope.ServiceProvider.GetRequiredService(_handlerType);
-            var message = JsonUtils.Deserialize(messageText, _messageType, JsonUtils.DefaultOptions);
-            if (message == null)
-            {
-                throw new InvalidOperationException($"Failed to deserialize message for queue {_queueName}");
-            }
-
-            var handleMethod = typeof(IRabbitMessageHandler<>)
-                .MakeGenericType(_messageType)
-                .GetMethod(nameof(IRabbitMessageHandler<object>.HandleAsync))!;
-
-            var resultTask = (Task<RabbitMessageResult>)handleMethod.Invoke(
-                handler,
-                [message, e.BasicProperties, CancellationToken.None])!;
-
-            var result = await resultTask;
-            await ApplyResultAsync(e, result);
+            result = await HandleAsync(scope.ServiceProvider, e, messageText);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing rabbit message on queue {Queue}: {Msg}", _queueName, messageText);
-            if (Channel != null)
-            {
-                await Channel.BasicRejectAsync(e.DeliveryTag, true);
-            }
+            _logger.LogError(
+                ex,
+                "Error processing rabbit message on queue {Queue}, MessageId={MessageId}: {Msg}",
+                _queueName,
+                e.BasicProperties.MessageId,
+                messageText);
+            await SettleAsync(() => OnExceptionAsync(e));
+            return;
         }
+
+        await SettleAsync(() => ApplyResultAsync(e, result));
+    }
+
+    private async Task<RabbitMessageResult> HandleAsync(IServiceProvider serviceProvider, BasicDeliverEventArgs e, string messageText)
+    {
+        var handler = serviceProvider.GetRequiredService(_handlerType);
+        var message = JsonUtils.Deserialize(messageText, _messageType, JsonUtils.DefaultOptions);
+        if (message == null)
+        {
+            throw new InvalidOperationException($"Failed to deserialize message for queue {_queueName}");
+        }
+
+        var handleMethod = typeof(IRabbitMessageHandler<>)
+            .MakeGenericType(_messageType)
+            .GetMethod(nameof(IRabbitMessageHandler<object>.HandleAsync))!;
+
+        Task<RabbitMessageResult> InvokeAsync() => (Task<RabbitMessageResult>)handleMethod.Invoke(
+            handler,
+            [message, e.BasicProperties, CancellationToken.None])!;
+
+        if (InboxConsumerName.IsNull())
+        {
+            return await InvokeAsync();
+        }
+
+        var messageId = e.BasicProperties.MessageId;
+        if (messageId.IsNull())
+        {
+            _logger.LogWarning(
+                "Idempotent consumer {Consumer} received a message without MessageId on queue {Queue}; processing without dedup",
+                InboxConsumerName,
+                _queueName);
+            return await InvokeAsync();
+        }
+
+        var inbox = serviceProvider.GetService<IRabbitInboxStore>()
+                    ?? throw new InvalidOperationException(
+                        "Idempotent consumers require an IRabbitInboxStore, e.g. services.AddBeniceSoftRabbitMqEfCore<TDbContext>()");
+        return await inbox.ProcessOnceAsync(messageId!, InboxConsumerName!, InvokeAsync);
+    }
+
+    private async Task SettleAsync(Func<Task> settle)
+    {
+        try
+        {
+            await settle();
+        }
+        catch (Exception ex)
+        {
+            // Channel failure: the broker will redeliver the unacked message.
+            _logger.LogError(ex, "Failed to settle rabbit message on queue {Queue}", _queueName);
+        }
+    }
+
+    private async Task OnExceptionAsync(BasicDeliverEventArgs e)
+    {
+        if (Channel == null)
+        {
+            return;
+        }
+
+        if (MaxExceptionRetryTimes < 0)
+        {
+            await Channel.BasicRejectAsync(e.DeliveryTag, true);
+            return;
+        }
+
+        await RetryOrExhaustAsync(e, MaxExceptionRetryTimes + 1);
     }
 
     private async Task ApplyResultAsync(BasicDeliverEventArgs e, RabbitMessageResult result)
@@ -160,33 +229,59 @@ public class RabbitSubscriber : IAsyncDisposable
             case RabbitMessageResult.Requeue:
                 await Channel.BasicRejectAsync(e.DeliveryTag, true);
                 break;
-            case RabbitMessageResult.Success:
+            case RabbitMessageResult.Redelivery when _maxRedeliveryTimes > 0:
+                await RetryOrExhaustAsync(e, _maxRedeliveryTimes);
+                break;
             case RabbitMessageResult.Redelivery:
-                if (result == RabbitMessageResult.Redelivery)
-                {
-                    var redelivery = true;
-                    var properties = new BasicProperties(e.BasicProperties);
-                    if (_maxRedeliveryTimes > 0)
-                    {
-                        var frequency = GetConsumptionFrequency(e.BasicProperties) + 1;
-                        if (frequency < _maxRedeliveryTimes)
-                        {
-                            SetConsumptionFrequency(properties, frequency);
-                        }
-                        else
-                        {
-                            redelivery = false;
-                        }
-                    }
-
-                    if (redelivery)
-                    {
-                        await Channel.BasicPublishAsync(e.Exchange, e.RoutingKey, false, properties, e.Body);
-                    }
-                }
-
+                await Channel.BasicPublishAsync(e.Exchange, e.RoutingKey, false, new BasicProperties(e.BasicProperties), e.Body);
                 await Channel.BasicAckAsync(e.DeliveryTag, false);
                 break;
+            default:
+                await Channel.BasicAckAsync(e.DeliveryTag, false);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// <paramref name="maxAttempts"/> = total deliveries allowed (same semantics as MaxRedeliveryTimes).
+    /// Retries are republished to this queue only (default exchange), so fanout/topic peers are not duplicated.
+    /// </summary>
+    private async Task RetryOrExhaustAsync(BasicDeliverEventArgs e, int maxAttempts)
+    {
+        var frequency = GetConsumptionFrequency(e.BasicProperties) + 1;
+        if (frequency < maxAttempts)
+        {
+            var properties = new BasicProperties(e.BasicProperties);
+            SetConsumptionFrequency(properties, frequency);
+            await Channel!.BasicPublishAsync(string.Empty, _queueName, false, properties, e.Body);
+            await Channel.BasicAckAsync(e.DeliveryTag, false);
+            return;
+        }
+
+        var deadLetter = RetryExhaustedAction switch
+        {
+            RabbitRetryExhaustedAction.DeadLetter => true,
+            RabbitRetryExhaustedAction.Drop => false,
+            _ => HasDeadLetterExchange
+        };
+
+        if (deadLetter)
+        {
+            _logger.LogWarning(
+                "Retries exhausted ({Attempts}), dead-lettering message {MessageId} from queue {Queue}",
+                frequency,
+                e.BasicProperties.MessageId,
+                _queueName);
+            await Channel!.BasicRejectAsync(e.DeliveryTag, false);
+        }
+        else
+        {
+            _logger.LogError(
+                "Retries exhausted ({Attempts}) and no dead-letter exchange; dropping message {MessageId} from queue {Queue}",
+                frequency,
+                e.BasicProperties.MessageId,
+                _queueName);
+            await Channel!.BasicAckAsync(e.DeliveryTag, false);
         }
     }
 
