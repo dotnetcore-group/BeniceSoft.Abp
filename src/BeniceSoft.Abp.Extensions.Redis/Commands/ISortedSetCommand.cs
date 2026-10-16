@@ -31,6 +31,33 @@ public interface ISortedSetCommand
     Task<long> ZAddAsync<T>(string key, Dictionary<T, double> members) where T : notnull;
 
     /// <summary>
+    /// 将一个或多个 member 元素及其 score 值加入到有序集 key 当中；仅当成员尚不存在时才添加（ZADD NX）。
+    /// 已存在的成员不会被更新 score，也不会改变排序位置。
+    /// 如果 key 不存在，则创建一个空的有序集并执行 ZADD 操作。
+    /// 当 key 存在但不是有序集类型时，返回一个错误。
+    /// 时间复杂度:O(M*log(N))， N 是有序集的基数， M 为成功添加的新成员的数量。
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="key"></param>
+    /// <param name="members"></param>
+    /// <returns>成功新添加的成员数量（不含因已存在而被忽略的成员）</returns>
+    long ZAddNx<T>(string key, Dictionary<T, double> members) where T : notnull;
+
+    /// <summary>
+    /// 将一个或多个 member 元素及其 score 值加入到有序集 key 当中；仅当成员尚不存在时才添加（ZADD NX）。
+    /// 已存在的成员不会被更新 score，也不会改变排序位置。
+    /// 如果 key 不存在，则创建一个空的有序集并执行 ZADD 操作。
+    /// 当 key 存在但不是有序集类型时，返回一个错误。
+    /// 时间复杂度:O(M*log(N))， N 是有序集的基数， M 为成功添加的新成员的数量。
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="key"></param>
+    /// <param name="members"></param>
+    /// <returns>成功新添加的成员数量（不含因已存在而被忽略的成员）</returns>
+    Task<long> ZAddNxAsync<T>(string key, Dictionary<T, double> members) where T : notnull;
+
+
+    /// <summary>
     /// 返回有序集 key 的基数。
     /// 时间复杂度:O(1)
     /// </summary>

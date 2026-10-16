@@ -534,6 +534,10 @@ public class RedisClient : IKeyCommand, IListCommand, IStringCommand, IHashComma
     {
         return Database.SortedSetAdd(key, members.Select(p => new SortedSetEntry(p.Key.ToValue(), p.Value)).ToArray());
     }
+    public long ZAddNx<T>(string key, Dictionary<T, double> members) where T : notnull
+    {
+        return Database.SortedSetAdd(key, members.Select(p => new SortedSetEntry(p.Key.ToValue(), p.Value)).ToArray(), When.NotExists);
+    }
 
     public long ZCard(string key)
     {
@@ -615,6 +619,10 @@ public class RedisClient : IKeyCommand, IListCommand, IStringCommand, IHashComma
     public Task<long> ZAddAsync<T>(string key, Dictionary<T, double> members) where T : notnull
     {
         return Database.SortedSetAddAsync(key, members.Select(p => new SortedSetEntry(p.Key.ToValue(), p.Value)).ToArray());
+    }
+    public Task<long> ZAddNxAsync<T>(string key, Dictionary<T, double> members) where T : notnull
+    {
+        return Database.SortedSetAddAsync(key, members.Select(p => new SortedSetEntry(p.Key.ToValue(), p.Value)).ToArray(), When.NotExists);
     }
 
     public Task<long> ZCardAsync(string key)
