@@ -29,13 +29,14 @@ internal sealed class NoRelationMigrationsModelDiffer : MigrationsModelDiffer
     public override IReadOnlyList<MigrationOperation> GetDifferences(IRelationalModel? source, IRelationalModel? target)
     {
         var migrations = base.GetDifferences(source, target);
-        var operations = migrations.OfType<CreateTableOperation>();
 
-        foreach (var operation in operations)
+        foreach (var operation in migrations.OfType<CreateTableOperation>())
         {
             operation.ForeignKeys.Clear();
         }
 
-        return migrations;
+        return migrations
+            .Where(operation => operation is not AddForeignKeyOperation and not DropForeignKeyOperation)
+            .ToList();
     }
 }
