@@ -71,24 +71,5 @@ public class HttpServiceRegistry : IServiceRegistry
             $"{reason}网关 Admin {_gatewayBaseUrl}，服务 {serviceName} 注册失败，请确认 Gateway Admin 已启动",
             inner);
     }
-
-    public async Task DeregisterAsync(string serviceName, string address)
-    {
-        try
-        {
-            using var client = CreateHttpClient();
-            using var request = new HttpRequestMessage(HttpMethod.Delete, "api/service-discovery/deregister")
-            {
-                Content = JsonContent.Create(new { ServiceName = serviceName, Address = address })
-            };
-            var response = await client.SendAsync(request);
-
-            response.EnsureSuccessStatusCode();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogDebug(ex, "Failed to deregister service: {ServiceName}", serviceName);
-        }
-    }
 }
 

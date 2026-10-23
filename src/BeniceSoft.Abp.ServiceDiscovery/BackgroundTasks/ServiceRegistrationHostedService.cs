@@ -142,29 +142,6 @@ public class ServiceRegistrationHostedService : BackgroundService
         }
     }
 
-    public override async Task StopAsync(CancellationToken cancellationToken)
-    {
-        if (!_options.EnableAutoRegistration || string.IsNullOrEmpty(_address))
-        {
-            await base.StopAsync(cancellationToken);
-            return;
-        }
-
-        if (_isRegistered)
-        {
-            try
-            {
-                await _serviceRegistry.DeregisterAsync(_options.ServiceName, _address);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to deregister service: {ServiceName}", _options.ServiceName);
-            }
-        }
-
-        await base.StopAsync(cancellationToken);
-    }
-
     private ServiceInstance BuildServiceInstance()
     {
         return new ServiceInstance

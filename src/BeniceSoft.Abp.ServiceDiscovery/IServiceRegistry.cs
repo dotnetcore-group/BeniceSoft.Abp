@@ -10,10 +10,5 @@ public interface IServiceRegistry
     /// 注册服务实例
     /// </summary>
     Task RegisterAsync(ServiceInstance instance);
-
-    /// <summary>
-    /// 注销服务实例
-    /// </summary>
-    Task DeregisterAsync(string serviceName, string address);
 }
 
