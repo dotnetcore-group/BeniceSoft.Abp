@@ -1,7 +1,7 @@
 namespace BeniceSoft.Abp.ServiceDiscovery;
 
 /// <summary>
-/// 服务实例（用于服务注册的 DTO）
+/// 服务实例
 /// </summary>
 public class ServiceInstance
 {
@@ -11,12 +11,7 @@ public class ServiceInstance
     public string ServiceName { get; set; } = string.Empty;
 
     /// <summary>
-    /// 实例 ID（唯一标识）
-    /// </summary>
-    public string InstanceId { get; set; } = string.Empty;
-
-    /// <summary>
-    /// 服务地址（http://host:port）
+    /// 服务地址，形如 http://10.0.0.1:6002
     /// </summary>
     public string Address { get; set; } = string.Empty;
 

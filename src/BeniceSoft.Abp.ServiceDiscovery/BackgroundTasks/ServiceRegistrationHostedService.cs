@@ -11,8 +11,8 @@ public class ServiceRegistrationHostedService : BackgroundService
     private readonly ServiceRegistryOptions _options;
     private readonly ILogger<ServiceRegistrationHostedService> _logger;
     private readonly IConfiguration _configuration;
-    private string? _instanceId;
     private string? _address;
+    private string? _lastRegistrationError;
     private volatile bool _isRegistered;
 
     public ServiceRegistrationHostedService(
@@ -35,13 +35,12 @@ public class ServiceRegistrationHostedService : BackgroundService
             return;
         }
 
-        _instanceId = _options.InstanceId ?? GenerateInstanceId();
         await base.StartAsync(cancellationToken);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (!_options.EnableAutoRegistration || string.IsNullOrEmpty(_instanceId))
+        if (!_options.EnableAutoRegistration)
         {
             return;
         }
@@ -62,7 +61,9 @@ public class ServiceRegistrationHostedService : BackgroundService
                 retryCount++;
                 if (_options.BlockStartupOnRegistrationFailure && retryCount >= _options.MaxStartupRetries)
                 {
-                    throw new InvalidOperationException($"Failed to register service after {retryCount} attempts");
+                    throw new ServiceRegistryException(
+                        _lastRegistrationError
+                        ?? $"服务 {_options.ServiceName} 注册失败，已重试 {retryCount} 次");
                 }
 
                 await Task.Delay(_options.RegistrationRetryInterval, stoppingToken);
@@ -73,8 +74,8 @@ public class ServiceRegistrationHostedService : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Service registration failed: {ServiceName}/{InstanceId}",
-                    _options.ServiceName, _instanceId);
+                _logger.LogError(ex, "服务 {ServiceName} 注册失败，地址 {Address}",
+                    _options.ServiceName, _address);
 
                 if (_options.BlockStartupOnRegistrationFailure)
                 {
@@ -101,9 +102,6 @@ public class ServiceRegistrationHostedService : BackgroundService
                 if (!await TryRegisterAsync())
                 {
                     _isRegistered = false;
-                    _logger.LogWarning(
-                        "Service heartbeat registration failed: {ServiceName}/{InstanceId}",
-                        _options.ServiceName, _instanceId);
                 }
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -114,8 +112,8 @@ public class ServiceRegistrationHostedService : BackgroundService
             {
                 _isRegistered = false;
                 _logger.LogError(ex,
-                    "Service heartbeat registration error: {ServiceName}/{InstanceId}",
-                    _options.ServiceName, _instanceId);
+                    "服务 {ServiceName} 心跳注册失败，地址 {Address}",
+                    _options.ServiceName, _address);
             }
         }
     }
@@ -130,15 +128,23 @@ public class ServiceRegistrationHostedService : BackgroundService
             _isRegistered = true;
             return true;
         }
-        catch (Exception)
+        catch (ServiceRegistryException ex)
         {
+            _lastRegistrationError = ex.Message;
+            _logger.LogWarning("{Message}", ex.Message);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _lastRegistrationError = ex.Message;
+            _logger.LogWarning(ex, "服务 {ServiceName} 注册失败，地址 {Address}", _options.ServiceName, _address);
             return false;
         }
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-        if (!_options.EnableAutoRegistration || string.IsNullOrEmpty(_instanceId) || string.IsNullOrEmpty(_address))
+        if (!_options.EnableAutoRegistration || string.IsNullOrEmpty(_address))
         {
             await base.StopAsync(cancellationToken);
             return;
@@ -161,43 +167,44 @@ public class ServiceRegistrationHostedService : BackgroundService
 
     private ServiceInstance BuildServiceInstance()
     {
-        string address;
-
-        if (!string.IsNullOrEmpty(_options.Address))
-        {
-            address = _options.Address;
-        }
-        else
-        {
-            var urls = _configuration["ASPNETCORE_URLS"] ?? _configuration["urls"];
-            if (!string.IsNullOrEmpty(urls))
-            {
-                address = urls.Split(';').First();
-            }
-            else
-            {
-                var host = _options.Host ?? Environment.MachineName;
-                var port = _options.Port ?? 80;
-                address = $"{(_options.IsHttps ? "https" : "http")}://{host}:{port}";
-            }
-        }
-
         return new ServiceInstance
         {
             ServiceName = _options.ServiceName,
-            InstanceId = _instanceId!,
-            Address = address,
+            Address = ResolveAddress(),
             Metadata = _options.Metadata
         };
     }
 
-    private string GenerateInstanceId()
+    private string ResolveAddress()
     {
-        var machineName = Environment.MachineName.ToLowerInvariant();
-        var timestamp = DateTime.UtcNow.Ticks;
-        var random = Guid.NewGuid().ToString("N")[..8];
+        if (!string.IsNullOrWhiteSpace(_options.Address))
+        {
+            return ServiceAddress.Canonicalize(_options.Address);
+        }
 
-        return $"{_options.ServiceName}-{machineName}-{timestamp}-{random}";
+        var urls = _configuration["ASPNETCORE_URLS"] ?? _configuration["urls"];
+        if (!string.IsNullOrWhiteSpace(urls))
+        {
+            ServiceRegistryException? last = null;
+            foreach (var candidate in urls.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                try
+                {
+                    return ServiceAddress.Canonicalize(candidate);
+                }
+                catch (ServiceRegistryException ex)
+                {
+                    last = ex;
+                }
+            }
+
+            throw last ?? new ServiceRegistryException("服务注册地址为空，请配置 ServiceDiscovery:Address");
+        }
+
+        var host = _options.Host ?? Environment.MachineName;
+        var port = _options.Port ?? (_options.IsHttps ? 443 : 80);
+        var scheme = _options.IsHttps ? "https" : "http";
+        return ServiceAddress.Canonicalize($"{scheme}://{host}:{port}");
     }
 }
 

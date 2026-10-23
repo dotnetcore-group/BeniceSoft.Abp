@@ -13,13 +13,8 @@ public class ServiceRegistryOptions
     public string ServiceName { get; set; } = string.Empty;
 
     /// <summary>
-    /// 实例 ID（可选，默认自动生成）
-    /// </summary>
-    public string? InstanceId { get; set; }
-
-    /// <summary>
-    /// 服务地址（可选，默认自动检测）
-    /// 示例：http://localhost:5001 或 https://api.example.com
+    /// 对外可访问地址（可选）。未配置时从监听地址里取第一个具体主机
+    /// 示例：http://10.0.0.1:6002
     /// </summary>
     public string? Address { get; set; }
 

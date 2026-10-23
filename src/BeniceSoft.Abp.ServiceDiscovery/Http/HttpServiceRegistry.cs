@@ -35,15 +35,41 @@ public class HttpServiceRegistry : IServiceRegistry
     public async Task RegisterAsync(ServiceInstance instance)
     {
         using var client = CreateHttpClient();
-        var response = await client.PostAsJsonAsync(
-            "api/service-discovery/register",
-            instance);
+        try
+        {
+            using var response = await client.PostAsJsonAsync(
+                "api/service-discovery/register",
+                instance);
 
-        response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ServiceRegistryException(
+                    $"网关 Admin {_gatewayBaseUrl} 拒绝服务 {instance.ServiceName} 注册，HTTP {(int)response.StatusCode}");
+            }
+        }
+        catch (ServiceRegistryException)
+        {
+            throw;
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode is null)
+        {
+            throw GatewayUnreachable(instance.ServiceName, "无法连接", ex);
+        }
+        catch (TaskCanceledException ex)
+        {
+            throw GatewayUnreachable(instance.ServiceName, "连接超时", ex);
+        }
 
         _logger.LogInformation(
             "Service registered successfully: {ServiceName} at {Address}",
             instance.ServiceName, instance.Address);
+    }
+
+    private ServiceRegistryException GatewayUnreachable(string serviceName, string reason, Exception inner)
+    {
+        return new ServiceRegistryException(
+            $"{reason}网关 Admin {_gatewayBaseUrl}，服务 {serviceName} 注册失败，请确认 Gateway Admin 已启动",
+            inner);
     }
 
     public async Task DeregisterAsync(string serviceName, string address)

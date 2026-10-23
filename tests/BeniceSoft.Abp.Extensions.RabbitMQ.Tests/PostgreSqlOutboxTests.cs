@@ -77,9 +77,9 @@ public class PostgreSqlOutboxTests : AbpIntegratedTest<PostgreSqlTestModule>
         }
         finally
         {
-            await using (var channel = await GetRequiredService<IRabbitConnection>().CreateChannelAsync())
+            await using (var channel = await GetRequiredService<IRabbitConnection>().CreateChannelAsync(TestContext.Current.CancellationToken))
             {
-                await channel.QueueDeleteAsync(queue, false, false);
+                await channel.QueueDeleteAsync(queue, false, false, cancellationToken: TestContext.Current.CancellationToken);
             }
 
             await using var connection = new Npgsql.NpgsqlConnection(PostgreSqlTestModule.ConnectionString);

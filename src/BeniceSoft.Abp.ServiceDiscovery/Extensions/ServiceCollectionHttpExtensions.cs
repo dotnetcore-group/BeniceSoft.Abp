@@ -42,7 +42,7 @@ public static class ServiceCollectionHttpExtensions
         {
             client.Timeout = TimeSpan.FromSeconds(10);
             client.DefaultRequestHeaders.Add("User-Agent", "ServiceDiscovery-Client");
-        });
+        }).RemoveAllLoggers();
 
         services.AddSingleton<IServiceRegistry, HttpServiceRegistry>();
 
