@@ -70,7 +70,7 @@ public class CacheSampleAppService : ApplicationService
     /// <summary>
     /// Unless 示例 - 当返回值为 null 时不缓存
     /// </summary>
-    [Cacheable(Unless = "@result == null", ExpirationSeconds = 60)]
+    [Cacheable(Unless = "__result__ == null", ExpirationSeconds = 60)]
     public virtual async Task<ProductDto?> GetProductUnlessNullAsync(int productId)
     {
         await Task.Delay(100);
