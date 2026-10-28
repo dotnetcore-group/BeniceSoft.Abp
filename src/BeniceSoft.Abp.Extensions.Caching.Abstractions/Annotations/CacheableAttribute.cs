@@ -7,7 +7,7 @@ namespace BeniceSoft.Abp.Extensions.Caching.Abstractions.Annotations;
 public class CacheableAttribute : Attribute
 {
     /// <summary>
-    /// 缓存键，接受一个结果为 string 的表达式
+    /// 默认缓存键，接受一个结果为 string 的表达式
     /// </summary>
     public string? Key { get; set; }
 

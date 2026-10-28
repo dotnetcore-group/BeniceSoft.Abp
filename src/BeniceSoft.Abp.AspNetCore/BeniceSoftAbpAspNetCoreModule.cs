@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.AspNetCore.Filters;
+using BeniceSoft.Abp.AspNetCore.Filters;
 using BeniceSoft.Abp.AspNetCore.Localizations;
 using BeniceSoft.Abp.Extensions.OpenTelemetry;
 using BeniceSoft.Abp.MultiTenancy;
@@ -36,6 +36,7 @@ public class BeniceSoftAbpAspNetCoreModule : AbpModule
             options.Filters.Add<JsonFormatResponseFilter>();
         });
 
+        // 规范化标准语言编码映射
         Configure<BeniceSoftCultureMapOptions>(options =>
         {
             var zhHansCultureMapInfo = new CultureMapInfo
