@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Extensions.Caching.Configurations;
+namespace BeniceSoft.Abp.Extensions.Caching.Configurations;
 
 /// <summary>
 /// 配置项

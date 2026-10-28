@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using BeniceSoft.Abp.Extensions.Caching.Abstractions.Interfaces;
 using Volo.Abp.DependencyInjection;
 

@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Extensions.Caching.Abstractions.Interfaces;
+using BeniceSoft.Abp.Extensions.Caching.Abstractions.Interfaces;
 using Microsoft.Extensions.Logging;
 using Volo.Abp.DependencyInjection;
 

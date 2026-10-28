@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Extensions.Caching.Abstractions.Annotations;
+namespace BeniceSoft.Abp.Extensions.Caching.Abstractions.Annotations;
 
 /// <summary>
 /// 方法返回值可缓存

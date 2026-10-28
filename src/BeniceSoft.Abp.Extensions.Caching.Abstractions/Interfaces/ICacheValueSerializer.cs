@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Extensions.Caching.Abstractions.Interfaces;
+namespace BeniceSoft.Abp.Extensions.Caching.Abstractions.Interfaces;
 
 public interface ICacheValueSerializer
 {

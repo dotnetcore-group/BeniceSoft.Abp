@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Extensions.Caching.Abstractions.Annotations;
+using BeniceSoft.Abp.Extensions.Caching.Abstractions.Annotations;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.DynamicProxy;
 

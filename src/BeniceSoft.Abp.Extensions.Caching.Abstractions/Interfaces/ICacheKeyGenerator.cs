@@ -1,4 +1,4 @@
-﻿using Volo.Abp.DynamicProxy;
+using Volo.Abp.DynamicProxy;
 
 namespace BeniceSoft.Abp.Extensions.Caching.Abstractions.Interfaces;
 

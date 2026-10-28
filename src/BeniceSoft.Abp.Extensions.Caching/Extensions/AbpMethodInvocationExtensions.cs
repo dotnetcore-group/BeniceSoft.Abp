@@ -33,7 +33,7 @@ public static class AbpMethodInvocationExtensions
         var returnValue = invocation.ReturnValue;
         if (returnValue == null)
         {
-            return Task.FromResult<object?>(default);
+            return null;
         }
 
         var returnType = returnValue.GetType();

@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Extensions.Caching.Abstractions.Interfaces;
+using BeniceSoft.Abp.Extensions.Caching.Abstractions.Interfaces;
 using MessagePack;
 using MessagePack.Resolvers;
 using Volo.Abp.DependencyInjection;

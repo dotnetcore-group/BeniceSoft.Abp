@@ -1,4 +1,4 @@
-﻿using System.Linq.Dynamic.Core;
+using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
 using BeniceSoft.Abp.Extensions.Caching.Abstractions.Annotations;
@@ -49,7 +49,7 @@ public class CacheableInterceptor : AbpInterceptor, ITransientDependency
                 if (!invocation.IsAsync())
                 {
                     // https://github.com/abpframework/abp/pull/9164
-                    // 同步方法不调用 await invocation.ProceedAsync() 将不起作用
+                    // 同步方法不调用 await invocation.ProceedAsync() 拦截器将不起作用
                     await invocation.ProceedAsync();
                     return;
                 }

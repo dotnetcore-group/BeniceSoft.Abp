@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Extensions.Caching.Configurations;
+using BeniceSoft.Abp.Extensions.Caching.Configurations;
 using BeniceSoft.Abp.Extensions.Caching.Interceptors;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Caching;

@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Extensions.Caching.Abstractions.Annotations;
+using BeniceSoft.Abp.Extensions.Caching.Abstractions.Annotations;
 using BeniceSoft.Abp.Extensions.Caching.Configurations;
 
 namespace BeniceSoft.Abp.Extensions.Caching.Extensions;

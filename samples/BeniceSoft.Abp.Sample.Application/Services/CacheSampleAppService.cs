@@ -1,5 +1,6 @@
 ﻿using BeniceSoft.Abp.Extensions.Caching.Abstractions.Annotations;
 using Volo.Abp.Application.Services;
+using Volo.Abp.Uow;
 
 namespace BeniceSoft.Abp.Sample.Application.Services;
 
@@ -8,8 +9,29 @@ namespace BeniceSoft.Abp.Sample.Application.Services;
 /// </summary>
 public class CacheSampleAppService : ApplicationService
 {
+    #region Queries
+
     /// <summary>
-    /// 基础缓存示例 - 使用默认缓存键（方法签名 + 参数类型）
+    /// 验证默认缓存键，相同参数命中时 ExecutionId 保持一致
+    /// 修改商品、分页、集合、空值或时间参数后应生成新的 ExecutionId
+    /// </summary>
+    [UnitOfWork(false)]
+    [Cacheable]
+    public virtual Task<CacheKeySampleRes> ProbeDefaultKeyAsync(
+        CacheKeySampleReq req,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(new CacheKeySampleRes
+        {
+            ExecutionId = Guid.NewGuid(),
+            Parameters = req
+        });
+    }
+
+    /// <summary>
+    /// 基础缓存示例 - 使用默认缓存键（方法标识 + 实际参数值摘要）
     /// 缓存 60 秒
     /// </summary>
     [Cacheable(ExpirationSeconds = 60)]
@@ -31,7 +53,7 @@ public class CacheSampleAppService : ApplicationService
     /// 自定义缓存键示例 - 使用表达式生成缓存键
     /// 缓存键格式: product:{productId}
     /// </summary>
-    [Cacheable(Key = "\"product:\" + productId.ToString()", ExpirationSeconds = 120)]
+    [Cacheable(Key = "\"product:\" + productId", ExpirationSeconds = 120)]
     public virtual async Task<ProductDto> GetProductWithCustomKeyAsync(int productId)
     {
         await Task.Delay(100);
@@ -91,9 +113,9 @@ public class CacheSampleAppService : ApplicationService
     }
 
     /// <summary>
-    /// 复杂参数缓存示例 - 使用对象属性生成缓存键
+    /// 复杂参数缓存示例 - 默认缓存键包含请求对象的全部可序列化属性
     /// </summary>
-    [Cacheable(Key = "\"search:\" + query.Keyword + \":\" + query.Page.ToString()", ExpirationSeconds = 30)]
+    [Cacheable(ExpirationSeconds = 30)]
     public virtual async Task<ProductListDto> SearchProductsAsync(ProductSearchQuery query)
     {
         await Task.Delay(100);
@@ -133,9 +155,33 @@ public class CacheSampleAppService : ApplicationService
             new() { Id = 4, Name = "Home & Garden" }
         };
     }
+
+    #endregion
 }
 
 #region DTOs
+
+/// <summary>
+/// 默认缓存键验证参数
+/// </summary>
+public class CacheKeySampleReq
+{
+    public long ProductId { get; set; }
+    public int Page { get; set; } = 1;
+    public int PageSize { get; set; } = 10;
+    public string? Keyword { get; set; }
+    public List<long>? ProductIds { get; set; } = [];
+    public DateTimeOffset? UpdatedAfter { get; set; }
+}
+
+/// <summary>
+/// 默认缓存键验证结果，ExecutionId 仅在方法实际执行时生成
+/// </summary>
+public class CacheKeySampleRes
+{
+    public Guid ExecutionId { get; set; }
+    public CacheKeySampleReq Parameters { get; set; } = new();
+}
 
 public class ProductDto
 {
