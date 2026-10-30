@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Core;
+using BeniceSoft.Core;
 using System.Globalization;
 using System.Text;
 

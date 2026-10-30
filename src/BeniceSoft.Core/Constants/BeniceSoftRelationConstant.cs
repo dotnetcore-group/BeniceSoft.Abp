@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Core.Constants;
+namespace BeniceSoft.Core.Constants;
 
 /// <summary>
 /// 关系

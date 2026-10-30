@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+using BeniceSoft.Core.Reflector;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.WebSockets;
@@ -9,7 +10,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-using BeniceSoft.Core.Reflector;
 
 namespace BeniceSoft.Core;
 

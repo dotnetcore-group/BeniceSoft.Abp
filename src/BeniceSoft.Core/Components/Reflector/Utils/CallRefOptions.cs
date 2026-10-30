@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Core.Reflector;
+namespace BeniceSoft.Core.Reflector;
 
 public enum CallRefOptions
 {

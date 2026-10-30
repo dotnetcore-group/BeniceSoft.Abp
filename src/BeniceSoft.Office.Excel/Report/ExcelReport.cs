@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Office.Excel.Report;
+using BeniceSoft.Office.Excel.Report;
 using NPOI.SS.UserModel;
 
 namespace BeniceSoft.Office.Excel;

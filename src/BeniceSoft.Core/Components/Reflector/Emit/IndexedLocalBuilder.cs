@@ -1,4 +1,4 @@
-﻿using System.Reflection.Emit;
+using System.Reflection.Emit;
 
 namespace BeniceSoft.Core.Reflector;
 

@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Http.FluentClient;
+namespace BeniceSoft.Http.FluentClient;
 
 /// <summary>
 /// API business exception thrown when ResponseResult.Code != 200.

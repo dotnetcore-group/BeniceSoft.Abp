@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Core;
+namespace BeniceSoft.Core;
 
 /// <summary>
 /// 分页结果

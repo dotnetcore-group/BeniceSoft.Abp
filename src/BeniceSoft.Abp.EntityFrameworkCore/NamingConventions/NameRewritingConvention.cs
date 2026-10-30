@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Core;
+using BeniceSoft.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;

@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Core;
+using BeniceSoft.Abp.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Http.Client;
 using Volo.Abp.Modularity;

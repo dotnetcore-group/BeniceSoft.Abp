@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Core;
+using BeniceSoft.Core;
 using System.Collections;
 using System.Linq.Expressions;
 

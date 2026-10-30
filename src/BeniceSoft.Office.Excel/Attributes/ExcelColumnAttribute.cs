@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Core;
+using BeniceSoft.Core;
 using System.ComponentModel;
 using System.Reflection;
 

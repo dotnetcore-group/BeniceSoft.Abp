@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Ddd.Domain;
+using BeniceSoft.Abp.Ddd.Domain;
 
 namespace BeniceSoft.Abp.EntityFrameworkCore;
 

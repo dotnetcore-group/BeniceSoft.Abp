@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Core;
+using BeniceSoft.Core;
 using BeniceSoft.Core.Reflector;
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;

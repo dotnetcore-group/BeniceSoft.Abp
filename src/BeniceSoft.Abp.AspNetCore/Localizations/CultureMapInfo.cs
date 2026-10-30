@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.AspNetCore.Localizations;
+namespace BeniceSoft.Abp.AspNetCore.Localizations;
 
 public class CultureMapInfo
 {

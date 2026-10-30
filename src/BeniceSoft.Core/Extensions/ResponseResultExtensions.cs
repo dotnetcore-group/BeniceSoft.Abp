@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Core;
+namespace BeniceSoft.Core;
 
 public static class ResponseResultExtensions
 {

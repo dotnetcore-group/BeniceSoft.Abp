@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Core.Strategy;
+namespace BeniceSoft.Core.Strategy;
 
 public static class IdGeneratorExtensions
 {

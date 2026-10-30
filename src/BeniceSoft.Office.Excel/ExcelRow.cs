@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Office.Excel;
+namespace BeniceSoft.Office.Excel;
 
 public class ExcelRow<T>
 {

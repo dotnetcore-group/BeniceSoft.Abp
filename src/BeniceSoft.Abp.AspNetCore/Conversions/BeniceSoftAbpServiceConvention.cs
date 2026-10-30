@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Core;
+using BeniceSoft.Abp.Core;
 using BeniceSoft.Core.Reflector;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.Options;

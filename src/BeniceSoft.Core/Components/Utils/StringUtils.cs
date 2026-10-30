@@ -1,8 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using BeniceSoft.Core.Strategy;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using BeniceSoft.Core.Strategy;
 
 namespace BeniceSoft.Core;
 

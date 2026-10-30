@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Ddd.Domain;
+using BeniceSoft.Abp.Ddd.Domain;
 using BeniceSoft.Abp.Ddd.Domain.Entity;
 using BeniceSoft.Abp.Extensions.DynamicQuery.EfCore;
 using Volo.Abp.Data;

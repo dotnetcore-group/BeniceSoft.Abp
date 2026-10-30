@@ -1,7 +1,7 @@
-﻿using System.Reflection;
+using BeniceSoft.Core.Reflector;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using BeniceSoft.Core.Reflector;
 
 namespace BeniceSoft.Core;
 

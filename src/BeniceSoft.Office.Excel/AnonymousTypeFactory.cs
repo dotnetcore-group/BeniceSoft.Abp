@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Core;
+using BeniceSoft.Core;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Security.Cryptography;

@@ -1,4 +1,4 @@
-﻿#pragma warning disable EF1001
+#pragma warning disable EF1001
 
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;

@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Core;
+namespace BeniceSoft.Core;
 
 [AttributeUsage(AttributeTargets.Property, Inherited = false)]
 public class ExprPropertyAttribute(ExprOperator eop = ExprOperator.Equal) : Attribute

@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Core;
+using BeniceSoft.Core;
 using NPOI.SS.UserModel;
 using System.Globalization;
 using System.Linq.Expressions;

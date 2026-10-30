@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Core.Reflector;
+using BeniceSoft.Core.Reflector;
 using BeniceSoft.Core.Strategy;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ValueGeneration;

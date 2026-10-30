@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Extensions.DynamicQuery;
+namespace BeniceSoft.Extensions.DynamicQuery;
 
 public interface IDynamicQueryRequest
 {

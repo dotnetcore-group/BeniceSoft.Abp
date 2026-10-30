@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Core.Strategy;
+namespace BeniceSoft.Core.Strategy;
 
 /// <summary>
 /// encodes and decodes text based on specified key.

@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Core;
+using BeniceSoft.Core;
 using BeniceSoft.Core.Constants;
 
 namespace BeniceSoft.Extensions.DynamicQuery;
