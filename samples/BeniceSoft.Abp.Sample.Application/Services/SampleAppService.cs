@@ -14,6 +14,7 @@ using BeniceSoft.Http.FluentClient;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Uow;
 
 namespace BeniceSoft.Abp.Sample.Application.Services;
 
@@ -83,8 +84,10 @@ public class SampleAppService : SampleAppServiceBase, IUserAppService
         return "OK";
     }
 
+    #region Commands
+
     /// <summary>
-    /// 测试锁
+    /// 测试锁，方法返回后仍持有至当前工作单元结束
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
@@ -112,7 +115,7 @@ public class SampleAppService : SampleAppServiceBase, IUserAppService
     }
 
     /// <summary>
-    /// 手动使用分布式锁
+    /// 手动使用分布式锁，并将句柄关联到当前工作单元
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
@@ -121,29 +124,43 @@ public class SampleAppService : SampleAppServiceBase, IUserAppService
     {
         var resourceId = $"sample:manual-lock:{input.Id}";
 
-        var acquired = await _distributedLockProvider.AcquireAsync(
+        var handle = await _distributedLockProvider.TryAcquireAsync(
             resourceId,
             TimeSpan.FromMilliseconds(5000),
             TimeSpan.FromMilliseconds(100),
             TimeSpan.FromMilliseconds(25),
             autoRenew: true);
 
-        if (!acquired)
+        if (handle == null)
         {
             return "资源已被占用，请稍候再试";
         }
 
+        var managedByUnitOfWork = false;
         try
         {
+            var unitOfWork = LazyServiceProvider.LazyGetRequiredService<IUnitOfWorkManager>().Current;
+            if (unitOfWork != null)
+            {
+                unitOfWork.Disposed += (_, _) => handle.Dispose();
+                unitOfWork.OnCompleted(() => handle.DisposeAsync().AsTask());
+                managedByUnitOfWork = true;
+            }
+
             // 手动调用示例：模拟业务执行
             await Task.Delay(8000);
             return "OK";
         }
         finally
         {
-            await _distributedLockProvider.ReleaseLockAsync(resourceId);
+            if (!managedByUnitOfWork)
+            {
+                await handle.DisposeAsync();
+            }
         }
     }
+
+    #endregion
 
     /// <summary>
     /// 获取用户角色ids

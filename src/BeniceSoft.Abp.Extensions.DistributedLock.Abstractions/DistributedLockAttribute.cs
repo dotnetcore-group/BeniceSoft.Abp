@@ -1,7 +1,8 @@
-﻿namespace BeniceSoft.Abp.Extensions.DistributedLock.Abstractions;
+namespace BeniceSoft.Abp.Extensions.DistributedLock.Abstractions;
 
 /// <summary>
 /// 分布式锁
+/// 存在工作单元时持有至提交完成或工作单元释放，否则持有至方法结束
 /// </summary>
 [AttributeUsage(AttributeTargets.Method)]
 public class DistributedLockAttribute : Attribute

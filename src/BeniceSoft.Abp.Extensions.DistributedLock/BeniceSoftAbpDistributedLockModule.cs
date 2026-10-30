@@ -1,13 +1,15 @@
-﻿using BeniceSoft.Abp.Extensions.DistributedLock.Abstractions;
+using BeniceSoft.Abp.Extensions.DistributedLock.Abstractions;
 using BeniceSoft.Abp.Extensions.Redis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Volo.Abp;
 using Volo.Abp.Modularity;
+using Volo.Abp.Uow;
 
 namespace BeniceSoft.Abp.Extensions.DistributedLock;
 
+[DependsOn(typeof(AbpUnitOfWorkModule))]
 public class BeniceSoftAbpDistributedLockModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)

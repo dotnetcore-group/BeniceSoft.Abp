@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Extensions.DistributedLock.Abstractions;
+namespace BeniceSoft.Abp.Extensions.DistributedLock.Abstractions;
 
 /// <summary>
 /// 分布式锁 Redis 配置

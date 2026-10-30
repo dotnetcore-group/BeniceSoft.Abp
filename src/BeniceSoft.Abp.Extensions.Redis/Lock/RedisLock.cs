@@ -1,8 +1,7 @@
+using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace BeniceSoft.Abp.Extensions.Redis;
 
@@ -23,8 +22,6 @@ public class RedisLock : IRedisLock
     private readonly SemaphoreSlim _semaphore = new(1, 1);
     private readonly CancellationTokenSource _unlockSource = new();
     private readonly int _quorum;
-    private readonly int _quorumRetryCount = 5;
-    private readonly int _quorumRetryDelayMs = 200;
     private readonly int _retryInterval;
     private readonly int _minimumRetryInterval = 10;
     private readonly double _clockDriftFactor = 0.01;
@@ -149,7 +146,6 @@ public class RedisLock : IRedisLock
         var validityTicks = _expiryTime.Ticks - elapsedTimeSpanTicks - driftTicks;
         return validityTicks;
     }
-
 
     private RedisLockStatus GetFailedLockStatus(RedisLockSummary lockResult)
     {
@@ -331,68 +327,34 @@ public class RedisLock : IRedisLock
 
     private (RedisLockStatus, RedisLockSummary) Acquire()
     {
-        var lockSummary = new RedisLockSummary();
-
-        for (var i = 0; i < _quorumRetryCount; i++)
+        _cancellationToken.ThrowIfCancellationRequested();
+        var stopwatch = Stopwatch.StartNew();
+        var summary = Lock();
+        var validityTicks = GetRemainingValidityTicks(stopwatch);
+        if (summary.Acquired >= _quorum && validityTicks > 0)
         {
-            _cancellationToken.ThrowIfCancellationRequested();
-
-            var stopwatch = Stopwatch.StartNew();
-            lockSummary = Lock();
-            var validityTicks = GetRemainingValidityTicks(stopwatch);
-            stopwatch.Stop();
-
-            if (lockSummary.Acquired >= _quorum && validityTicks > 0)
-            {
-                return (RedisLockStatus.Acquired, lockSummary);
-            }
-
-            // 未能获取足够的锁，释放已写入 Redis 的实例（不经过 Unlock 的 IsAcquired 检查）
-            UnlockAll();
-
-            // 仅在还有重试次数时休眠
-            if (i < _quorumRetryCount - 1)
-            {
-                var sleepMs = Random.Shared.Next(_quorumRetryDelayMs);
-                Task.Delay(sleepMs, _cancellationToken).Wait(_cancellationToken);
-            }
+            return (RedisLockStatus.Acquired, summary);
         }
 
-        var status = GetFailedLockStatus(lockSummary);
-        return (status, lockSummary);
+        // 本轮未取得有效锁时清理部分成功的实例，不在此处进行隐含重试
+        UnlockAll();
+        return (GetFailedLockStatus(summary), summary);
     }
 
     private async Task<(RedisLockStatus, RedisLockSummary)> AcquireAsync()
     {
-        var lockSummary = new RedisLockSummary();
-
-        for (var i = 0; i < _quorumRetryCount; i++)
+        _cancellationToken.ThrowIfCancellationRequested();
+        var stopwatch = Stopwatch.StartNew();
+        var summary = await LockAsync();
+        var validityTicks = GetRemainingValidityTicks(stopwatch);
+        if (summary.Acquired >= _quorum && validityTicks > 0)
         {
-            _cancellationToken.ThrowIfCancellationRequested();
-
-            var stopwatch = Stopwatch.StartNew();
-            lockSummary = await LockAsync();
-            var validityTicks = GetRemainingValidityTicks(stopwatch);
-            stopwatch.Stop();
-
-            if (lockSummary.Acquired >= _quorum && validityTicks > 0)
-            {
-                return (RedisLockStatus.Acquired, lockSummary);
-            }
-
-            // 未能获取足够的锁，释放已写入 Redis 的实例（不经过 UnlockAsync 的 IsAcquired 检查）
-            await UnlockAllAsync();
-
-            // 仅在还有重试次数时休眠
-            if (i < _quorumRetryCount - 1)
-            {
-                var sleepMs = Random.Shared.Next(_quorumRetryDelayMs);
-                await Task.Delay(sleepMs, _cancellationToken);
-            }
+            return (RedisLockStatus.Acquired, summary);
         }
 
-        var status = GetFailedLockStatus(lockSummary);
-        return (status, lockSummary);
+        // Provider 使用 WaitTime = 0，由 Provider 统一管理等待与重试
+        await UnlockAllAsync();
+        return (GetFailedLockStatus(summary), summary);
     }
 
     private RedisLockResult ExtendInstance(RedisClient client, TimeSpan expiryTime)

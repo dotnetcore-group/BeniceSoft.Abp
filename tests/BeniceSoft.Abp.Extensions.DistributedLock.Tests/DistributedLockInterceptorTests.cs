@@ -1,240 +1,269 @@
-﻿using System.Reflection;
-using Microsoft.Extensions.Logging;
-using Moq;
 using BeniceSoft.Abp.Extensions.DistributedLock.Abstractions;
-using Shouldly;
-using Volo.Abp.DynamicProxy;
+using BeniceSoft.Abp.Extensions.DistributedLock.Tests.Mocks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
+using Volo.Abp;
+using Volo.Abp.Autofac;
+using Volo.Abp.DependencyInjection;
+using Volo.Abp.Modularity;
+using Volo.Abp.Testing;
+using Volo.Abp.Uow;
 using Xunit;
 
 namespace BeniceSoft.Abp.Extensions.DistributedLock.Tests;
 
-/// <summary>
-/// Tests for DistributedLockInterceptor
-/// </summary>
-public class DistributedLockInterceptorTests
+public class DistributedLockInterceptorTests : AbpIntegratedTest<DistributedLockTestModule>
 {
-    private readonly Mock<ILogger<DistributedLockInterceptor>> _loggerMock;
-    private readonly Mock<IDistributedLockProvider> _lockProviderMock;
-    private readonly DistributedLockInterceptor _interceptor;
+    protected override void SetAbpApplicationCreationOptions(AbpApplicationCreationOptions options) => options.UseAutofac();
 
-    public DistributedLockInterceptorTests()
+    protected override void BeforeAddApplication(IServiceCollection services)
     {
-        _loggerMock = new Mock<ILogger<DistributedLockInterceptor>>();
-        _lockProviderMock = new Mock<IDistributedLockProvider>();
-        _interceptor = new DistributedLockInterceptor(_loggerMock.Object, _lockProviderMock.Object);
-    }
-
-    [Fact]
-    public async Task InterceptAsync_WithoutAttribute_ShouldNotAcquireLock()
-    {
-        // Arrange
-        var invocationMock = new Mock<IAbpMethodInvocation>();
-        var methodInfo = typeof(TestService).GetMethod(nameof(TestService.MethodWithoutLock))!;
-        invocationMock.Setup(x => x.Method).Returns(methodInfo);
-        invocationMock.Setup(x => x.ProceedAsync()).Returns(Task.CompletedTask);
-
-        // Act
-        await _interceptor.InterceptAsync(invocationMock.Object);
-
-        // Assert - 验证没有调用任何 AcquireAsync 重载
-        _lockProviderMock.Verify(
-            x => x.AcquireAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<bool>(),  It.IsAny<CancellationToken>()),
-            Times.Never);
-        invocationMock.Verify(x => x.ProceedAsync(), Times.Once);
-    }
-
-    [Fact]
-    public async Task InterceptAsync_WithAttribute_ShouldAcquireAndReleaseLock()
-    {
-        // Arrange
-        var invocationMock = new Mock<IAbpMethodInvocation>();
-        var methodInfo = typeof(TestService).GetMethod(nameof(TestService.MethodWithLock))!;
-        invocationMock.Setup(x => x.Method).Returns(methodInfo);
-        invocationMock.Setup(x => x.ProceedAsync()).Returns(Task.CompletedTask);
-
-        // 新接口签名包含 autoRenew 参数
-        _lockProviderMock
-            .Setup(x => x.AcquireAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), false, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-
-        // Act
-        await _interceptor.InterceptAsync(invocationMock.Object);
-
-        // Assert
-        _lockProviderMock.Verify(
-            x => x.AcquireAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(),  false, It.IsAny<CancellationToken>()),
-            Times.Once);
-        _lockProviderMock.Verify(x => x.ReleaseLockAsync(It.IsAny<string>()), Times.Once);
-        invocationMock.Verify(x => x.ProceedAsync(), Times.Once);
-    }
-
-    [Fact]
-    public async Task InterceptAsync_WhenAcquireFails_ShouldThrowAndNotProceed()
-    {
-        // Arrange
-        var invocationMock = new Mock<IAbpMethodInvocation>();
-        var methodInfo = typeof(TestService).GetMethod(nameof(TestService.MethodWithLock))!;
-        invocationMock.Setup(x => x.Method).Returns(methodInfo);
-
-        _lockProviderMock
-            .Setup(x => x.AcquireAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), false, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        // Act & Assert
-        await Should.ThrowAsync<InvalidOperationException>(async () =>
-            await _interceptor.InterceptAsync(invocationMock.Object));
-
-        invocationMock.Verify(x => x.ProceedAsync(), Times.Never);
-        _lockProviderMock.Verify(x => x.ReleaseLockAsync(It.IsAny<string>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task InterceptAsync_WhenMethodThrows_ShouldStillReleaseLock()
-    {
-        // Arrange
-        var invocationMock = new Mock<IAbpMethodInvocation>();
-        var methodInfo = typeof(TestService).GetMethod(nameof(TestService.MethodWithLock))!;
-        invocationMock.Setup(x => x.Method).Returns(methodInfo);
-        invocationMock.Setup(x => x.ProceedAsync()).ThrowsAsync(new InvalidOperationException("Test exception"));
-
-        _lockProviderMock
-            .Setup(x => x.AcquireAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(),  false, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-
-        // Act & Assert
-        await Should.ThrowAsync<InvalidOperationException>(async () =>
-            await _interceptor.InterceptAsync(invocationMock.Object));
-
-        // Lock should still be released even when exception occurs
-        _lockProviderMock.Verify(x => x.ReleaseLockAsync(It.IsAny<string>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task InterceptAsync_WithCustomResourceId_ShouldUseFormattedResourceId()
-    {
-        // Arrange
-        var invocationMock = new Mock<IAbpMethodInvocation>();
-        var methodInfo = typeof(TestService).GetMethod(nameof(TestService.MethodWithCustomResourceId))!;
-        invocationMock.Setup(x => x.Method).Returns(methodInfo);
-        invocationMock.Setup(x => x.ProceedAsync()).Returns(Task.CompletedTask);
-        invocationMock.Setup(x => x.ArgumentsDictionary).Returns(new Dictionary<string, object?>
+        services.ReplaceConfiguration(new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
         {
-            { "id", 123 },
-            { "name", "test" }
+            ["DistributedLock:ConnectionString"] = "localhost:6379"
+        }).Build());
+    }
+
+    [Fact]
+    public async Task AutomaticUnitOfWork_HoldsLockUntilCommitFinishes()
+    {
+        var service = GetRequiredService<LockTestService>();
+        var manager = GetRequiredService<IUnitOfWorkManager>();
+        var store = GetRequiredService<RedisLockTestStore>();
+        var committed = false;
+        var transaction = new Mock<ITransactionApi>();
+        transaction.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(async () =>
+        {
+            Assert.NotNull(store.Owner("order"));
+            var provider = GetRequiredService<IDistributedLockProvider>();
+            Assert.Null(await provider.TryAcquireAsync("order", TimeSpan.FromSeconds(30), TimeSpan.Zero, TimeSpan.Zero, cancellationToken: TestContext.Current.CancellationToken));
+            committed = true;
         });
 
-        string? capturedResourceId = null;
-        _lockProviderMock
-            .Setup(x => x.AcquireAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), false, It.IsAny<CancellationToken>()))
-            .Callback<string, TimeSpan, TimeSpan, TimeSpan, bool, bool, CancellationToken>((resourceId, _, _, _, _, _, _) => capturedResourceId = resourceId)
-            .ReturnsAsync(true);
+        await service.RunAsync("order", () =>
+        {
+            Assert.NotNull(manager.Current);
+            manager.Current.AddTransactionApi("transaction", transaction.Object);
+            Assert.NotNull(store.Owner("order"));
+            return Task.CompletedTask;
+        });
 
-        // Act
-        await _interceptor.InterceptAsync(invocationMock.Object);
-
-        // Assert
-        capturedResourceId.ShouldBe("test:lock:123");
+        Assert.True(committed);
+        Assert.Null(store.Owner("order"));
+        transaction.Verify(x => x.Dispose(), Times.Once);
     }
 
     [Fact]
-    public async Task InterceptAsync_WithoutResourceId_ShouldUseMethodFullName()
+    public async Task AmbientUnitOfWork_MethodReturnDoesNotReleaseLock()
     {
-        // Arrange
-        var invocationMock = new Mock<IAbpMethodInvocation>();
-        var methodInfo = typeof(TestService).GetMethod(nameof(TestService.MethodWithLock))!;
-        invocationMock.Setup(x => x.Method).Returns(methodInfo);
-        invocationMock.Setup(x => x.ProceedAsync()).Returns(Task.CompletedTask);
+        var manager = GetRequiredService<IUnitOfWorkManager>();
+        var store = GetRequiredService<RedisLockTestStore>();
+        using var uow = manager.Begin(requiresNew: true, isTransactional: true);
+        await GetRequiredService<LockTestService>().RunAsync("order", () => Task.CompletedTask);
 
-        string? capturedResourceId = null;
-        _lockProviderMock
-            .Setup(x => x.AcquireAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(),  false, It.IsAny<CancellationToken>()))
-            .Callback<string, TimeSpan, TimeSpan, TimeSpan, bool, bool, CancellationToken>((resourceId, _, _, _, _, _, _) => capturedResourceId = resourceId)
-            .ReturnsAsync(true);
-
-        // Act
-        await _interceptor.InterceptAsync(invocationMock.Object);
-
-        // Assert
-        capturedResourceId.ShouldNotBeNull();
-        capturedResourceId.ShouldContain("TestService");
-        capturedResourceId.ShouldContain("MethodWithLock");
+        Assert.NotNull(store.Owner("order"));
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Null(store.Owner("order"));
     }
 
     [Fact]
-    public async Task InterceptAsync_WithAutoRenew_ShouldPassAutoRenewParameter()
+    public async Task BusinessException_ReleasesOnlyAfterTransactionDisposal()
     {
-        // Arrange
-        var invocationMock = new Mock<IAbpMethodInvocation>();
-        var methodInfo = typeof(TestService).GetMethod(nameof(TestService.MethodWithAutoRenew))!;
-        invocationMock.Setup(x => x.Method).Returns(methodInfo);
-        invocationMock.Setup(x => x.ProceedAsync()).Returns(Task.CompletedTask);
+        var manager = GetRequiredService<IUnitOfWorkManager>();
+        var store = GetRequiredService<RedisLockTestStore>();
+        var transaction = new Mock<ITransactionApi>();
+        transaction.Setup(x => x.Dispose()).Callback(() => Assert.NotNull(store.Owner("order")));
+        using (var uow = manager.Begin(requiresNew: true, isTransactional: true))
+        {
+            uow.AddTransactionApi("transaction", transaction.Object);
+            await Assert.ThrowsAsync<InvalidOperationException>(() => GetRequiredService<LockTestService>()
+                .RunAsync("order", () => throw new InvalidOperationException("业务失败")));
+            Assert.NotNull(store.Owner("order"));
+        }
 
-        bool capturedAutoRenew = false;
-        _lockProviderMock
-            .Setup(x => x.AcquireAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(),  true, It.IsAny<CancellationToken>()))
-            .Callback<string, TimeSpan, TimeSpan, TimeSpan, bool, bool, CancellationToken>((_, _, _, _, _, autoRenew, _) => capturedAutoRenew = autoRenew)
-            .ReturnsAsync(true);
-
-        // Act
-        await _interceptor.InterceptAsync(invocationMock.Object);
-
-        // Assert
-        capturedAutoRenew.ShouldBeTrue();
-        _lockProviderMock.Verify(
-            x => x.AcquireAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(),  true, It.IsAny<CancellationToken>()),
-            Times.Once);
+        Assert.Null(store.Owner("order"));
+        transaction.Verify(x => x.Dispose(), Times.Once);
     }
 
     [Fact]
-    public async Task InterceptAsync_WithoutAutoRenew_ShouldPassFalse()
+    public async Task ExplicitRollback_HoldsLockUntilTransactionIsDisposed()
     {
-        // Arrange
-        var invocationMock = new Mock<IAbpMethodInvocation>();
-        var methodInfo = typeof(TestService).GetMethod(nameof(TestService.MethodWithLock))!;
-        invocationMock.Setup(x => x.Method).Returns(methodInfo);
-        invocationMock.Setup(x => x.ProceedAsync()).Returns(Task.CompletedTask);
+        var manager = GetRequiredService<IUnitOfWorkManager>();
+        var store = GetRequiredService<RedisLockTestStore>();
+        var transaction = new Mock<ITransactionApi>();
+        var rollback = transaction.As<ISupportsRollback>();
+        rollback.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(() =>
+        {
+            Assert.NotNull(store.Owner("order"));
+            return Task.CompletedTask;
+        });
+        transaction.Setup(x => x.Dispose()).Callback(() => Assert.NotNull(store.Owner("order")));
+        using (var uow = manager.Begin(requiresNew: true, isTransactional: true))
+        {
+            uow.AddTransactionApi("transaction", transaction.Object);
+            await GetRequiredService<LockTestService>().RunAsync("order", () => Task.CompletedTask);
+            await uow.RollbackAsync(TestContext.Current.CancellationToken);
+            Assert.NotNull(store.Owner("order"));
+        }
 
-        bool capturedAutoRenew = true; // 初始化为 true，验证是否被设置为 false
-        _lockProviderMock
-            .Setup(x => x.AcquireAsync(It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(),  false, It.IsAny<CancellationToken>()))
-            .Callback<string, TimeSpan, TimeSpan, TimeSpan, bool, bool, CancellationToken>((_, _, _, _, _, autoRenew, _) => capturedAutoRenew = autoRenew)
-            .ReturnsAsync(true);
-
-        // Act
-        await _interceptor.InterceptAsync(invocationMock.Object);
-
-        // Assert
-        capturedAutoRenew.ShouldBeFalse();
+        rollback.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+        Assert.Null(store.Owner("order"));
     }
 
-    #region Test Service
-
-    private class TestService
+    [Fact]
+    public async Task CommitException_DisposalStillReleasesLock()
     {
-        public virtual Task MethodWithoutLock()
+        var manager = GetRequiredService<IUnitOfWorkManager>();
+        var store = GetRequiredService<RedisLockTestStore>();
+        var transaction = new Mock<ITransactionApi>();
+        transaction.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("提交失败"));
+        transaction.Setup(x => x.Dispose()).Callback(() => Assert.NotNull(store.Owner("order")));
+        using (var uow = manager.Begin(requiresNew: true, isTransactional: true))
         {
-            return Task.CompletedTask;
+            uow.AddTransactionApi("transaction", transaction.Object);
+            await GetRequiredService<LockTestService>().RunAsync("order", () => Task.CompletedTask);
+            await Assert.ThrowsAsync<InvalidOperationException>(() => uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken));
+            Assert.NotNull(store.Owner("order"));
         }
 
-        [DistributedLock]
-        public virtual Task MethodWithLock()
-        {
-            return Task.CompletedTask;
-        }
-
-        [DistributedLock(ResourceId = "test:lock:{id}")]
-        public virtual Task MethodWithCustomResourceId(int id, string name)
-        {
-            return Task.CompletedTask;
-        }
-
-        [DistributedLock(AutoRenew = true)]
-        public virtual Task MethodWithAutoRenew()
-        {
-            return Task.CompletedTask;
-        }
+        Assert.Null(store.Owner("order"));
     }
 
-    #endregion
+    [Fact]
+    public async Task EarlierCompletionCallbackThrows_DisposalReleasesLock()
+    {
+        var manager = GetRequiredService<IUnitOfWorkManager>();
+        var store = GetRequiredService<RedisLockTestStore>();
+        using (var uow = manager.Begin(requiresNew: true, isTransactional: true))
+        {
+            uow.OnCompleted(() => throw new InvalidOperationException("完成回调失败"));
+            await GetRequiredService<LockTestService>().RunAsync("order", () => Task.CompletedTask);
+            await Assert.ThrowsAsync<InvalidOperationException>(() => uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken));
+            Assert.NotNull(store.Owner("order"));
+        }
+
+        Assert.Null(store.Owner("order"));
+    }
+
+    [Fact]
+    public async Task SameUnitOfWork_NestedAndSequentialCallsReuseLock()
+    {
+        var manager = GetRequiredService<IUnitOfWorkManager>();
+        var store = GetRequiredService<RedisLockTestStore>();
+        var service = GetRequiredService<LockTestService>();
+        using var uow = manager.Begin(requiresNew: true, isTransactional: true);
+
+        await service.RunAsync("order", () => service.RunAsync("order", () => Task.CompletedTask));
+        await service.RunAsync("order", () => Task.CompletedTask);
+
+        Assert.Equal(1, store.Attempts);
+        Assert.NotNull(store.Owner("order"));
+        await uow.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Null(store.Owner("order"));
+    }
+
+    [Fact]
+    public async Task RequiresNew_ReleasesInnerLockIndependently()
+    {
+        var manager = GetRequiredService<IUnitOfWorkManager>();
+        var store = GetRequiredService<RedisLockTestStore>();
+        var service = GetRequiredService<LockTestService>();
+        using var outer = manager.Begin(requiresNew: true, isTransactional: true);
+        await service.RunAsync("outer", () => Task.CompletedTask);
+        using (var inner = manager.Begin(requiresNew: true, isTransactional: true))
+        {
+            await service.RunAsync("inner", () => Task.CompletedTask);
+            await inner.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
+            Assert.Null(store.Owner("inner"));
+            Assert.NotNull(store.Owner("outer"));
+        }
+
+        await outer.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
+        Assert.Null(store.Owner("outer"));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task WithoutUnitOfWork_ReleasesOnMethodExit(bool throws)
+    {
+        var store = GetRequiredService<RedisLockTestStore>();
+        var service = GetRequiredService<PlainLockTestService>();
+        var call = service.RunAsync(() =>
+        {
+            Assert.Null(GetRequiredService<IUnitOfWorkManager>().Current);
+            Assert.NotNull(store.Owner("plain"));
+            if (throws)
+            {
+                throw new InvalidOperationException("业务失败");
+            }
+
+            return Task.CompletedTask;
+        });
+
+        if (throws)
+        {
+            await Assert.ThrowsAsync<InvalidOperationException>(() => call);
+        }
+        else
+        {
+            await call;
+        }
+
+        Assert.Null(store.Owner("plain"));
+    }
+
+    [Fact]
+    public async Task AcquisitionFailure_DoesNotExecuteMethod()
+    {
+        var provider = GetRequiredService<IDistributedLockProvider>();
+        await using var owner = await provider.TryAcquireAsync("order", TimeSpan.FromSeconds(30), TimeSpan.Zero, TimeSpan.Zero, cancellationToken: TestContext.Current.CancellationToken);
+        var executed = false;
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => GetRequiredService<LockTestService>().RunAsync("order", () =>
+        {
+            executed = true;
+            return Task.CompletedTask;
+        }));
+
+        Assert.False(executed);
+        Assert.Equal(owner!.LockId, GetRequiredService<RedisLockTestStore>().Owner("order"));
+    }
+
+    [Fact]
+    public async Task WithoutAttribute_DoesNotAcquireLock()
+    {
+        await GetRequiredService<PlainLockTestService>().WithoutLockAsync();
+        Assert.Equal(0, GetRequiredService<RedisLockTestStore>().Attempts);
+    }
 }
 
+[DependsOn(typeof(AbpAutofacModule), typeof(BeniceSoftAbpDistributedLockModule))]
+public class DistributedLockTestModule : AbpModule
+{
+    public override void ConfigureServices(ServiceConfigurationContext context)
+    {
+        context.Services.AddSingleton<RedisLockTestStore>();
+        context.Services.Replace(ServiceDescriptor.Singleton<IDistributedLockProvider>(sp =>
+            new BeniceSoftDistributedLockProvider([sp.GetRequiredService<RedisLockTestStore>().Client],
+                NullLogger<BeniceSoftDistributedLockProvider>.Instance)));
+    }
+}
+
+public class LockTestService : ITransientDependency, IUnitOfWorkEnabled
+{
+    [DistributedLock(ResourceId = "{resourceId}", AutoRenew = true)]
+    public virtual Task RunAsync(string resourceId, Func<Task> action) => action();
+}
+
+public class PlainLockTestService : ITransientDependency
+{
+    [DistributedLock(ResourceId = "plain")]
+    public virtual Task RunAsync(Func<Task> action) => action();
+
+    public virtual Task WithoutLockAsync() => Task.CompletedTask;
+}

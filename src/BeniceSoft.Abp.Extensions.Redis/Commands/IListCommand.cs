@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Extensions.Redis;
+namespace BeniceSoft.Abp.Extensions.Redis;
 
 public interface IListCommand
 {

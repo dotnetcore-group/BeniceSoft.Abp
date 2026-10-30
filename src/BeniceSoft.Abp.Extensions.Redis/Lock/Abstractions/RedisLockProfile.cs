@@ -11,7 +11,7 @@ public class RedisLockProfile
     public string Resource { get; set; } = string.Empty;
 
     /// <summary>
-    /// 不断尝试获取锁的超时时间；0 表示仅尝试"一次"获取锁，若失败就放弃尝试。
+    /// 获取锁的等待窗口，为零时只尝试一轮，网络调用和清理可能超过此时间
     /// </summary>
     public TimeSpan WaitTime { get; set; } = TimeSpan.Zero;
 
