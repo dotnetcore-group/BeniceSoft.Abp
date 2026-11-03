@@ -68,7 +68,7 @@ public sealed class Address : ValueObject, IEquatable<Address>
         string city,
         string district,
         string street,
-        string zipCode,
+        string postalCode,
         string administrativeDivision,
         string detailedAddress)
     {
@@ -78,7 +78,7 @@ public sealed class Address : ValueObject, IEquatable<Address>
         City = city;
         District = district;
         Street = street;
-        PostalCode = zipCode;
+        PostalCode = postalCode;
         DetailedAddress = detailedAddress;
         AdministrativeDivision = administrativeDivision;
     }
