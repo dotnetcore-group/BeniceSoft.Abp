@@ -48,7 +48,7 @@ public sealed class Address : ValueObject, IEquatable<Address>
     /// <summary>
     /// 邮政编码
     /// </summary>
-    public string ZipCode { get; private set; }
+    public string PostalCode { get; private set; }
 
     /// <summary>
     /// 行政区域（省/市/区县/街道）
@@ -78,7 +78,7 @@ public sealed class Address : ValueObject, IEquatable<Address>
         City = city;
         District = district;
         Street = street;
-        ZipCode = zipCode;
+        PostalCode = zipCode;
         DetailedAddress = detailedAddress;
         AdministrativeDivision = administrativeDivision;
     }
@@ -91,7 +91,7 @@ public sealed class Address : ValueObject, IEquatable<Address>
         yield return City;
         yield return District;
         yield return Street;
-        yield return ZipCode;
+        yield return PostalCode;
         yield return AdministrativeDivision;
         yield return DetailedAddress;
     }
@@ -114,7 +114,7 @@ public sealed class Address : ValueObject, IEquatable<Address>
             City == other.City &&
             District == other.District &&
             Street == other.Street &&
-            ZipCode == other.ZipCode &&
+            PostalCode == other.PostalCode &&
             AdministrativeDivision == other.AdministrativeDivision &&
             DetailedAddress == other.DetailedAddress;
     }
@@ -141,7 +141,7 @@ public sealed class Address : ValueObject, IEquatable<Address>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(CountryCode, CountryName, Province, City, District, Street, ZipCode, DetailedAddress);
+        return HashCode.Combine(CountryCode, CountryName, Province, City, District, Street, PostalCode, DetailedAddress);
     }
 
     public override string ToString()
