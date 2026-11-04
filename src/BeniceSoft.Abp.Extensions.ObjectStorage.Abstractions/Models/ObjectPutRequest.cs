@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions;
+namespace BeniceSoft.Abp.Extensions.ObjectStorage.Abstractions;
 
 public class ObjectPutRequest
 {

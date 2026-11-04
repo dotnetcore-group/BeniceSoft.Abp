@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.OperationLogging.Abstractions;
+using BeniceSoft.Abp.OperationLogging.Abstractions;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.DynamicProxy;
 

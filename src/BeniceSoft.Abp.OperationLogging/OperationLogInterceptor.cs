@@ -1,4 +1,4 @@
-﻿using BeniceSoft.Abp.Core.Users;
+using BeniceSoft.Abp.Core.Users;
 using BeniceSoft.Abp.OperationLogging.Abstractions;
 using BeniceSoft.Core.Reflector;
 using Microsoft.Extensions.Logging;

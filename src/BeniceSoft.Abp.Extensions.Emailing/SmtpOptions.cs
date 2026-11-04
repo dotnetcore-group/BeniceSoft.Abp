@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.Extensions.Emailing;
+namespace BeniceSoft.Abp.Extensions.Emailing;
 
 /// <summary>
 /// SMTP 配置

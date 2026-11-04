@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.OperationLogging.Abstractions;
+namespace BeniceSoft.Abp.OperationLogging.Abstractions;
 
 public class OperationLogContext
 {

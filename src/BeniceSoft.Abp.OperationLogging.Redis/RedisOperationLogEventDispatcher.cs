@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using BeniceSoft.Abp.OperationLogging.Abstractions;
 using BeniceSoft.Core;
 using StackExchange.Redis;

@@ -1,4 +1,4 @@
-﻿namespace BeniceSoft.Abp.OperationLogging.Abstractions;
+namespace BeniceSoft.Abp.OperationLogging.Abstractions;
 
 /// <summary>
 /// 操作日志事件分发
