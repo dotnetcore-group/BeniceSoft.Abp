@@ -60,7 +60,6 @@ public sealed class Address : ValueObject, IEquatable<Address>
     /// </summary>
     public string DetailedAddress { get; private set; }
 
-
     public Address(
         string countryCode,
         string countryName,

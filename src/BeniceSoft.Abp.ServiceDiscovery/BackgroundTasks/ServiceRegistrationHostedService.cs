@@ -7,6 +7,9 @@ namespace BeniceSoft.Abp.ServiceDiscovery;
 
 public class ServiceRegistrationHostedService : BackgroundService
 {
+    // 同一进程的注册重试和心跳共用启动编号
+    private static readonly Guid ProcessStartupId = Guid.NewGuid();
+
     private readonly IServiceRegistry _serviceRegistry;
     private readonly ServiceRegistryOptions _options;
     private readonly ILogger<ServiceRegistrationHostedService> _logger;
@@ -147,6 +150,7 @@ public class ServiceRegistrationHostedService : BackgroundService
         return new ServiceInstance
         {
             ServiceName = _options.ServiceName,
+            StartupId = ProcessStartupId,
             Address = ResolveAddress(),
             Metadata = _options.Metadata
         };
