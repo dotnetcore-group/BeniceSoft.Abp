@@ -8,6 +8,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\BeniceSoft.Abp.Auth.Core\BeniceSoft.Abp.Auth.Core.csproj" />
 		<ProjectReference Include="..\BeniceSoft.Abp.Core\BeniceSoft.Abp.Core.csproj" />
 	</ItemGroup>
 

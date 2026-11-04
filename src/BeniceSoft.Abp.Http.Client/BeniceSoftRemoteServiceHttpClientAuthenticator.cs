@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using BeniceSoft.Abp.Auth.Core;
 using BeniceSoft.Core;
 using Microsoft.Extensions.Logging;
 using Volo.Abp.DependencyInjection;

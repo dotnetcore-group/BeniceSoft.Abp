@@ -63,10 +63,10 @@ docs/      # architecture & how-tos
 
 | Package | Notes |
 |---------|--------|
-| **BeniceSoft.Abp.Auth.Core** | `IUserPermission`, row/field permission models, `[FieldAuth]` |
+| **BeniceSoft.Abp.Auth.Core** | `IMachineAccessTokenProvider`, `IUserPermission`, row/field permission models, `[FieldAuth]` |
 | **BeniceSoft.Abp.Auth.Repository** | `IRowPermissionRepository`, row-permission predicate builder |
 | **BeniceSoft.Abp.Auth.EntityFrameworkCore** | `RowPermissionEfCoreRepository`, `AddRowPermissionRepositories<TDbContext>()`, field-permission SaveChanges interceptor |
-| **BeniceSoft.Abp.Auth** | `BeniceSoftCurrentUser` (OpenIddict claims), permission middleware, `[FunctionPermission]`, field auth filter |
+| **BeniceSoft.Abp.Auth** | `BeniceSoftCurrentUser` (OpenIddict claims), machine `client_credentials` token provider, permission middleware, `[FunctionPermission]`, field auth filter |
 | **BeniceSoft.Abp.MultiTenancy** | Tenant from `IBeniceSoftCurrentUser.TenantId`; passthrough `ITenantStore` (pulled in by AspNetCore) |
 
 ### ASP.NET Core / HTTP / discovery
@@ -74,7 +74,7 @@ docs/      # architecture & how-tos
 | Package | Notes |
 |---------|--------|
 | **BeniceSoft.Abp.AspNetCore** | `JsonFormatResponseFilter` → `ResponseResult<T>`, exception middleware, culture map |
-| **BeniceSoft.Abp.Http.Client** | Proxy HTTP client (forwards Authorization), machine `client_credentials` token provider |
+| **BeniceSoft.Abp.Http.Client** | SDK proxy HTTP client; forwards Authorization and consumes the token provider from Auth.Core |
 | **BeniceSoft.Abp.ServiceDiscovery** | `AddHttpServiceDiscovery` — register / health / metadata (HTTP or Redis) |
 | **BeniceSoft.Abp.Swagger** | XML comments, enum Description filter, Bearer, persisted auth |
 | **BeniceSoft.OAuth.DingTalk** | DingTalk OAuth (QR + silent app login) |

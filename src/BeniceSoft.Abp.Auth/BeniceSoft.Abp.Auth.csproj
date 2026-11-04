@@ -3,6 +3,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+		<PackageReference Include="Microsoft.Extensions.Http" />
 		<PackageReference Include="Volo.Abp.Authorization" />
 		<PackageReference Include="Volo.Abp.Ddd.Application.Contracts" />
 		<PackageReference Include="Microsoft.IdentityModel.Abstractions" />

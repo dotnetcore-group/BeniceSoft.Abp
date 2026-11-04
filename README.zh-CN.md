@@ -63,10 +63,10 @@ docs/      # 架构与接入文档
 
 | 包 | 说明 |
 |---------|--------|
-| **BeniceSoft.Abp.Auth.Core** | `IUserPermission`、行/字段权限模型、`[FieldAuth]` |
+| **BeniceSoft.Abp.Auth.Core** | `IMachineAccessTokenProvider`、`IUserPermission`、行/字段权限模型、`[FieldAuth]` |
 | **BeniceSoft.Abp.Auth.Repository** | `IRowPermissionRepository`、行权限谓词构建 |
 | **BeniceSoft.Abp.Auth.EntityFrameworkCore** | `RowPermissionEfCoreRepository`、`AddRowPermissionRepositories<TDbContext>()`、字段权限 SaveChanges 拦截器 |
-| **BeniceSoft.Abp.Auth** | `BeniceSoftCurrentUser`（OpenIddict Claims）、权限中间件、`[FunctionPermission]`、字段权限过滤器 |
+| **BeniceSoft.Abp.Auth** | `BeniceSoftCurrentUser`（OpenIddict Claims）、机器账号 `client_credentials` Token 提供器、权限中间件、`[FunctionPermission]`、字段权限过滤器 |
 | **BeniceSoft.Abp.MultiTenancy** | 从 `IBeniceSoftCurrentUser.TenantId` 解析租户；透传 `ITenantStore`（由 AspNetCore 模块引入） |
 
 ### ASP.NET Core / HTTP / 服务发现
@@ -74,7 +74,7 @@ docs/      # 架构与接入文档
 | 包 | 说明 |
 |---------|--------|
 | **BeniceSoft.Abp.AspNetCore** | `JsonFormatResponseFilter` → `ResponseResult<T>`、异常中间件、文化映射 |
-| **BeniceSoft.Abp.Http.Client** | 代理 HTTP 客户端（转发 Authorization）、机器账号 `client_credentials` Token |
+| **BeniceSoft.Abp.Http.Client** | SDK 代理 HTTP 客户端，转发 Authorization 并消费 Auth.Core 的 Token 提供器接口 |
 | **BeniceSoft.Abp.ServiceDiscovery** | `AddHttpServiceDiscovery` — 注册 / 健康检查 / 元数据（HTTP 或 Redis） |
 | **BeniceSoft.Abp.Swagger** | XML 注释、枚举 Description 过滤器、Bearer、持久化授权 |
 | **BeniceSoft.OAuth.DingTalk** | 钉钉 OAuth（扫码 + 微应用免登） |

@@ -16,6 +16,10 @@
 
 无当前用户时使用 `Auth:ClientId`、`ClientSecret`、`Authority` 换 token，地址 `{Authority}/connect/token`。
 
+`BeniceSoft.Abp.Http.Client` 负责 SDK 代理调用，通过 `BeniceSoft.Abp.Auth.Core.IMachineAccessTokenProvider` 获取机器 Token。实现由宿主加载的 `BeniceSoftAbpAuthModule` 提供，SDK 代理模块只引用认证抽象，不加载完整认证模块。
+
+SDK 鉴权器的构造函数依赖该接口，因此使用此代理模块的宿主需要加载 `BeniceSoftAbpAuthModule`，并调用 `AddBeniceSoftAuthentication()` 注册现有 `Auth` 配置。应用服务直接获取机器 Token 时只需引用 `BeniceSoft.Abp.Auth.Core`，无需引入 SDK 代理模块。具体职责及升级要求见[认证与数据权限](./认证与数据权限.md#机器-token)。
+
 对端需注册 `UseBeniceSoftExceptionHandlingMiddleware`。请求带远程调用头时，异常不转为 `ResponseResult`。
 
 ## Swagger

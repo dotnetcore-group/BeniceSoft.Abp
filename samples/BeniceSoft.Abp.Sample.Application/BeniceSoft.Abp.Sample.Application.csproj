@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\BeniceSoft.Abp.Auth.Core\BeniceSoft.Abp.Auth.Core.csproj" />
     <ProjectReference Include="..\..\src\BeniceSoft.Abp.Ddd.Application\BeniceSoft.Abp.Ddd.Application.csproj" />
     <ProjectReference Include="..\..\src\BeniceSoft.Abp.EntityFrameworkCore\BeniceSoft.Abp.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\src\BeniceSoft.Abp.EntityFrameworkCore.PostgreSql\BeniceSoft.Abp.EntityFrameworkCore.PostgreSql.csproj" />

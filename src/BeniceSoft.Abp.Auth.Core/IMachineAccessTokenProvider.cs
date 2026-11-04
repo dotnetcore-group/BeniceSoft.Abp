@@ -1,4 +1,4 @@
-namespace BeniceSoft.Abp.Http.Client;
+namespace BeniceSoft.Abp.Auth.Core;
 
 /// <summary>
 /// 机器身份 access_token 提供器（client_credentials）。

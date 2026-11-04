@@ -1,3 +1,4 @@
+using BeniceSoft.Abp.Auth.Authentication;
 using BeniceSoft.Abp.Auth.Permissions;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Authorization;
@@ -14,7 +15,7 @@ public class BeniceSoftAbpAuthModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
-        context.Services
-            .AddHttpClient(PermissionCenterClient.PermissionCenterHttpClientName);
+        context.Services.AddHttpClient(PermissionCenterClient.PermissionCenterHttpClientName);
+        context.Services.AddHttpClient(MachineAccessTokenProvider.HttpClientName);
     }
 }

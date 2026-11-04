@@ -1,11 +1,12 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using BeniceSoft.Abp.Auth.Core;
 using BeniceSoft.Abp.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Volo.Abp.DependencyInjection;
 
-namespace BeniceSoft.Abp.Http.Client;
+namespace BeniceSoft.Abp.Auth.Authentication;
 
 /// <summary>
 /// 从 <see cref="BeniceSoftAuthOptions"/> 读取机器身份，按 client_credentials 换 token。
