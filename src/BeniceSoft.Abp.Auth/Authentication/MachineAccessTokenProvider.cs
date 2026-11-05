@@ -1,7 +1,11 @@
 using BeniceSoft.Abp.Auth.Core;
 using BeniceSoft.Abp.Core;
+using BeniceSoft.Abp.Extensions.DistributedLock.Abstractions;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Volo.Abp.DependencyInjection;
@@ -9,8 +13,8 @@ using Volo.Abp.DependencyInjection;
 namespace BeniceSoft.Abp.Auth.Authentication;
 
 /// <summary>
-/// 从 <see cref="BeniceSoftAuthOptions"/> 读取机器身份，按 client_credentials 换 token。
-/// 未配置或获取失败时返回 null，不抛异常。
+/// 从 <see cref="BeniceSoftAuthOptions"/> 读取机器身份，按 client_credentials 换 token
+/// 未配置或获取失败时返回 null，不抛异常
 /// </summary>
 [ExposeServices(typeof(IMachineAccessTokenProvider))]
 public class MachineAccessTokenProvider : IMachineAccessTokenProvider, ISingletonDependency
@@ -25,10 +29,6 @@ public class MachineAccessTokenProvider : IMachineAccessTokenProvider, ISingleto
     private readonly IServiceProvider _serviceProvider;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<MachineAccessTokenProvider> _logger;
-    private readonly SemaphoreSlim _lock = new(1, 1);
-
-    private string? _cachedToken;
-    private DateTimeOffset _expiresAt = DateTimeOffset.MinValue;
 
     public MachineAccessTokenProvider(
         IServiceProvider serviceProvider,
@@ -52,52 +52,71 @@ public class MachineAccessTokenProvider : IMachineAccessTokenProvider, ISingleto
             return null;
         }
 
-        if (!string.IsNullOrWhiteSpace(_cachedToken) && DateTimeOffset.UtcNow < _expiresAt)
-        {
-            return _cachedToken;
-        }
-
-        await _lock.WaitAsync(cancellationToken);
+        var endpoint = authOptions.ResolveTokenEndpoint();
         try
         {
-            if (!string.IsNullOrWhiteSpace(_cachedToken) && DateTimeOffset.UtcNow < _expiresAt)
+            var scope = string.Join(" ", (string.IsNullOrWhiteSpace(authOptions.Scope) ? "api" : authOptions.Scope)
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Distinct(StringComparer.Ordinal)
+                .Order(StringComparer.Ordinal));
+            // 凭据参与摘要，避免轮换后继续复用旧凭据取得的 Token
+            var keyContext = JsonSerializer.Serialize(new[]
             {
-                return _cachedToken;
+                new Uri(endpoint, UriKind.Absolute).AbsoluteUri,
+                authOptions.ClientId,
+                scope,
+                authOptions.ClientSecret
+            });
+            var cacheKey = $"BeniceSoft:Auth:MachineToken:v1:{Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(keyContext)))}";
+            var cache = _serviceProvider.GetRequiredService<IDistributedCache>();
+            if (cache is MemoryDistributedCache)
+            {
+                _logger.LogWarning("Machine credentials require a shared distributed cache. ClientId={ClientId}",
+                    authOptions.ClientId);
+                return null;
             }
 
-            return await RequestTokenAsync(authOptions, cancellationToken);
-        }
-        finally
-        {
-            _lock.Release();
-        }
-    }
+            var cachedToken = await cache.GetStringAsync(cacheKey, cancellationToken);
+            if (!string.IsNullOrWhiteSpace(cachedToken))
+            {
+                return cachedToken;
+            }
 
-    private async Task<string?> RequestTokenAsync(
-        BeniceSoftAuthOptions options,
-        CancellationToken cancellationToken)
-    {
-        var endpoint = options.ResolveTokenEndpoint();
-        try
-        {
+            var lockProvider = _serviceProvider.GetRequiredService<IDistributedLockProvider>();
+            await using var handle = await lockProvider.TryAcquireAsync(
+                $"{cacheKey}:refresh", TimeSpan.FromMinutes(1), TimeSpan.FromSeconds(30),
+                TimeSpan.FromMilliseconds(100), autoRenew: true, cancellationToken: cancellationToken);
+            if (handle is null)
+            {
+                _logger.LogWarning("Machine credentials token refresh lock unavailable. ClientId={ClientId}",
+                    authOptions.ClientId);
+                return null;
+            }
+
+            cachedToken = await cache.GetStringAsync(cacheKey, cancellationToken);
+            if (!string.IsNullOrWhiteSpace(cachedToken))
+            {
+                return cachedToken;
+            }
+
             var client = _httpClientFactory.CreateClient(HttpClientName);
             using var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["grant_type"] = "client_credentials",
-                ["client_id"] = options.ClientId!,
-                ["client_secret"] = options.ClientSecret!,
-                ["scope"] = string.IsNullOrWhiteSpace(options.Scope) ? "api" : options.Scope
+                ["client_id"] = authOptions.ClientId!,
+                ["client_secret"] = authOptions.ClientSecret!,
+                ["scope"] = scope
             });
 
+            var requestedAt = DateTimeOffset.UtcNow;
             using var response = await client.PostAsync(endpoint, content, cancellationToken);
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning(
-                    "Machine credentials token request failed. Endpoint={Endpoint}, Status={StatusCode}, Body={Body}",
+                    "Machine credentials token request failed. Endpoint={Endpoint}, Status={StatusCode}",
                     endpoint,
-                    (int)response.StatusCode,
-                    body);
+                    (int)response.StatusCode);
                 return null;
             }
 
@@ -110,17 +129,49 @@ public class MachineAccessTokenProvider : IMachineAccessTokenProvider, ISingleto
                 return null;
             }
 
-            var lifetimeSeconds = tokenResponse.ExpiresIn > 0 ? tokenResponse.ExpiresIn : 3600;
-            var refreshSkewSeconds = Math.Min(60, Math.Max(5, lifetimeSeconds / 10));
-            _cachedToken = tokenResponse.AccessToken;
-            _expiresAt = DateTimeOffset.UtcNow.AddSeconds(lifetimeSeconds - refreshSkewSeconds);
+            if (tokenResponse.ExpiresIn <= 0 ||
+                requestedAt.AddSeconds(tokenResponse.ExpiresIn) <= DateTimeOffset.UtcNow)
+            {
+                _logger.LogWarning("Machine credentials token response has no remaining lifetime. Endpoint={Endpoint}",
+                    endpoint);
+                return null;
+            }
+
+            if (!await handle.RenewAsync(TimeSpan.FromMinutes(1)))
+            {
+                _logger.LogWarning("Machine credentials token refresh lock lost. ClientId={ClientId}",
+                    authOptions.ClientId);
+                return null;
+            }
+
+            var refreshSkewSeconds = Math.Min(60, Math.Max(1, tokenResponse.ExpiresIn / 10));
+            var refreshAt = requestedAt.AddSeconds(tokenResponse.ExpiresIn - refreshSkewSeconds);
+            if (refreshAt <= DateTimeOffset.UtcNow)
+            {
+                _logger.LogWarning("Machine credentials token response has insufficient remaining lifetime. Endpoint={Endpoint}",
+                    endpoint);
+                return null;
+            }
+
+            await cache.SetStringAsync(cacheKey, tokenResponse.AccessToken,
+                new DistributedCacheEntryOptions { AbsoluteExpiration = refreshAt }, cancellationToken);
+            if (refreshAt <= DateTimeOffset.UtcNow)
+            {
+                _logger.LogWarning("Machine credentials token lifetime elapsed while storing the shared cache. ClientId={ClientId}",
+                    authOptions.ClientId);
+                return null;
+            }
 
             _logger.LogDebug(
                 "Machine credentials access token acquired. ClientId={ClientId}, ExpiresIn={ExpiresIn}s",
-                options.ClientId,
-                lifetimeSeconds);
+                authOptions.ClientId,
+                tokenResponse.ExpiresIn);
 
-            return _cachedToken;
+            return tokenResponse.AccessToken;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -128,7 +179,7 @@ public class MachineAccessTokenProvider : IMachineAccessTokenProvider, ISingleto
                 ex,
                 "Machine credentials token request threw. Endpoint={Endpoint}, ClientId={ClientId}",
                 endpoint,
-                options.ClientId);
+                authOptions.ClientId);
             return null;
         }
     }

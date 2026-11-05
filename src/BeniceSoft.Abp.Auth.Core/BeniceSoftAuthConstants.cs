@@ -9,6 +9,13 @@ public static class BeniceSoftAuthConstants
         public const string RoleId = "role_id";
 
         public const string DepartmentName = "department_name";
+
+        public const string TokenType = "benicesoft_token_type";
+    }
+
+    public static class TokenTypes
+    {
+        public const string Machine = "machine";
     }
 
     public static class Cache

@@ -7,7 +7,7 @@ using Volo.Abp.Security.Claims;
 namespace BeniceSoft.Abp.Auth;
 
 /// <summary>
-/// JWT 认证成功后处理者
+/// JWT 认证成功后
 /// </summary>
 public class OnTokenValidatedHandler : ITransientDependency
 {
@@ -20,8 +20,8 @@ public class OnTokenValidatedHandler : ITransientDependency
 
     public async Task HandleAsync(TokenValidatedContext context)
     {
-        var userId = context.Principal?.FindFirst(OpenIddictConstants.Claims.Subject)?.GetLongValue();
-        if (userId is null)
+        var subject = context.Principal?.FindFirst(OpenIddictConstants.Claims.Subject)?.Value;
+        if (string.IsNullOrEmpty(subject))
         {
             context.Fail("Invalid subject.");
             return;
@@ -38,6 +38,24 @@ public class OnTokenValidatedHandler : ITransientDependency
         if (string.IsNullOrEmpty(issuedAt))
         {
             context.Fail("Invalid iat.");
+            return;
+        }
+
+        if (context.Principal?.FindFirst(BeniceSoftAuthConstants.ClaimTypes.TokenType)?.Value
+            == BeniceSoftAuthConstants.TokenTypes.Machine)
+        {
+            if (!string.Equals(subject, clientId, StringComparison.Ordinal))
+            {
+                context.Fail("Invalid machine subject.");
+            }
+
+            return;
+        }
+
+        var userId = context.Principal?.FindFirst(OpenIddictConstants.Claims.Subject)?.GetLongValue();
+        if (userId is null)
+        {
+            context.Fail("Invalid subject.");
             return;
         }
 

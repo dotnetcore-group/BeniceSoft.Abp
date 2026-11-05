@@ -8,7 +8,7 @@ using Volo.Abp.DependencyInjection;
 namespace BeniceSoft.Abp.Auth.Authentication;
 
 /// <summary>
-/// JWT 认证失败后处理者
+/// JWT 认证失败后
 /// </summary>
 public class OnAuthenticationFailedHandler : ITransientDependency
 {
