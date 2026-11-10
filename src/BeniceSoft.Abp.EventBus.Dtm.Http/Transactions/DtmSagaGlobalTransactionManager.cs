@@ -69,6 +69,9 @@ public class DtmSagaGlobalTransactionManager : ISagaGlobalTransactionManager, IT
             headers[pair.Key] = pair.Value;
         }
 
+        headers.Remove(DtmRequestHeaderNames.DbContextType);
+        headers.Remove(DtmRequestHeaderNames.HashedConnectionString);
+
         saga.SetBranchHeaders(headers);
 
         var context = new SagaTransactionContext(

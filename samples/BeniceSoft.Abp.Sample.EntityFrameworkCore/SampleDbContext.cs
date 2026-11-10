@@ -26,6 +26,10 @@ public class SampleDbContext : BeniceSoftShardingAbpDbContext<SampleDbContext>, 
 
     public virtual DbSet<BulkDemoItem> BulkDemoItems { get; set; }
 
+    public virtual DbSet<TransactionSampleOrder> TransactionSampleOrders { get; set; }
+
+    public virtual DbSet<TransactionSampleInventory> TransactionSampleInventories { get; set; }
+
     /// <summary>普通表：商品主数据（不分片）。</summary>
     public virtual DbSet<Product> Products { get; set; }
 
@@ -87,6 +91,41 @@ public class SampleDbContext : BeniceSoftShardingAbpDbContext<SampleDbContext>, 
             entity.Property(x => x.Code).HasMaxLength(64).IsRequired();
             entity.Property(x => x.Name).HasMaxLength(256).IsRequired();
             entity.HasIndex(x => x.Code).IsUnique();
+        });
+
+        modelBuilder.Entity<TransactionSampleOrder>(entity =>
+        {
+            entity.ToTable("sample_transaction_orders");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Id).HasColumnName("id").ValueGeneratedOnAdd();
+            entity.Property(x => x.BizId).HasColumnName("biz_id").HasMaxLength(128).IsRequired();
+            entity.Property(x => x.ProductCode).HasColumnName("product_code").HasMaxLength(64).IsRequired();
+            entity.Property(x => x.Quantity).HasColumnName("quantity");
+            entity.Property(x => x.Amount).HasColumnName("amount").HasPrecision(18, 2);
+            entity.Property(x => x.PaymentChannel).HasColumnName("payment_channel").HasMaxLength(32).IsRequired();
+            entity.Property(x => x.State).HasColumnName("state");
+            entity.Property(x => x.Version).HasColumnName("version").IsConcurrencyToken();
+            entity.Property(x => x.CreatedAt).HasColumnName("created_at");
+            entity.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+            entity.HasIndex(x => x.BizId).IsUnique();
+        });
+
+        modelBuilder.Entity<TransactionSampleInventory>(entity =>
+        {
+            entity.ToTable("sample_transaction_inventories");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Id).HasColumnName("id").ValueGeneratedOnAdd();
+            entity.Property(x => x.BizId).HasColumnName("biz_id").HasMaxLength(128).IsRequired();
+            entity.Property(x => x.ProductCode).HasColumnName("product_code").HasMaxLength(64).IsRequired();
+            entity.Property(x => x.Quantity).HasColumnName("quantity");
+            entity.Property(x => x.AvailableQuantity).HasColumnName("available_quantity");
+            entity.Property(x => x.FrozenQuantity).HasColumnName("frozen_quantity");
+            entity.Property(x => x.DeductedQuantity).HasColumnName("deducted_quantity");
+            entity.Property(x => x.State).HasColumnName("state");
+            entity.Property(x => x.Version).HasColumnName("version").IsConcurrencyToken();
+            entity.Property(x => x.CreatedAt).HasColumnName("created_at");
+            entity.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+            entity.HasIndex(x => x.BizId).IsUnique();
         });
 
         modelBuilder.Entity<SalesOrder>(entity =>

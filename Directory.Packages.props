@@ -94,8 +94,8 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.19.1-beta.1" />
     <PackageVersion Include="NetEscapades.Configuration.Yaml" Version="3.1.0" />
     <PackageVersion Include="Wecharmer.AM.Sdk" Version="1.0.3-dev" />
-    <PackageVersion Include="Wecharmer.FileCenter.Sdk" Version="1.0.6-dev" />
-    <PackageVersion Include="Wecharmer.PermissionCenter.Sdk" Version="1.0.1-dev" />
+    <PackageVersion Include="Wecharmer.FileCenter.Sdk" Version="1.0.7-dev" />
+    <PackageVersion Include="Wecharmer.PermissionCenter.Sdk" Version="1.0.3-dev" />
     <PackageVersion Include="Wecharmer.WorkflowCenter.Sdk" Version="0.0.1-dev" />
     <PackageVersion Include="Winton.Extensions.Configuration.Consul" Version="3.4.0" />
     <!--dtm-->

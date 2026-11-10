@@ -1,4 +1,6 @@
 ﻿using BeniceSoft.Abp.EventBus.Dtm.Http;
+using BeniceSoft.Abp.Sample.Application.Contracts;
+using BeniceSoft.Abp.Sample.Domain;
 using Microsoft.Extensions.Logging;
 using Volo.Abp.EventBus.Distributed;
 using Volo.Abp.Uow;
@@ -10,16 +12,46 @@ public class DistributedEventSampleAppService : SampleAppServiceBase
     private readonly IDistributedEventBus _distributedEventBus;
     private readonly IGlobalTransaction _globalTransaction;
     private readonly ILogger<DistributedEventSampleAppService> _logger;
+    private readonly ITransactionSampleRepository _transactionSampleRepository;
 
     public DistributedEventSampleAppService(
         IDistributedEventBus distributedEventBus,
         IGlobalTransaction globalTransaction,
-        ILogger<DistributedEventSampleAppService> logger)
+        ILogger<DistributedEventSampleAppService> logger,
+        ITransactionSampleRepository transactionSampleRepository)
     {
         _distributedEventBus = distributedEventBus;
         _globalTransaction = globalTransaction;
         _logger = logger;
+        _transactionSampleRepository = transactionSampleRepository;
     }
+
+    #region Queries
+
+    /// <summary>
+    /// 查询分布式事务示例的订单和库存状态
+    /// </summary>
+    [UnitOfWork(false)]
+    public async Task<TransactionSampleStateDto> GetTransactionStateAsync(string bizId)
+    {
+        var order = await _transactionSampleRepository.FindOrderAsync(bizId);
+        var inventory = await _transactionSampleRepository.FindInventoryAsync(bizId);
+
+        return new TransactionSampleStateDto
+        {
+            BizId = bizId,
+            OrderState = order?.State.ToString(),
+            InventoryState = inventory?.State.ToString(),
+            OrderQuantity = order?.Quantity,
+            AvailableQuantity = inventory?.AvailableQuantity,
+            FrozenQuantity = inventory?.FrozenQuantity,
+            DeductedQuantity = inventory?.DeductedQuantity
+        };
+    }
+
+    #endregion
+
+    #region Commands
 
     /// <summary>
     /// 测试http dtm事件
@@ -50,9 +82,9 @@ public class DistributedEventSampleAppService : SampleAppServiceBase
     /// 入口只负责编排分支；各服务通过各自 handler 处理 Try/Confirm/Cancel。
     /// </summary>
     [UnitOfWork]
-    public async Task<string> TestTccTwoServicesStyleAsync(bool simulateBizFailure = false)
+    public async Task<string> TestTccTwoServicesStyleAsync(bool simulateBizFailure = false, string? bizId = null)
     {
-        var bizId = $"tcc-2svc-{DateTime.Now:yyyyMMddHHmmssfff}";
+        bizId = string.IsNullOrWhiteSpace(bizId) ? $"tcc-2svc-{Guid.NewGuid():N}" : bizId;
 
         await _globalTransaction.ExecuteTccAsync(async tcc =>
         {
@@ -73,14 +105,15 @@ public class DistributedEventSampleAppService : SampleAppServiceBase
             // serviceName / handlerName 默认从 Request 的 [DtmBranch] 特性解析。
 
             // 如需临时改路由，也可在 CallBranchAsync<TRequest>(..., serviceName, handlerName) 显式覆盖。
-            await tcc.CallBranchAsync(orderRequest);
-            await tcc.CallBranchAsync(inventoryRequest);
+            // 独立运行 SampleHost 时直接使用回调路径，经网关部署时可使用 Request 中的服务名
+            await tcc.CallBranchAsync(orderRequest, serviceName: "/");
+            await tcc.CallBranchAsync(inventoryRequest, serviceName: "/");
 
             if (simulateBizFailure)
             {
                 throw new Exception("模拟业务异常：在 Try 阶段后抛错，DTM 将触发 Cancel 回调。");
             }
-        });
+        }, gid: bizId);
 
         _logger.LogInformation("双服务风格 TCC 事务执行完成，BizId={BizId}", bizId);
 
@@ -88,29 +121,39 @@ public class DistributedEventSampleAppService : SampleAppServiceBase
     }
 
     [UnitOfWork]
-    public async Task<string> TestSagaAsync()
+    public async Task<string> TestSagaAsync(bool simulateBizFailure = false, string? bizId = null)
     {
-        var bizId = $"saga-{DateTime.Now:yyyyMMddHHmmssfff}";
+        bizId = string.IsNullOrWhiteSpace(bizId) ? $"saga-{Guid.NewGuid():N}" : bizId;
 
         await _globalTransaction.ExecuteSagaAsync(saga =>
         {
             var request = new SampleSagaRequest
             {
                 BizId = bizId,
+                ProductCode = "SKU-1001",
+                Quantity = 1,
                 Amount = 100,
                 PaymentChannel = "WeChat"
             };
 
-            saga.AddBranchByHandler(request);
+            // 发起方订单通过 Action 分支落库，远端失败后由对应 Compensate 分支取消订单
+            saga.AddBranchByHandler(request, serviceName: "/");
+            saga.AddBranchByHandler(new SampleInventorySagaRequest
+            {
+                BizId = bizId,
+                ProductCode = request.ProductCode,
+                Quantity = request.Quantity,
+                SimulateBizFailure = simulateBizFailure
+            }, serviceName: "/");
 
             return Task.CompletedTask;
-        });
+        }, gid: bizId);
 
         _logger.LogInformation("SAGA 事务执行完成，BizId={BizId}", bizId);
 
         return bizId;
     }
 
-
+    #endregion
 }
 

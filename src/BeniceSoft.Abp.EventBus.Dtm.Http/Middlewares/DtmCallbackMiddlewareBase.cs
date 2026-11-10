@@ -51,6 +51,7 @@ public abstract class DtmCallbackMiddlewareBase : DtmMiddlewareBase
         }
 
         var gid = GetHeaderValue(context, "gid") ?? GetHeaderValue(context, "Gid");
+        string? operation = null;
 
         try
         {
@@ -58,6 +59,8 @@ public abstract class DtmCallbackMiddlewareBase : DtmMiddlewareBase
             {
                 throw new AbpException($"DTM Callback 路径不合法: {path}");
             }
+
+            operation = op!.ToLowerInvariant();
 
             var registrations = GetRegistrations(callbackOptions);
             if (!registrations.TryGetValue(handlerName!, out var registration))
@@ -97,6 +100,14 @@ public abstract class DtmCallbackMiddlewareBase : DtmMiddlewareBase
             await uow.CompleteAsync(context.RequestAborted);
 
             await WriteResponseAsync(context, 200, "SUCCESS");
+        }
+        catch (Exception ex) when (
+            (operation is "try" or "action") &&
+            (ex is BusinessException || ex is TargetInvocationException { InnerException: BusinessException }))
+        {
+            logger.LogWarning(ex, "DTM Callback: 业务拒绝，TraceId={TraceId}, Gid={Gid}, Op={Op}",
+                context.TraceIdentifier, gid, operation);
+            await WriteResponseAsync(context, 409, "FAILURE");
         }
         catch (Exception ex)
         {
@@ -250,11 +261,36 @@ public abstract class DtmCallbackMiddlewareBase : DtmMiddlewareBase
 
     protected virtual DtmBranchBarrierInfo? BuildBranchBarrierInfo(HttpContext context, string fallbackOp)
     {
-        var gid = GetHeaderValue(context, "gid") ?? GetHeaderValue(context, "Gid");
-        var transType = GetHeaderValue(context, "trans_type") ?? GetHeaderValue(context, "TransType");
-        var branchId = GetHeaderValue(context, "branch_id") ?? GetHeaderValue(context, "BranchId");
-        var op = GetHeaderValue(context, "op") ?? fallbackOp;
-        var barrierId = GetHeaderValue(context, "barrier_id") ?? GetHeaderValue(context, "BarrierId") ?? "01";
+        var gid = GetHeaderValue(context, "gid");
+        var transType = GetHeaderValue(context, "trans_type");
+        if (string.IsNullOrWhiteSpace(transType))
+        {
+            transType = GetHeaderValue(context, "TransType");
+        }
+
+        var branchId = GetHeaderValue(context, "branch_id");
+        if (string.IsNullOrWhiteSpace(branchId))
+        {
+            branchId = GetHeaderValue(context, "BranchId");
+        }
+
+        var op = GetHeaderValue(context, "op");
+        if (!string.IsNullOrWhiteSpace(op) && !string.Equals(op, fallbackOp, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new AbpException("DTM Callback 的操作参数与回调路径不一致");
+        }
+
+        op = fallbackOp.ToLowerInvariant();
+        var barrierId = GetHeaderValue(context, "barrier_id");
+        if (string.IsNullOrWhiteSpace(barrierId))
+        {
+            barrierId = GetHeaderValue(context, "BarrierId");
+        }
+
+        if (string.IsNullOrWhiteSpace(barrierId))
+        {
+            barrierId = "01";
+        }
 
         if (string.IsNullOrWhiteSpace(gid) ||
             string.IsNullOrWhiteSpace(transType) ||
@@ -267,7 +303,7 @@ public abstract class DtmCallbackMiddlewareBase : DtmMiddlewareBase
         return new DtmBranchBarrierInfo
         {
             Gid = gid,
-            TransType = transType,
+            TransType = transType.ToLowerInvariant(),
             BranchId = branchId,
             Op = op,
             BarrierId = barrierId,
@@ -292,32 +328,12 @@ public abstract class DtmCallbackMiddlewareBase : DtmMiddlewareBase
 
     protected virtual async Task<string?> ReadRequestBodyAsync(HttpContext context, ILogger logger)
     {
-        if ((context.Request.ContentLength ?? 0) <= 0)
-        {
-            return null;
-        }
-
         context.Request.EnableBuffering();
-        var builder = new StringBuilder();
 
         try
         {
             using var reader = new StreamReader(context.Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
-            var buffer = new char[1024];
-            while (true)
-            {
-                var read = await reader.ReadAsync(buffer, 0, buffer.Length);
-                if (read <= 0)
-                {
-                    break;
-                }
-
-                builder.Append(buffer, 0, read);
-            }
-        }
-        catch (Exception ex) when (ex is IOException or BadHttpRequestException or OperationCanceledException)
-        {
-            logger.LogWarning(ex, "DTM Callback: 读取请求体失败，TraceId={TraceId}", context.TraceIdentifier);
+            return await reader.ReadToEndAsync(context.RequestAborted);
         }
         finally
         {
@@ -326,8 +342,6 @@ public abstract class DtmCallbackMiddlewareBase : DtmMiddlewareBase
                 context.Request.Body.Position = 0;
             }
         }
-
-        return builder.Length > 0 ? builder.ToString() : null;
     }
 
     protected sealed record ClaimTransferItem(string Type, string Value, string ValueType, string Issuer, string OriginalIssuer);

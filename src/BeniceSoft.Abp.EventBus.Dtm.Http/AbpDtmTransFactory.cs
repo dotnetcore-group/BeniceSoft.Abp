@@ -21,7 +21,7 @@ public interface IDtmTransFactory
     /// <summary>
     /// 创建 TCC 事务
     /// </summary>
-    Dtmcli.Tcc NewTcc(string gid);
+    Dtmcli.Tcc NewTcc(TransBase transaction);
 }
 
 public class AbpDtmTransFactory : IDtmTransFactory, ITransientDependency
@@ -79,9 +79,8 @@ public class AbpDtmTransFactory : IDtmTransFactory, ITransientDependency
         return saga;
     }
 
-    public virtual Dtmcli.Tcc NewTcc(string gid)
+    public virtual Dtmcli.Tcc NewTcc(TransBase transaction)
     {
-        var tcc = new Dtmcli.Tcc(DtmClient, TransBase.NewTransBase(gid, DtmCommon.Constant.TYPE_TCC, "", ""));
-        return tcc;
+        return new Dtmcli.Tcc(DtmClient, transaction);
     }
 }

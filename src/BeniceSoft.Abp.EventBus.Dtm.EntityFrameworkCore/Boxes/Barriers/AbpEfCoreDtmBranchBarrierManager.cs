@@ -12,6 +12,12 @@ using Volo.Abp.EntityFrameworkCore;
 
 namespace BeniceSoft.Abp.EventBus.Dtm.EntityFrameworkCore;
 
+[ExposeServices(
+    typeof(AbpEfCoreDtmBranchBarrierManager),
+    typeof(IAbpEfCoreDtmBranchBarrierManager),
+    typeof(IDtmBranchBarrierManager),
+    typeof(ITccBranchBarrierManager),
+    typeof(ISagaBranchBarrierManager))]
 public class AbpEfCoreDtmBranchBarrierManager : IAbpEfCoreDtmBranchBarrierManager, ITransientDependency
 {
     protected IServiceProvider ServiceProvider { get; }
@@ -19,6 +25,7 @@ public class AbpEfCoreDtmBranchBarrierManager : IAbpEfCoreDtmBranchBarrierManage
     protected IConnectionStringHasher ConnectionStringHasher { get; }
     protected IDtmBarrierTableInitializer BarrierTableInitializer { get; }
     protected DtmEventBoxesOptions Options { get; }
+    protected DtmTransactionDbContextOptions TransactionDbContextOptions { get; }
     protected ILogger<AbpEfCoreDtmBranchBarrierManager> Logger { get; }
     protected static ConcurrentDictionary<string, DbContextProviderInfo> CachedDbContextProviderInfo { get; } = new();
 
@@ -29,12 +36,32 @@ public class AbpEfCoreDtmBranchBarrierManager : IAbpEfCoreDtmBranchBarrierManage
         IDtmBarrierTableInitializer barrierTableInitializer,
         IOptions<DtmEventBoxesOptions> options,
         ILogger<AbpEfCoreDtmBranchBarrierManager> logger)
+        : this(
+            serviceProvider,
+            connectionStringResolver,
+            connectionStringHasher,
+            barrierTableInitializer,
+            options,
+            serviceProvider.GetRequiredService<IOptions<DtmTransactionDbContextOptions>>(),
+            logger)
+    {
+    }
+
+    public AbpEfCoreDtmBranchBarrierManager(
+        IServiceProvider serviceProvider,
+        IConnectionStringResolver connectionStringResolver,
+        IConnectionStringHasher connectionStringHasher,
+        IDtmBarrierTableInitializer barrierTableInitializer,
+        IOptions<DtmEventBoxesOptions> options,
+        IOptions<DtmTransactionDbContextOptions> transactionDbContextOptions,
+        ILogger<AbpEfCoreDtmBranchBarrierManager> logger)
     {
         ServiceProvider = serviceProvider;
         ConnectionStringResolver = connectionStringResolver;
         ConnectionStringHasher = connectionStringHasher;
         BarrierTableInitializer = barrierTableInitializer;
         Options = options.Value;
+        TransactionDbContextOptions = transactionDbContextOptions.Value;
         Logger = logger;
     }
 
@@ -44,25 +71,16 @@ public class AbpEfCoreDtmBranchBarrierManager : IAbpEfCoreDtmBranchBarrierManage
         string? hashedConnectionString,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(dbContextTypeName))
+        var localDbContextTypeName = TransactionDbContextOptions.DefaultDbContextTypeName;
+        if (string.IsNullOrWhiteSpace(localDbContextTypeName))
         {
-            return DtmBranchBarrierInsertResult.NotHandled;
+            throw new AbpException("DTM TCC/SAGA 未配置本服务 DbContext，请配置 EventBus:DTM:DbContextName");
         }
 
-        var providerInfo = GetDbContextProviderInfoOrNull(dbContextTypeName);
+        var providerInfo = GetDbContextProviderInfoOrNull(localDbContextTypeName);
         if (providerInfo is null)
         {
-            return DtmBranchBarrierInsertResult.NotHandled;
-        }
-
-        if (!string.IsNullOrWhiteSpace(hashedConnectionString))
-        {
-            var connectionString = await ConnectionStringResolver.ResolveAsync(providerInfo.DbContextType);
-            var hash = await ConnectionStringHasher.HashAsync(connectionString);
-            if (!string.Equals(hash, hashedConnectionString, StringComparison.Ordinal))
-            {
-                throw new AbpException($"DTM branch barrier with a wrong HashedConnectionString, gid: {barrierInfo.Gid}");
-            }
+            throw new AbpException($"DTM TCC/SAGA 本服务 DbContext 配置无效: {localDbContextTypeName}");
         }
 
         var dbContextProvider = ServiceProvider.GetRequiredService(providerInfo.DbContextProviderType);
@@ -75,7 +93,7 @@ public class AbpEfCoreDtmBranchBarrierManager : IAbpEfCoreDtmBranchBarrierManage
         if (affected == 0)
         {
             Logger.LogInformation(
-                "DTM BranchBarrier duplicated, Gid={Gid}, TransType={TransType}, BranchId={BranchId}, Op={Op}, BarrierId={BarrierId}",
+                "DTM 分支屏障已跳过重复、空补偿或悬挂请求，Gid={Gid}, TransType={TransType}, BranchId={BranchId}, Op={Op}, BarrierId={BarrierId}",
                 barrierInfo.Gid, barrierInfo.TransType, barrierInfo.BranchId, barrierInfo.Op, barrierInfo.BarrierId);
             return DtmBranchBarrierInsertResult.Duplicated;
         }
@@ -107,7 +125,33 @@ public class AbpEfCoreDtmBranchBarrierManager : IAbpEfCoreDtmBranchBarrierManage
         var sql = special.GetInsertIgnoreTemplate(Options.BarrierTableName);
         sql = special.GetPlaceHoldSQL(sql);
 
-        return await dbContext.Database.GetDbConnection().ExecuteAsync(
+        var connection = dbContext.Database.GetDbConnection();
+        var originOp = barrierInfo.Op switch
+        {
+            "cancel" => "try",
+            "compensate" => "action",
+            _ => null
+        };
+
+        var originAffected = 0;
+        if (originOp is not null)
+        {
+            // 补偿操作先占用正向操作屏障，阻止空补偿后迟到的正向请求继续执行业务
+            originAffected = await connection.ExecuteAsync(
+                sql,
+                new
+                {
+                    trans_type = barrierInfo.TransType,
+                    gid = barrierInfo.Gid,
+                    branch_id = barrierInfo.BranchId,
+                    op = originOp,
+                    barrier_id = barrierInfo.BarrierId,
+                    reason = barrierInfo.Op
+                },
+                currentTransaction);
+        }
+
+        var currentAffected = await connection.ExecuteAsync(
             sql,
             new
             {
@@ -116,9 +160,12 @@ public class AbpEfCoreDtmBranchBarrierManager : IAbpEfCoreDtmBranchBarrierManage
                 branch_id = barrierInfo.BranchId,
                 op = barrierInfo.Op,
                 barrier_id = barrierInfo.BarrierId,
-                reason = barrierInfo.Reason
+                reason = barrierInfo.Op
             },
             currentTransaction);
+
+        // 空补偿保留正向占位，重复或悬挂请求跳过业务，屏障随当前事务一同提交
+        return originAffected > 0 || currentAffected == 0 ? 0 : currentAffected;
 
     }
 

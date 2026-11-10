@@ -4,6 +4,7 @@ using Dtmcli;
 using Dtmcli.DtmImp;
 using DtmCommon;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Volo.Abp.DependencyInjection;
 
@@ -18,6 +19,10 @@ public class AbpDtmHttpClient : IDtmClient, ISingletonDependency
     protected DtmEventBoxesOptions BoxesOptions { get; }
 
     private readonly IHttpClientFactory _httpClientFactory;
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
 
     public AbpDtmHttpClient(
         IOptions<DtmHttpOptions> httpOptions,
@@ -65,19 +70,57 @@ public class AbpDtmHttpClient : IDtmClient, ISingletonDependency
     {
         string requestUri = "/api/dtmsvr/" + operation;
         using var response = await _httpClientFactory.CreateClient("dtmClient")
-            .PostAsJsonAsync(requestUri, tb, cancellationToken).ConfigureAwait(false);
+            .PostAsJsonAsync(requestUri, body, SerializerOptions, cancellationToken).ConfigureAwait(false);
         Utils.CheckStatus(response.StatusCode, await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false));
     }
 
     public Task TransRegisterBranch(TransBase tb, Dictionary<string, string> added, string operation, CancellationToken cancellationToken)
     {
-        throw new NotSupportedException("AbpDtmHttpClient 暂未启用 TransRegisterBranch");
+        var body = new Dictionary<string, string>
+        {
+            ["gid"] = tb.Gid,
+            ["trans_type"] = tb.TransType
+        };
+
+        foreach (var pair in added)
+        {
+            body[pair.Key] = pair.Value;
+        }
+
+        return TransCallDtm(tb, body, operation, cancellationToken);
     }
 
-    public Task<HttpResponseMessage> TransRequestBranch(TransBase tb, HttpMethod method, object body, string branchID, string op, string url,
+    public async Task<HttpResponseMessage> TransRequestBranch(TransBase tb, HttpMethod method, object body, string branchID, string op, string url,
         CancellationToken cancellationToken)
     {
-        throw new NotSupportedException("AbpDtmHttpClient 暂未启用 TransRequestBranch");
+        var requestUrl = QueryHelpers.AddQueryString(url, new Dictionary<string, string?>
+        {
+            ["dtm"] = HttpOptions.DtmUrl.TrimEnd('/') + "/api/dtmsvr/",
+            ["gid"] = tb.Gid,
+            ["trans_type"] = tb.TransType,
+            ["branch_id"] = branchID,
+            ["op"] = op
+        });
+
+        using var request = new HttpRequestMessage(method, requestUrl);
+        if (body is not null)
+        {
+            request.Content = JsonContent.Create(body, options: SerializerOptions);
+        }
+
+        if (tb.BranchHeaders is not null)
+        {
+            foreach (var pair in tb.BranchHeaders)
+            {
+                if (!request.Headers.TryAddWithoutValidation(pair.Key, pair.Value))
+                {
+                    throw new InvalidOperationException($"DTM 分支请求头不合法: {pair.Key}");
+                }
+            }
+        }
+
+        return await _httpClientFactory.CreateClient("branchClient")
+            .SendAsync(request, cancellationToken).ConfigureAwait(false);
     }
 
     public TransBase TransBaseFromQuery(IQueryCollection query)
@@ -86,7 +129,10 @@ public class AbpDtmHttpClient : IDtmClient, ISingletonDependency
         var transType = query.TryGetValue("trans_type", out var transTypeValues) ? transTypeValues.ToString() : string.Empty;
         var branchId = query.TryGetValue("branch_id", out var branchIdValues) ? branchIdValues.ToString() : string.Empty;
         var op = query.TryGetValue("op", out var opValues) ? opValues.ToString() : string.Empty;
+        var dtm = query.TryGetValue("dtm", out var dtmValues) ? dtmValues.ToString() : string.Empty;
 
-        return TransBase.NewTransBase(gid, transType, branchId, op);
+        var transaction = TransBase.NewTransBase(gid, transType, dtm, branchId);
+        transaction.Op = op;
+        return transaction;
     }
 }

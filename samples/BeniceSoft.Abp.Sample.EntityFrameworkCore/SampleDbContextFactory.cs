@@ -13,6 +13,9 @@ public sealed class SampleDbContextFactory : IDesignTimeDbContextFactory<SampleD
 {
     public SampleDbContext CreateDbContext(string[] args)
     {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
+
         // OnModelCreating 里 HasValueGenerator<SnowDateIdGenerator> 会读 Singleton，设计时必须先赋值
         Singleton<SnowDateIdGenerator>.Instance ??= new SnowDateIdGenerator();
 
