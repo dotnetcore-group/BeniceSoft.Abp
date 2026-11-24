@@ -1,34 +1,51 @@
-using UglyToad.PdfPig.Content;
+using Spire.Pdf;
+using Spire.Pdf.Utilities;
 
 namespace BeniceSoft.Office.Pdf.Internal;
 
 internal static class PageClassifier
 {
-    public static PdfPageContentKind Classify(Page page, PdfParseOptions options)
+    public static PdfPageContentKind Classify(
+        PdfPageBase page,
+        IReadOnlyList<string> lines,
+        PdfParseOptions options)
     {
-        var letterCount = page.Letters.Count;
-        var images = page.GetImages().ToList();
+        // 用非空白字符数近似字形数量，避免纯数字页被当成扫描件
+        var charCount = 0;
+        foreach (var line in lines)
+        {
+            foreach (var c in line)
+            {
+                if (!char.IsWhiteSpace(c))
+                {
+                    charCount++;
+                }
+            }
+        }
+
+        var images = new PdfImageHelper().GetImagesInfo(page) ?? Array.Empty<PdfImageInfo>();
         var kind = PdfPageContentKind.None;
 
-        if (letterCount > 0)
+        if (charCount > 0)
         {
             kind |= PdfPageContentKind.HasText;
         }
 
-        if (images.Count > 0)
+        if (images.Length > 0)
         {
             kind |= PdfPageContentKind.HasImages;
         }
 
-        var pageArea = Math.Max(1d, page.Width * page.Height);
-        var imageArea = images.Sum(image =>
+        var pageArea = Math.Max(1d, page.Size.Width * page.Size.Height);
+        var imageArea = 0d;
+        foreach (var image in images)
         {
-            var bounds = image.BoundingBox;
-            return Math.Max(0d, bounds.Width * bounds.Height);
-        });
+            var bounds = image.Bounds;
+            imageArea += Math.Max(0d, bounds.Width * bounds.Height);
+        }
 
         var ratio = imageArea / pageArea;
-        if (letterCount < options.MinTextCharCount && ratio >= options.ScannedImageAreaRatio)
+        if (charCount < options.MinTextCharCount && ratio >= options.ScannedImageAreaRatio)
         {
             kind |= PdfPageContentKind.LikelyScanned;
         }

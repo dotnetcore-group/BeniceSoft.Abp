@@ -1,6 +1,6 @@
-using System.Text;
 using System.Text.RegularExpressions;
-using UglyToad.PdfPig.Content;
+using Spire.Pdf;
+using Spire.Pdf.Texts;
 
 namespace BeniceSoft.Office.Pdf.Internal;
 
@@ -10,73 +10,21 @@ internal static class PdfTextReader
         @"^[A-Z]{1,4}\d{10,}$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    public static string Extract(Page page)
+    public static IReadOnlyList<string> ExtractLines(PdfPageBase page)
     {
-        var lines = ExtractLines(page);
-        return lines.Count == 0 ? string.Empty : string.Join(Environment.NewLine, lines);
-    }
-
-    public static IReadOnlyList<PdfFieldResult> ExtractFields(Page page)
-    {
-        var lines = ExtractLines(page);
-        return BuildFields(lines);
-    }
-
-    public static IReadOnlyList<string> ExtractLines(Page page)
-    {
-        var words = page.GetWords().ToList();
-        if (words.Count == 0)
+        var raw = new PdfTextExtractor(page).ExtractText(new PdfTextExtractOptions
+        {
+            IsSimpleExtraction = true
+        });
+        if (string.IsNullOrWhiteSpace(raw))
         {
             return Array.Empty<string>();
         }
 
-        var items = words
-            .Select(w => new WordBox(
-                w.Text.Trim(),
-                w.BoundingBox.Left,
-                (w.BoundingBox.Bottom + w.BoundingBox.Top) / 2.0,
-                w.BoundingBox.Height))
-            .Where(w => !string.IsNullOrWhiteSpace(w.Text))
-            .OrderByDescending(w => w.CenterY)
-            .ThenBy(w => w.Left)
-            .ToList();
-
-        if (items.Count == 0)
-        {
-            return Array.Empty<string>();
-        }
-
-        var medianHeight = items
-            .Select(w => w.Height)
-            .OrderBy(h => h)
-            .ElementAt(items.Count / 2);
-        var lineTol = Math.Max(2.0, medianHeight * 0.55);
-
-        var lines = new List<string>();
-        var current = new List<WordBox> { items[0] };
-        var currentY = items[0].CenterY;
-
-        for (var i = 1; i < items.Count; i++)
-        {
-            var word = items[i];
-            if (Math.Abs(word.CenterY - currentY) <= lineTol)
-            {
-                current.Add(word);
-                currentY = current.Average(w => w.CenterY);
-                continue;
-            }
-
-            lines.Add(JoinLine(current));
-            current = new List<WordBox> { word };
-            currentY = word.CenterY;
-        }
-
-        if (current.Count > 0)
-        {
-            lines.Add(JoinLine(current));
-        }
-
-        return lines;
+        return raw
+            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(line => line.Length > 0)
+            .ToArray();
     }
 
     public static IReadOnlyList<PdfFieldResult> BuildFields(IReadOnlyList<string> lines)
@@ -191,23 +139,4 @@ internal static class PdfTextReader
         value = line[(idx + 1)..].Trim();
         return true;
     }
-
-    private static string JoinLine(List<WordBox> words)
-    {
-        var ordered = words.OrderBy(w => w.Left).ToList();
-        var sb = new StringBuilder();
-        for (var i = 0; i < ordered.Count; i++)
-        {
-            if (i > 0)
-            {
-                sb.Append(' ');
-            }
-
-            sb.Append(ordered[i].Text);
-        }
-
-        return sb.ToString();
-    }
-
-    private readonly record struct WordBox(string Text, double Left, double CenterY, double Height);
 }

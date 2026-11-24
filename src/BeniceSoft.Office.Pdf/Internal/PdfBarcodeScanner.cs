@@ -1,6 +1,6 @@
 using SkiaSharp;
 using ZXing;
-using ZXing.SkiaSharp;
+using ZXing.Common;
 
 namespace BeniceSoft.Office.Pdf.Internal;
 
@@ -29,7 +29,7 @@ internal static class PdfBarcodeScanner
     }
 
     private static void ScanBands(
-        BarcodeReader reader,
+        BarcodeReaderGeneric reader,
         SKBitmap source,
         IDictionary<string, PdfBarcodeResult> found)
     {
@@ -65,7 +65,7 @@ internal static class PdfBarcodeScanner
     }
 
     private static void ScanGrid(
-        BarcodeReader reader,
+        BarcodeReaderGeneric reader,
         SKBitmap source,
         IDictionary<string, PdfBarcodeResult> found)
     {
@@ -98,11 +98,21 @@ internal static class PdfBarcodeScanner
     }
 
     private static void ScanInto(
-        BarcodeReader reader,
+        BarcodeReaderGeneric reader,
         SKBitmap source,
         IDictionary<string, PdfBarcodeResult> found)
     {
-        var multiple = reader.DecodeMultiple(source);
+        if (source.Width < 1 || source.Height < 1)
+        {
+            return;
+        }
+
+        var pixels = PdfPageRenderer.CopyBgra(source);
+        var multiple = reader.DecodeMultiple(
+            pixels,
+            source.Width,
+            source.Height,
+            RGBLuminanceSource.BitmapFormat.BGRA32);
         if (multiple is { Length: > 0 })
         {
             foreach (var result in multiple)
@@ -113,7 +123,7 @@ internal static class PdfBarcodeScanner
             return;
         }
 
-        TryAdd(found, reader.Decode(source));
+        TryAdd(found, reader.Decode(pixels, source.Width, source.Height, RGBLuminanceSource.BitmapFormat.BGRA32));
     }
 
     private static void TryAdd(IDictionary<string, PdfBarcodeResult> found, Result? result)
@@ -131,13 +141,13 @@ internal static class PdfBarcodeScanner
     private static SKBitmap CropRect(SKBitmap source, int left, int top, int width, int height)
         => PdfPageRenderer.Crop(source, new PdfPixelRect(left, top, width, height));
 
-    private static BarcodeReader CreateReader(PdfBarcodeOptions options)
+    private static BarcodeReaderGeneric CreateReader(PdfBarcodeOptions options)
     {
         var formats = MapFormats(options.Formats);
-        return new BarcodeReader
+        return new BarcodeReaderGeneric
         {
             AutoRotate = true,
-            Options = new ZXing.Common.DecodingOptions
+            Options = new DecodingOptions
             {
                 TryHarder = options.TryHarder,
                 TryInverted = options.TryInverted,

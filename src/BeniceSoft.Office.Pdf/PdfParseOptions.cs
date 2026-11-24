@@ -9,7 +9,9 @@ public readonly record struct PdfPixelRect(int Left, int Top, int Width, int Hei
 /// <summary>Options controlling page-by-page PDF parsing.</summary>
 public sealed class PdfParseOptions
 {
-    /// <summary>Extract page text with PdfPig. Default true.</summary>
+    /// <summary>
+    /// 提取页面文本，默认 true
+    /// </summary>
     public bool ExtractText { get; set; } = true;
 
     /// <summary>
@@ -24,7 +26,9 @@ public sealed class PdfParseOptions
     /// <summary>Render each page to PNG when true. Default false.</summary>
     public bool IncludePageImage { get; set; }
 
-    /// <summary>Render + ZXing barcode/QR scan. Default false.</summary>
+    /// <summary>
+    /// 渲染页面并用 ZXing 识别条码，默认 false
+    /// </summary>
     public bool ReadBarcodes { get; set; }
 
     /// <summary>Render DPI used for images / barcodes. Default 150.</summary>

@@ -75,7 +75,8 @@ public class AbpEfCoreDtmMsgBarrierManager : DtmMsgBarrierManagerBase<IEfCoreDbC
                     $"Database provider {providerName} is not supported by the event boxes!");
             }
 
-            var reason = await dbContext.Database.GetDbConnection().QueryFirstOrDefaultAsync<string>(
+            var reason = await dbContext.Database.GetDbConnection()
+                .QueryFirstOrDefaultAsync<string>(
                 special.GetQueryPreparedSql(Options.BarrierTableName),
                 new
                 {
@@ -85,7 +86,7 @@ public class AbpEfCoreDtmMsgBarrierManager : DtmMsgBarrierManagerBase<IEfCoreDbC
                     barrier_id = Constant.Barrier.MSG_BARRIER_ID
                 });
 
-            if (reason.Equals(Constant.Barrier.MSG_BARRIER_REASON))
+            if (reason is not null && reason.Equals(Constant.Barrier.MSG_BARRIER_REASON))
             {
                 return true;    // The "rollback" inserted succeed.
             }

@@ -1,25 +1,22 @@
-using PdfSharpCore.Pdf;
-using PdfSharpCore.Pdf.IO;
+using Spire.Pdf;
 
 namespace BeniceSoft.Office.Pdf.Internal;
 
 internal static class PdfPageExtractor
 {
-    public static byte[] ExtractPage(byte[] pdfBytes, int pageIndex0)
+    public static byte[] ExtractPage(PdfDocument document, int pageIndex0)
     {
-        using var inputStream = new MemoryStream(pdfBytes, writable: false);
-        using var input = PdfReader.Open(inputStream, PdfDocumentOpenMode.Import);
-
-        if (pageIndex0 < 0 || pageIndex0 >= input.PageCount)
+        var pageCount = document.Pages.Count;
+        if (pageIndex0 < 0 || pageIndex0 >= pageCount)
         {
             throw new ArgumentOutOfRangeException(nameof(pageIndex0), $"Page index {pageIndex0} is out of range.");
         }
 
         using var output = new PdfDocument();
-        output.AddPage(input.Pages[pageIndex0]);
+        output.InsertPage(document, pageIndex0);
 
         using var outputStream = new MemoryStream();
-        output.Save(outputStream, false);
+        output.SaveToStream(outputStream);
         return outputStream.ToArray();
     }
 }
