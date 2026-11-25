@@ -13,6 +13,7 @@ using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
+using Volo.Abp.EntityFrameworkCore.GlobalFilters;
 
 namespace BeniceSoft.Abp.EntityFrameworkCore;
 
@@ -105,25 +106,24 @@ public static class InternalExtensions
     {
         var queryCompiler = query.GetQueryCompiler();
 
-        var database = (RelationalDatabase)typeof(QueryCompiler)
-            .GetField("_database", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .GetReflector().GetValue(queryCompiler)!;
-
         var queryContextFactory = (IQueryContextFactory)typeof(QueryCompiler)
             .GetField("_queryContextFactory", BindingFlags.Instance | BindingFlags.NonPublic)!
             .GetReflector().GetValue(queryCompiler)!;
 
         queryContext = (RelationalQueryContext)queryContextFactory.Create();
+        var dbContext = queryContext.Context;
+
+        // 预翻译发生在 EF 正常查询执行之前，给 ABP 函数映射提供本次查询的过滤器上下文
+        using var filterContext = dbContext is IAbpEfCoreDbFunctionContext abpContext && abpContext.UseDbFunction()
+            ? dbContext.GetService<AbpEfCoreCurrentDbContext>().Use(abpContext)
+            : null;
 
         var evaluatableExpressionFilter = (IEvaluatableExpressionFilter)typeof(QueryCompiler)
             .GetField("_evaluatableExpressionFilter", BindingFlags.Instance | BindingFlags.NonPublic)!
             .GetReflector().GetValue(queryCompiler)!;
 
-        var databaseDependencies = (DatabaseDependencies)typeof(Database)
-            .GetProperty("Dependencies", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .GetReflector().GetValue(database)!;
-
-        queryCompilationContext = databaseDependencies.QueryCompilationContextFactory.Create(false);
+        // 从当前 DbContext 解析编译工厂，兼容 ABP 对 IDatabase 的封装
+        queryCompilationContext = dbContext.GetService<IQueryCompilationContextFactory>().Create(false);
 
         // EF10：ExpressionTreeFuncletizer + QueryContext.Parameters
         expression = new ExpressionTreeFuncletizer(
