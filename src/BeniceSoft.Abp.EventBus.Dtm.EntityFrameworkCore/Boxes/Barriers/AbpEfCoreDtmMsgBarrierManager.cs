@@ -88,7 +88,7 @@ public class AbpEfCoreDtmMsgBarrierManager : DtmMsgBarrierManagerBase<IEfCoreDbC
 
             if (reason is not null && reason.Equals(Constant.Barrier.MSG_BARRIER_REASON))
             {
-                return true;    // The "rollback" inserted succeed.
+                return true;    // The "rollback" inserted succeed
             }
         }
         catch (Exception ex)
@@ -97,7 +97,7 @@ public class AbpEfCoreDtmMsgBarrierManager : DtmMsgBarrierManagerBase<IEfCoreDbC
             throw;
         }
 
-        return false;    // The "rollback" not inserted.
+        return false;    // The "rollback" not inserted
     }
 
     protected virtual async Task<int> InsertBarrierAsync(IEfCoreDbContext dbContext, string gid, string reason)

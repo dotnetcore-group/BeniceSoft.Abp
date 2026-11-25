@@ -38,31 +38,31 @@ public sealed partial class CronExpression : ISerializable
     private readonly CronField _years = new();
 
     /// <summary>
-    /// Last day of week.
+    /// Last day of week
     /// </summary>
     [NonSerialized]
     private bool _lastDayOfWeek;
 
     /// <summary>
-    /// N number of weeks.
+    /// N number of weeks
     /// </summary>
     [NonSerialized]
     private int _everyNthWeek;
 
     /// <summary>
-    /// Nth day of week.
+    /// Nth day of week
     /// </summary>
     [NonSerialized]
     private int _nthdayOfWeek;
 
     /// <summary>
-    /// Last day of month.
+    /// Last day of month
     /// </summary>
     [NonSerialized]
     private bool _lastDayOfMonth;
 
     /// <summary>
-    /// Nearest weekday.
+    /// Nearest weekday
     /// </summary>
     [NonSerialized]
     private bool _nearestWeekday;
@@ -75,7 +75,7 @@ public sealed partial class CronExpression : ISerializable
 
     ///<summary>
     /// Constructs a new <see cref="CronExpressionString" /> based on the specified
-    /// parameter.
+    /// parameter
     /// </summary>
     /// <param name="cronExpression">
     /// String representation of the cron expression the new object should represent
@@ -102,7 +102,7 @@ public sealed partial class CronExpression : ISerializable
     }
 
     /// <summary>
-    /// Serialization constructor.
+    /// Serialization constructor
     /// </summary>
     private CronExpression(SerializationInfo info, StreamingContext context)
     {
@@ -142,13 +142,13 @@ public sealed partial class CronExpression : ISerializable
     }
 
     /// <summary>
-    /// Indicates whether the given date satisfies the cron expression.
+    /// Indicates whether the given date satisfies the cron expression
     /// </summary>
     /// <remarks>
     /// Note that  milliseconds are ignored, so two Dates falling on different milliseconds
-    /// of the same second will always have the same result here.
+    /// of the same second will always have the same result here
     /// </remarks>
-    /// <param name="dateUtc">The date to evaluate.</param>
+    /// <param name="dateUtc">The date to evaluate</param>
     /// <returns>a boolean indicating whether the given date satisfies the cron expression</returns>
     public bool IsSatisfiedBy(DateTimeOffset dateUtc)
     {
@@ -161,7 +161,7 @@ public sealed partial class CronExpression : ISerializable
 
     /// <summary>
     /// Returns the next date/time <i>after</i> the given date/time which
-    /// satisfies the cron expression.
+    /// satisfies the cron expression
     /// </summary>
     /// <param name="date">the date/time at which to begin the search for the next valid date/time</param>
     /// <returns>the next valid date/time</returns>
@@ -172,7 +172,7 @@ public sealed partial class CronExpression : ISerializable
 
     /// <summary>
     /// Returns the next date/time <i>after</i> the given date/time which does
-    /// <i>not</i> satisfy the expression.
+    /// <i>not</i> satisfy the expression
     /// </summary>
     /// <param name="date">the date/time at which to begin the search for the next invalid date/time</param>
     /// <returns>the next valid date/time</returns>
@@ -183,11 +183,11 @@ public sealed partial class CronExpression : ISerializable
         // move back to the nearest second so differences will be accurate
         var lastDate = new DateTimeOffset(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Offset).AddSeconds(-1);
 
-        //IMPROVE THIS! The following is a BAD solution to this problem. Performance will be very bad here, depending on the cron expression. It is, however A solution.
+        //IMPROVE THIS! The following is a BAD solution to this problem. Performance will be very bad here, depending on the cron expression. It is, however A solution
 
         //keep getting the next included time until it's farther than one second
         // apart. At that point, lastDate is the last valid fire time. We return
-        // the second immediately following it.
+        // the second immediately following it
         while (difference == 1000)
         {
             var newDate = GetTimeAfter(lastDate);
@@ -259,9 +259,9 @@ public sealed partial class CronExpression : ISerializable
     ////////////////////////////////////////////////////////////////////////////
 
     /// <summary>
-    /// Builds the expression.
+    /// Builds the expression
     /// </summary>
-    /// <param name="expression">The expression.</param>
+    /// <param name="expression">The expression</param>
     private void BuildExpression(string expression)
     {
         try
@@ -852,9 +852,9 @@ public sealed partial class CronExpression : ISerializable
     }
 
     /// <summary>
-    /// Gets the cron expression string.
+    /// Gets the cron expression string
     /// </summary>
-    /// <value>The cron expression string.</value>
+    /// <value>The cron expression string</value>
     public string CronExpressionString { get; }
 
     private static int SkipWhiteSpace(int position, ReadOnlySpan<char> str)
@@ -1007,7 +1007,7 @@ public sealed partial class CronExpression : ISerializable
 
         // if the end of the range is before the start, then we need to overflow into
         // the next day, month etc. This is done by adding the maximum amount for that
-        // type, and using modulus max to determine the value being added.
+        // type, and using modulus max to determine the value being added
         var max = -1;
         if (stopAt < startAt)
         {
@@ -1049,7 +1049,7 @@ public sealed partial class CronExpression : ISerializable
     }
 
     /// <summary>
-    /// Gets the set of given type.
+    /// Gets the set of given type
     /// </summary>
     private CronField GetSet(int type)
     {
@@ -1098,7 +1098,7 @@ public sealed partial class CronExpression : ISerializable
     }
 
     /// <summary>
-    /// Gets the numeric value from string.
+    /// Gets the numeric value from string
     /// </summary>
     private static int GetNumericValue(ReadOnlySpan<char> s, int i)
     {
@@ -1107,9 +1107,9 @@ public sealed partial class CronExpression : ISerializable
     }
 
     /// <summary>
-    /// Gets the month number.
+    /// Gets the month number
     /// </summary>
-    /// <param name="s">The string to map with.</param>
+    /// <param name="s">The string to map with</param>
     /// <returns></returns>
     private static int GetMonthNumber(ReadOnlySpan<char> s)
     {
@@ -1259,7 +1259,7 @@ public sealed partial class CronExpression : ISerializable
                 }
 
                 var calculatedLastDayWithOffset = calculatedDay - _lastWeekdayOffset;
-                // If the day has crossed to the prior month, reset to 1st.
+                // If the day has crossed to the prior month, reset to 1st
                 if (calculatedLastDayWithOffset <= 0)
                 {
                     calculatedLastDayWithOffset = 1;
@@ -1381,7 +1381,7 @@ public sealed partial class CronExpression : ISerializable
             else
             {
                 // This is to avoid a bug when moving from a month
-                // with 30 or 31 days to a month with less. Causes an invalid datetime to be instantiated.
+                // with 30 or 31 days to a month with less. Causes an invalid datetime to be instantiated
                 // ex. 0 29 0 30 1 ? 2009 with clock set to 1/30/2009
                 var lDay = DateTime.DaysInMonth(d.Year, mon);
                 if (day <= lDay)
@@ -1684,9 +1684,9 @@ public sealed partial class CronExpression : ISerializable
     }
 
     /// <summary>
-    /// Gets the next fire time after the given time.
+    /// Gets the next fire time after the given time
     /// </summary>
-    /// <param name="afterTimeUtc">The UTC time to start searching from.</param>
+    /// <param name="afterTimeUtc">The UTC time to start searching from</param>
     /// <returns></returns>
     public DateTimeOffset? GetTimeAfter(DateTimeOffset afterTimeUtc)
     {
@@ -1756,9 +1756,9 @@ public sealed partial class CronExpression : ISerializable
     }
 
     /// <summary>
-    /// Creates the date time without milliseconds.
+    /// Creates the date time without milliseconds
     /// </summary>
-    /// <param name="time">The time.</param>
+    /// <param name="time">The time</param>
     /// <returns></returns>
     private static DateTimeOffset CreateDateTimeWithoutMilliseconds(DateTimeOffset time)
     {
@@ -1767,10 +1767,10 @@ public sealed partial class CronExpression : ISerializable
 
     /// <summary>
     /// Advance the calendar to the particular hour paying particular attention
-    /// to daylight saving problems.
+    /// to daylight saving problems
     /// </summary>
-    /// <param name="date">The date.</param>
-    /// <param name="hour">The hour.</param>
+    /// <param name="date">The date</param>
+    /// <param name="hour">The hour</param>
     /// <returns></returns>
     private static DateTimeOffset SetCalendarHour(DateTimeOffset date, int hour)
     {
@@ -1793,7 +1793,7 @@ public sealed partial class CronExpression : ISerializable
     }
 
     /// <summary>
-    /// Gets the last day of month.
+    /// Gets the last day of month
     /// </summary>
     private static int GetLastDayOfMonth(int monthNum, int year)
     {
@@ -1811,10 +1811,10 @@ public sealed partial class CronExpression : ISerializable
     }
 
     /// <summary>
-    /// Creates a new object that is a copy of the current instance.
+    /// Creates a new object that is a copy of the current instance
     /// </summary>
     /// <returns>
-    /// A new object that is a copy of this instance.
+    /// A new object that is a copy of this instance
     /// </returns>
     public object Clone()
     {
@@ -1827,12 +1827,12 @@ public sealed partial class CronExpression : ISerializable
     }
 
     /// <summary>
-    /// Determines whether the specified <see cref="CronExpression"/> is equal to the current <see cref="CronExpression"/>.
+    /// Determines whether the specified <see cref="CronExpression"/> is equal to the current <see cref="CronExpression"/>
     /// </summary>
     /// <returns>
-    /// true if the specified <see cref="CronExpression"/> is equal to the current <see cref="CronExpression"/>; otherwise, false.
+    /// true if the specified <see cref="CronExpression"/> is equal to the current <see cref="CronExpression"/>; otherwise, false
     /// </returns>
-    /// <param name="other">The <see cref="CronExpression"/> to compare with the current <see cref="CronExpression"/>. </param>
+    /// <param name="other">The <see cref="CronExpression"/> to compare with the current <see cref="CronExpression"/></param>
     public bool Equals(CronExpression other)
     {
         if (other is null)
@@ -1869,7 +1869,7 @@ public sealed partial class CronExpression : ISerializable
     }
 
     /// <summary>
-    /// Serves as a hash function for a particular type.
+    /// Serves as a hash function for a particular type
     /// </summary>
     /// <returns>
     /// A hash code for the current
@@ -1890,7 +1890,7 @@ public sealed partial class CronExpression : ISerializable
     private readonly record struct NextFireTimeCursor(bool RestartLoop, DateTimeOffset? Date);
 
     /// <summary>
-    /// Optimized structure to hold either one value or multiple.
+    /// Optimized structure to hold either one value or multiple
     /// </summary>
     private sealed class CronField : IEnumerable<int>
     {
@@ -2063,47 +2063,47 @@ public sealed partial class CronExpression : ISerializable
     private static class Constants
     {
         /// <summary>
-        /// Field specification for second.
+        /// Field specification for second
         /// </summary>
         public const int Second = 0;
 
         /// <summary>
-        /// Field specification for minute.
+        /// Field specification for minute
         /// </summary>
         public const int Minute = 1;
 
         /// <summary>
-        /// Field specification for hour.
+        /// Field specification for hour
         /// </summary>
         public const int Hour = 2;
 
         /// <summary>
-        /// Field specification for day of month.
+        /// Field specification for day of month
         /// </summary>
         public const int DayOfMonth = 3;
 
         /// <summary>
-        /// Field specification for month.
+        /// Field specification for month
         /// </summary>
         public const int Month = 4;
 
         /// <summary>
-        /// Field specification for day of week.
+        /// Field specification for day of week
         /// </summary>
         public const int DayOfWeek = 5;
 
         /// <summary>
-        /// Field specification for year.
+        /// Field specification for year
         /// </summary>
         public const int Year = 6;
 
         /// <summary>
-        /// Field specification for wildcard '*'.
+        /// Field specification for wildcard '*'
         /// </summary>
         public const int AllSpec = 99;
 
         /// <summary>
-        /// Field specification for no specification at all '?'.
+        /// Field specification for no specification at all '?'
         /// </summary>
         public const int NoSpec = 98;
     }

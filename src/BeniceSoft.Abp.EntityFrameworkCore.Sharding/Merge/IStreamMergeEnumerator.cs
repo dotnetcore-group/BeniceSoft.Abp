@@ -479,7 +479,7 @@ internal sealed class AggregateStreamMergeEnumerator<T> : IStreamMergeEnumerator
     {
         ArgumentNullException.ThrowIfNull(type);
 
-        // The only way to detect anonymous types right now.
+        // The only way to detect anonymous types right now
         return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false) && type.IsGenericType && type.Name.Contains("AnonymousType") && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$")) && type.Attributes.HasFlag(TypeAttributes.NotPublic);
     }
 

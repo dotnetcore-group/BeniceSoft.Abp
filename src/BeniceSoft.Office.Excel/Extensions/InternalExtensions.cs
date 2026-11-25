@@ -71,7 +71,7 @@ internal static class InternalExtensions
         var writeableBody = lambdaExpression.Body is UnaryExpression { Operand: MemberExpression writeableMember } ? writeableMember : (MemberExpression)lambdaExpression.Body;
         var newValueParam = Expression.Parameter(valueType, "v");
 
-        // If we are assigning value in the type of object, boxing and unboxing might be performed.
+        // If we are assigning value in the type of object, boxing and unboxing might be performed
         Expression rightExpression = assigningObject
             ? Expression.Condition(
                 Expression.Equal(newValueParam, Expression.Constant(null)),
@@ -122,12 +122,12 @@ internal static class InternalExtensions
             throw new ArgumentException($"If pathStartsWithHostType is true, at least 2 path parts required.", nameof(propertyPath));
         }
 
-        // for 'dynamic' type, 'GetType' works better than typeof.
+        // for 'dynamic' type, 'GetType' works better than typeof
         var hostType = host?.GetType() ?? typeof(THost);
         var param = Expression.Parameter(typeof(THost), "x"); // T will be 'object' for dynamic
         Expression body = Expression.Convert(param, hostType); // force convert to underlying type for dynamic
 
-        // Skip the first part if required, which is the host object type.
+        // Skip the first part if required, which is the host object type
         for (var i = pathStartsWithHostType ? 1 : 0; i < parts.Length; i++)
         {
             var member = parts[i];

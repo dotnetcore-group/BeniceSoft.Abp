@@ -72,7 +72,7 @@ internal static class PdfTextReader
 
             if (sectionKey is not null)
             {
-                // Stop section when a new tracking-like token or short route code block appears after address.
+                // Stop section when a new tracking-like token or short route code block appears after address
                 if (TrackingLike.IsMatch(line) && sectionValues.Count >= 2)
                 {
                     FlushSection();
@@ -122,14 +122,14 @@ internal static class PdfTextReader
         var candidateKey = line[..idx].Trim();
         if (candidateKey.Length == 0 || candidateKey.Length > 40 || candidateKey.Contains(' '))
         {
-            // Allow short multi-word keys like "SHIP TO" / "SHIP FROM".
+            // Allow short multi-word keys like "SHIP TO" / "SHIP FROM"
             if (!(candidateKey.Length <= 24 && candidateKey.Count(char.IsLetter) >= 2))
             {
                 return false;
             }
         }
 
-        // Avoid treating times / ratios as keys (e.g. "12:30").
+        // Avoid treating times / ratios as keys (e.g. "12:30")
         if (candidateKey.All(c => char.IsDigit(c) || c == '.'))
         {
             return false;

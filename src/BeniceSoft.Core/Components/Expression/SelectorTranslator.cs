@@ -3,30 +3,30 @@ using System.Linq.Expressions;
 namespace BeniceSoft.Core;
 
 /// <summary>
-/// Provides methods for combining and translating lambda expressions representing selectors.
+/// Provides methods for combining and translating lambda expressions representing selectors
 /// </summary>
 public static class SelectorTranslator
 {
     /// <summary>
-    /// Starts translation of a given selector.
+    /// Starts translation of a given selector
     /// </summary>
-    /// <typeparam name="TSource">The type of the selector's source parameter.</typeparam>
-    /// <typeparam name="TResult">The type of the selector's result parameter.</typeparam>
-    /// <param name="selector">The selector expression to translate.</param>
-    /// <returns>A translation object for the given selector.</returns>
+    /// <typeparam name="TSource">The type of the selector's source parameter</typeparam>
+    /// <typeparam name="TResult">The type of the selector's result parameter</typeparam>
+    /// <param name="selector">The selector expression to translate</param>
+    /// <returns>A translation object for the given selector</returns>
     public static SelectorTranslation<TSource, TResult> Translate<TSource, TResult>(this Expression<Func<TSource, TResult>> selector)
     {
         return new(selector);
     }
 
     /// <summary>
-    /// Combines two given selectors by merging their member bindings.
+    /// Combines two given selectors by merging their member bindings
     /// </summary>
-    /// <typeparam name="TSource">The type of the selector's source parameter.</typeparam>
-    /// <typeparam name="TResult">The type of the selector's result parameter.</typeparam>
-    /// <param name="left">The first selector expression to combine.</param>
-    /// <param name="right">The second selector expression to combine.</param>
-    /// <returns>A single combined selector expression.</returns>
+    /// <typeparam name="TSource">The type of the selector's source parameter</typeparam>
+    /// <typeparam name="TResult">The type of the selector's result parameter</typeparam>
+    /// <param name="left">The first selector expression to combine</param>
+    /// <param name="right">The second selector expression to combine</param>
+    /// <returns>A single combined selector expression</returns>
     public static Expression<Func<TSource, TResult>> Apply<TSource, TResult>(this Expression<Func<TSource, TResult>> left, Expression<Func<TSource, TResult>> right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -61,18 +61,18 @@ public static class SelectorTranslator
 }
 
 /// <summary>
-/// Represents a translation of a given selector.
+/// Represents a translation of a given selector
 /// </summary>
-/// <typeparam name="TSource">The type of the selector's source parameter.</typeparam>
-/// <typeparam name="TResult">The type of the selector's result parameter.</typeparam>
+/// <typeparam name="TSource">The type of the selector's source parameter</typeparam>
+/// <typeparam name="TResult">The type of the selector's result parameter</typeparam>
 public class SelectorTranslation<TSource, TResult>
 {
     private readonly Expression<Func<TSource, TResult>> _selector;
 
     /// <summary>
-    /// Starts translation of a given selector.
+    /// Starts translation of a given selector
     /// </summary>
-    /// <param name="selector">The selector expression to translate.</param>
+    /// <param name="selector">The selector expression to translate</param>
     public SelectorTranslation(Expression<Func<TSource, TResult>> selector)
     {
         ArgumentNullException.ThrowIfNull(selector);
@@ -81,10 +81,10 @@ public class SelectorTranslation<TSource, TResult>
     }
 
     /// <summary>
-    /// Translates a given selector for a given subtype using it's source parameter.
+    /// Translates a given selector for a given subtype using it's source parameter
     /// </summary>
-    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter.</typeparam>
-    /// <returns>A translated selector expression.</returns>
+    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter</typeparam>
+    /// <returns>A translated selector expression</returns>
     public Expression<Func<TTranslatedSource, TResult>> Source<TTranslatedSource>()
         where TTranslatedSource : TSource
     {
@@ -97,11 +97,11 @@ public class SelectorTranslation<TSource, TResult>
     }
 
     /// <summary>
-    /// Translates a given selector for a given related type using it's source parameter.
+    /// Translates a given selector for a given related type using it's source parameter
     /// </summary>
-    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter.</typeparam>
-    /// <param name="path">The path from the desired type to the given type.</param>
-    /// <returns>A translated selector expression.</returns>
+    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter</typeparam>
+    /// <param name="path">The path from the desired type to the given type</param>
+    /// <returns>A translated selector expression</returns>
     public Expression<Func<TTranslatedSource, TResult>> Source<TTranslatedSource>(Expression<Func<TTranslatedSource, TSource>> path)
     {
         ArgumentNullException.ThrowIfNull(path);
@@ -115,12 +115,12 @@ public class SelectorTranslation<TSource, TResult>
     }
 
     /// <summary>
-    /// Translates a given selector for a given related type using it's source parameter.
+    /// Translates a given selector for a given related type using it's source parameter
     /// </summary>
-    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter.</typeparam>
+    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter</typeparam>
     /// <param name="translation">The translation from the desired type to the given type,
-    /// using the initially given selector to be injected into a new selector.</param>
-    /// <returns>A translated selector expression.</returns>
+    /// using the initially given selector to be injected into a new selector</param>
+    /// <returns>A translated selector expression</returns>
     public Expression<Func<TTranslatedSource, TResult>> Source<TTranslatedSource>(Expression<Func<TTranslatedSource, Func<TSource, TResult>, TResult>> translation)
     {
         ArgumentNullException.ThrowIfNull(translation);
@@ -134,12 +134,12 @@ public class SelectorTranslation<TSource, TResult>
     }
 
     /// <summary>
-    /// Translates a given selector for a given related type using it's source parameter.
+    /// Translates a given selector for a given related type using it's source parameter
     /// </summary>
-    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter.</typeparam>
+    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter</typeparam>
     /// <param name="translation">The translation from the desired type to the given type,
-    /// using the initially given selector to be injected into a new selector.</param>
-    /// <returns>A translated selector expression.</returns>
+    /// using the initially given selector to be injected into a new selector</param>
+    /// <returns>A translated selector expression</returns>
     public Expression<Func<TTranslatedSource, IEnumerable<TResult>>> Source<TTranslatedSource>(Expression<Func<TTranslatedSource, Func<TSource, TResult>, IEnumerable<TResult>>> translation)
     {
         ArgumentNullException.ThrowIfNull(translation);
@@ -153,10 +153,10 @@ public class SelectorTranslation<TSource, TResult>
     }
 
     /// <summary>
-    /// Translates a given selector for a given subtype using it's result parameter.
+    /// Translates a given selector for a given subtype using it's result parameter
     /// </summary>
-    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter.</typeparam>
-    /// <returns>A translated selector expression.</returns>
+    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter</typeparam>
+    /// <returns>A translated selector expression</returns>
     public Expression<Func<TSource, TTranslatedResult>> Result<TTranslatedResult>()
         where TTranslatedResult : TResult
     {
@@ -176,11 +176,11 @@ public class SelectorTranslation<TSource, TResult>
     }
 
     /// <summary>
-    /// Translates a given selector for a given related type using it's result parameter.
+    /// Translates a given selector for a given related type using it's result parameter
     /// </summary>
-    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter.</typeparam>
-    /// <param name="path">The path from the desired type to the given type.</param>
-    /// <returns>A translated selector expression.</returns>
+    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter</typeparam>
+    /// <param name="path">The path from the desired type to the given type</param>
+    /// <returns>A translated selector expression</returns>
     public Expression<Func<TSource, TTranslatedResult>> Result<TTranslatedResult>(Expression<Func<TTranslatedResult, TResult>> path)
     {
         ArgumentNullException.ThrowIfNull(path);
@@ -198,12 +198,12 @@ public class SelectorTranslation<TSource, TResult>
     }
 
     /// <summary>
-    /// Translates a given selector for a given related type using it's result parameter.
+    /// Translates a given selector for a given related type using it's result parameter
     /// </summary>
-    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter.</typeparam>
+    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter</typeparam>
     /// <param name="translation">The translation from the desired type to the given type,
-    /// using the initially given selector to be injected into a new selector.</param>
-    /// <returns>A translated selector expression.</returns>
+    /// using the initially given selector to be injected into a new selector</param>
+    /// <returns>A translated selector expression</returns>
     public Expression<Func<TSource, TTranslatedResult>> Result<TTranslatedResult>(Expression<Func<TSource, Func<TSource, TResult>, TTranslatedResult>> translation)
     {
         ArgumentNullException.ThrowIfNull(translation);
@@ -217,10 +217,10 @@ public class SelectorTranslation<TSource, TResult>
     }
 
     /// <summary>
-    /// Continues translation of a given selector for a given subtype using it's source parameter.
+    /// Continues translation of a given selector for a given subtype using it's source parameter
     /// </summary>
-    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter.</typeparam>
-    /// <returns>Another translation object for the given selector.</returns>
+    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter</typeparam>
+    /// <returns>Another translation object for the given selector</returns>
     public SelectorTranslation<TTranslatedSource, TResult> Cross<TTranslatedSource>()
         where TTranslatedSource : TSource
     {
@@ -228,35 +228,35 @@ public class SelectorTranslation<TSource, TResult>
     }
 
     /// <summary>
-    /// Continues translation of a given selector for a given related type using it's source parameter.
+    /// Continues translation of a given selector for a given related type using it's source parameter
     /// </summary>
-    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter.</typeparam>
-    /// <param name="path">The path from the desired type to the given type.</param>
-    /// <returns>Another translation object for the given selector.</returns>
+    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter</typeparam>
+    /// <param name="path">The path from the desired type to the given type</param>
+    /// <returns>Another translation object for the given selector</returns>
     public SelectorTranslation<TTranslatedSource, TResult> Cross<TTranslatedSource>(Expression<Func<TTranslatedSource, TSource>> path)
     {
         return Source(path).Translate();
     }
 
     /// <summary>
-    /// Continues translation of a given selector for a given related type using it's source parameter.
+    /// Continues translation of a given selector for a given related type using it's source parameter
     /// </summary>
-    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter.</typeparam>
+    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter</typeparam>
     /// <param name="translation">The translation from the desired type to the given type,
-    /// using the initially given selector to be injected into a new selector.</param>
-    /// <returns>Another translation object for the given selector.</returns>
+    /// using the initially given selector to be injected into a new selector</param>
+    /// <returns>Another translation object for the given selector</returns>
     public SelectorTranslation<TTranslatedSource, TResult> Cross<TTranslatedSource>(Expression<Func<TTranslatedSource, Func<TSource, TResult>, TResult>> translation)
     {
         return Source(translation).Translate();
     }
 
     /// <summary>
-    /// Continues translation of a given selector for a given related type using it's source parameter.
+    /// Continues translation of a given selector for a given related type using it's source parameter
     /// </summary>
-    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter.</typeparam>
+    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter</typeparam>
     /// <param name="translation">The translation from the desired type to the given type,
-    /// using the initially given selector to be injected into a new selector.</param>
-    /// <returns>Another translation object for the given selector.</returns>
+    /// using the initially given selector to be injected into a new selector</param>
+    /// <returns>Another translation object for the given selector</returns>
     public SelectorTranslation<TTranslatedSource, IEnumerable<TResult>> Cross<TTranslatedSource>(Expression<Func<TTranslatedSource, Func<TSource, TResult>, IEnumerable<TResult>>> translation)
     {
         return Source(translation).Translate();
@@ -264,11 +264,11 @@ public class SelectorTranslation<TSource, TResult>
 
     /// <summary>
     /// Translates a given selector for a given subtype using it's result parameter
-    /// and combines it with another given selector by merging their member bindings.
+    /// and combines it with another given selector by merging their member bindings
     /// </summary>
-    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter.</typeparam>
-    /// <param name="value">The additional selector expression to combine.</param>
-    /// <returns>A single translated and combined selector expression.</returns>
+    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter</typeparam>
+    /// <param name="value">The additional selector expression to combine</param>
+    /// <returns>A single translated and combined selector expression</returns>
     public Expression<Func<TSource, TTranslatedResult>> Apply<TTranslatedResult>(Expression<Func<TSource, TTranslatedResult>> value)
         where TTranslatedResult : TResult
     {
@@ -277,12 +277,12 @@ public class SelectorTranslation<TSource, TResult>
 
     /// <summary>
     /// Translates a given selector for a given related type using it's result parameter
-    /// and combines it with another given selector by merging their member bindings.
+    /// and combines it with another given selector by merging their member bindings
     /// </summary>
-    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter.</typeparam>
-    /// <param name="path">The path from the desired type to the given type.</param>
-    /// <param name="value">The additional selector expression to combine.</param>
-    /// <returns>A single translated and combined selector expression.</returns>
+    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter</typeparam>
+    /// <param name="path">The path from the desired type to the given type</param>
+    /// <param name="value">The additional selector expression to combine</param>
+    /// <returns>A single translated and combined selector expression</returns>
     public Expression<Func<TSource, TTranslatedResult>> Apply<TTranslatedResult>(Expression<Func<TTranslatedResult, TResult>> path, Expression<Func<TSource, TTranslatedResult>> value)
     {
         return Result(path).Apply(value);
@@ -290,13 +290,13 @@ public class SelectorTranslation<TSource, TResult>
 
     /// <summary>
     /// Translates a given selector for a given related type using it's result parameter
-    /// and combines it with another given selector by merging their member bindings.
+    /// and combines it with another given selector by merging their member bindings
     /// </summary>
-    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter.</typeparam>
+    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter</typeparam>
     /// <param name="translation">The translation from the desired type to the given type,
-    /// using the initially given selector to be injected into a new selector.</param>
-    /// <param name="value">The additional selector expression to combine.</param>
-    /// <returns>A single translated and combined selector expression.</returns>
+    /// using the initially given selector to be injected into a new selector</param>
+    /// <param name="value">The additional selector expression to combine</param>
+    /// <returns>A single translated and combined selector expression</returns>
     public Expression<Func<TSource, TTranslatedResult>> Apply<TTranslatedResult>(Expression<Func<TSource, Func<TSource, TResult>, TTranslatedResult>> translation, Expression<Func<TSource, TTranslatedResult>> value)
     {
         return Result(translation).Apply(value);
@@ -304,12 +304,12 @@ public class SelectorTranslation<TSource, TResult>
 
     /// <summary>
     /// Translates a given selector for given subtypes using it's source and result parameter
-    /// and combines it with another given selector by merging their member bindings.
+    /// and combines it with another given selector by merging their member bindings
     /// </summary>
-    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter.</typeparam>
-    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter.</typeparam>
-    /// <param name="value">The additional selector expression to combine.</param>
-    /// <returns>A single translated and combined selector expression.</returns>
+    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter</typeparam>
+    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter</typeparam>
+    /// <param name="value">The additional selector expression to combine</param>
+    /// <returns>A single translated and combined selector expression</returns>
     public Expression<Func<TTranslatedSource, TTranslatedResult>> To<TTranslatedSource, TTranslatedResult>(Expression<Func<TTranslatedSource, TTranslatedResult>>? value = null)
         where TTranslatedSource : TSource
         where TTranslatedResult : TResult
@@ -321,14 +321,14 @@ public class SelectorTranslation<TSource, TResult>
 
     /// <summary>
     /// Translates a given selector for a given related type using it's source and result parameter
-    /// and combines it with another given selector by merging their member bindings.
+    /// and combines it with another given selector by merging their member bindings
     /// </summary>
-    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter.</typeparam>
-    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter.</typeparam>
-    /// <param name="sourcePath">The path from the desired source type to the given type.</param>
-    /// <param name="resultPath">The path from the desired result type to the given type.</param>
-    /// <param name="value">The additional selector expression to combine.</param>
-    /// <returns>A single translated and combined selector expression.</returns>
+    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter</typeparam>
+    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter</typeparam>
+    /// <param name="sourcePath">The path from the desired source type to the given type</param>
+    /// <param name="resultPath">The path from the desired result type to the given type</param>
+    /// <param name="value">The additional selector expression to combine</param>
+    /// <returns>A single translated and combined selector expression</returns>
     public Expression<Func<TTranslatedSource, TTranslatedResult>> To<TTranslatedSource, TTranslatedResult>(Expression<Func<TTranslatedSource, TSource>> sourcePath, Expression<Func<TTranslatedResult, TResult>> resultPath, Expression<Func<TTranslatedSource, TTranslatedResult>>? value = null)
     {
         var result = Cross(sourcePath).Result(resultPath);
@@ -338,14 +338,14 @@ public class SelectorTranslation<TSource, TResult>
 
     /// <summary>
     /// Translates a given selector for a given related type using it's source and result parameter
-    /// and combines it with another given selector by merging their member bindings.
+    /// and combines it with another given selector by merging their member bindings
     /// </summary>
-    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter.</typeparam>
-    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter.</typeparam>
+    /// <typeparam name="TTranslatedSource">The type of the translated selector's source parameter</typeparam>
+    /// <typeparam name="TTranslatedResult">The type of the translated selector's result parameter</typeparam>
     /// <param name="translation">The translation from the desired type to the given type,
-    /// using the initially given selector to be injected into a new selector.</param>
-    /// <param name="value">The additional selector expression to combine.</param>
-    /// <returns>A single translated and combined selector expression.</returns>
+    /// using the initially given selector to be injected into a new selector</param>
+    /// <param name="value">The additional selector expression to combine</param>
+    /// <returns>A single translated and combined selector expression</returns>
     public Expression<Func<TTranslatedSource, TTranslatedResult>> To<TTranslatedSource, TTranslatedResult>(Expression<Func<TTranslatedSource, Func<TSource, TResult>, TTranslatedResult>> translation, Expression<Func<TTranslatedSource, TTranslatedResult>>? value = null)
     {
         ArgumentNullException.ThrowIfNull(translation);
@@ -362,7 +362,7 @@ public class SelectorTranslation<TSource, TResult>
 }
 
 /// <summary>
-/// Rebinds a parameter expression to any expression.
+/// Rebinds a parameter expression to any expression
 /// </summary>
 public class ParameterBinder : ExpressionVisitor
 {
@@ -370,10 +370,10 @@ public class ParameterBinder : ExpressionVisitor
     private readonly Expression _replacement;
 
     /// <summary>
-    /// Create an new binder.
+    /// Create an new binder
     /// </summary>
-    /// <param name="parameter">Parameter to find.</param>
-    /// <param name="replacement">Expression to insert.</param>
+    /// <param name="parameter">Parameter to find</param>
+    /// <param name="replacement">Expression to insert</param>
     public ParameterBinder(ParameterExpression parameter, Expression replacement)
     {
         ArgumentNullException.ThrowIfNull(parameter);
@@ -410,17 +410,17 @@ public class ParameterBinder : ExpressionVisitor
 }
 
 /// <summary>
-/// Represents a translation of a given predicate.
+/// Represents a translation of a given predicate
 /// </summary>
-/// <typeparam name="T">The type of the predicate's parameter.</typeparam>
+/// <typeparam name="T">The type of the predicate's parameter</typeparam>
 public class PredicateTranslation<T>
 {
     private readonly Expression<Func<T, bool>> _predicate;
 
     /// <summary>
-    /// Creates a new predicate translation.
+    /// Creates a new predicate translation
     /// </summary>
-    /// <param name="predicate">The predicate to translate.</param>
+    /// <param name="predicate">The predicate to translate</param>
     public PredicateTranslation(Expression<Func<T, bool>> predicate)
     {
         ArgumentNullException.ThrowIfNull(predicate);
@@ -429,10 +429,10 @@ public class PredicateTranslation<T>
     }
 
     /// <summary>
-    /// Translates a given predicate for a given subtype.
+    /// Translates a given predicate for a given subtype
     /// </summary>
-    /// <typeparam name="TR">The type of the translated predicate's parameter.</typeparam>
-    /// <returns>A translated predicate expression.</returns>
+    /// <typeparam name="TR">The type of the translated predicate's parameter</typeparam>
+    /// <returns>A translated predicate expression</returns>
     public Expression<Func<TR, bool>> To<TR>()
         where TR : T
     {
@@ -444,11 +444,11 @@ public class PredicateTranslation<T>
     }
 
     /// <summary>
-    /// Translates a given predicate for a given related type.
+    /// Translates a given predicate for a given related type
     /// </summary>
-    /// <typeparam name="TSource">The type of the translated predicate's parameter.</typeparam>
-    /// <param name="path">The path from the desired type to the given type.</param>
-    /// <returns>A translated predicate expression.</returns>
+    /// <typeparam name="TSource">The type of the translated predicate's parameter</typeparam>
+    /// <param name="path">The path from the desired type to the given type</param>
+    /// <returns>A translated predicate expression</returns>
     public Expression<Func<TSource, bool>> To<TSource>(Expression<Func<TSource, T>> path)
     {
         ArgumentNullException.ThrowIfNull(path);
@@ -462,12 +462,12 @@ public class PredicateTranslation<T>
     }
 
     /// <summary>
-    /// Translates a given predicate for a given related type.
+    /// Translates a given predicate for a given related type
     /// </summary>
-    /// <typeparam name="TSource">The type of the translated predicate's parameter.</typeparam>
+    /// <typeparam name="TSource">The type of the translated predicate's parameter</typeparam>
     /// <param name="translation">The translation from the desired type to the given type,
-    /// using the initially given predicate to be injected into a new predicate.</param>
-    /// <returns>A translated predicate expression.</returns>
+    /// using the initially given predicate to be injected into a new predicate</param>
+    /// <returns>A translated predicate expression</returns>
     public Expression<Func<TSource, bool>> To<TSource>(Expression<Func<TSource, Func<T, bool>, bool>> translation)
     {
         ArgumentNullException.ThrowIfNull(translation);

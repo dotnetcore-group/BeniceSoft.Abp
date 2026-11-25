@@ -4,7 +4,7 @@ using System.Text;
 namespace BeniceSoft.Http.FluentClient;
 
 /// <summary>
-/// builds and dispatches an asynchronous HTTP request, and asynchronously parses the response.
+/// builds and dispatches an asynchronous HTTP request, and asynchronously parses the response
 /// </summary>
 public interface IHttpRequest
 {

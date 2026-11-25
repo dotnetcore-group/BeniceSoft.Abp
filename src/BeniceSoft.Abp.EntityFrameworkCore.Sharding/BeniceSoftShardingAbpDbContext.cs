@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BeniceSoft.Abp.EntityFrameworkCore.Sharding;
 
 /// <summary>
-/// ABP + 分片壳 DbContext：UoW / IRepository 持有此类实例；物理库由 <see cref="IShardingDbContextExecutor"/> 创建。
+/// ABP + 分片壳 DbContext：UoW / IRepository 持有此类实例；物理库由 <see cref="IShardingDbContextExecutor"/> 创建
 /// 若配置了分表路由，请同时继承 <see cref="IShardingTableDbContext"/>
 /// </summary>
 public abstract class BeniceSoftShardingAbpDbContext<TDbContext> : BeniceSoftAbpDbContext<TDbContext>, IShardingDbContext
@@ -40,7 +40,7 @@ public abstract class BeniceSoftShardingAbpDbContext<TDbContext> : BeniceSoftAbp
                $"{GetType().Name} is a physical sharding DbContext and has no executor. Use the shell DbContext.");
 
     /// <inheritdoc />
-    /// <remarks>物理 DbContext 为 true；壳为 false。</remarks>
+    /// <remarks>物理 DbContext 为 true；壳为 false</remarks>
     public bool IsExecutor => TryGetExecutor() is null;
 
     public override void Dispose()

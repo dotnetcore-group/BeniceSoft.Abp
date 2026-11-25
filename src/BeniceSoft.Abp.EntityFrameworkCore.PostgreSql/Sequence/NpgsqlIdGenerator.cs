@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BeniceSoft.Abp.EntityFrameworkCore.PostgreSql;
 
 /// <summary>
-/// <see cref="IIdGenerator"/> backed by a PostgreSQL SEQUENCE.
+/// <see cref="IIdGenerator"/> backed by a PostgreSQL SEQUENCE
 /// </summary>
 public class NpgsqlIdGenerator : IIdGenerator
 {

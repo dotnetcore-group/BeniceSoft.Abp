@@ -8,7 +8,9 @@ using System.Reflection;
 
 namespace BeniceSoft.Abp.EntityFrameworkCore;
 
-/// <summary>单个延迟查询的基类：负责编译命令、在批结果 DataReader 上物化。</summary>
+/// <summary>
+/// 单个延迟查询的基类：负责编译命令、在批结果 DataReader 上物化
+/// </summary>
 [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Required to inject DataReader into EF compiled query enumerator.")]
 public abstract class BaseQueryFuture
 {
@@ -34,7 +36,7 @@ public abstract class BaseQueryFuture
 
     /// <summary>
     /// 编译本查询命令，并把 RelationalConnection 的底层连接临时换成 CreateEntityConnection，
-    /// 以便随后 SetResult 时用批 DataReader 喂给 EF 枚举器而不再真正 Open/Execute。
+    /// 以便随后 SetResult 时用批 DataReader 喂给 EF 枚举器而不再真正 Open/Execute
     /// </summary>
     public virtual IRelationalCommand CreateExecutorAndGetCommand(out RelationalQueryContext queryContext)
     {
@@ -60,7 +62,7 @@ public abstract class BaseQueryFuture
 
     /// <summary>
     /// 把当前 DataReader 挂到劫持连接上，取出编译查询的 GetEnumerator，清空 _readerColumns 后返回，
-    /// 使枚举器从已打开的 reader 物化实体。
+    /// 使枚举器从已打开的 reader 物化实体
     /// </summary>
     public IEnumerator<T> GetQueryEnumerator<T>(DbDataReader reader)
     {

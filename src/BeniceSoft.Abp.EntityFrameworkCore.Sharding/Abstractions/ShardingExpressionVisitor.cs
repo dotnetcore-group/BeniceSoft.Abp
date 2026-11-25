@@ -205,7 +205,7 @@ internal class ReplaceQueryableVisitor(DbContext ctx) : ShardingExpressionVisito
 
 internal sealed class DbContextReplaceQueryableVisitor(DbContext ctx) : ReplaceQueryableVisitor(ctx)
 {
-    // Set by VisitExtension before consumers read Source.
+    // Set by VisitExtension before consumers read Source
     public IQueryable Source { get; private set; } = null!;
 
     protected override Expression VisitExtension(Expression node)
@@ -240,7 +240,7 @@ internal sealed class DbContextReplaceQueryableVisitor(DbContext ctx) : ReplaceQ
 
 internal sealed class ReplaceQueryRootVisitor : ExpressionVisitor
 {
-    // Set by VisitExtension before consumers read RootExpression.
+    // Set by VisitExtension before consumers read RootExpression
     public QueryRootExpression RootExpression { get; private set; } = null!;
 
     protected override Expression VisitExtension(Expression node)

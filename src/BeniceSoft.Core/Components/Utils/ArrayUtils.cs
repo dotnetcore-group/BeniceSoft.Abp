@@ -333,7 +333,7 @@ public static class ArrayUtils
     }
 
     /// <summary>
-    /// concatenates the members of a collection, using the specified separator between each member.
+    /// concatenates the members of a collection, using the specified separator between each member
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="aim"></param>

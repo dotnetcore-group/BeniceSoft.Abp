@@ -2,7 +2,9 @@ using System.Collections;
 
 namespace BeniceSoft.Core.Strategy;
 
-/// <summary>二叉堆。</summary>
+/// <summary>
+/// 二叉堆
+/// </summary>
 public class BHeap<T> : IEnumerable<T>
     where T : IComparable
 {

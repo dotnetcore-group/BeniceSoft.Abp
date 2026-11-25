@@ -18,7 +18,7 @@ internal static class PdfBarcodeScanner
 
         ScanInto(reader, source, found);
 
-        // Explicit crop: caller already narrowed the region — skip tiling.
+        // Explicit crop: caller already narrowed the region — skip tiling
         if (options.Crop is null || options.Crop.Value.IsEmpty)
         {
             ScanBands(reader, source, found);
@@ -33,7 +33,7 @@ internal static class PdfBarcodeScanner
         SKBitmap source,
         IDictionary<string, PdfBarcodeResult> found)
     {
-        // Horizontal strips catch 1D barcodes that full-page DecodeMultiple often misses.
+        // Horizontal strips catch 1D barcodes that full-page DecodeMultiple often misses
         const int bandCount = 5;
         var bandHeight = Math.Max(48, source.Height / 4);
         for (var i = 0; i < bandCount; i++)
@@ -48,7 +48,7 @@ internal static class PdfBarcodeScanner
             ScanInto(reader, band, found);
         }
 
-        // Vertical strips for tall/rotated edge codes.
+        // Vertical strips for tall/rotated edge codes
         const int stripCount = 4;
         var stripWidth = Math.Max(48, source.Width / 3);
         for (var i = 0; i < stripCount; i++)

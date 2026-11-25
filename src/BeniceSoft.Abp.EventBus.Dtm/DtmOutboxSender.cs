@@ -3,7 +3,7 @@ using Volo.Abp.EventBus.Distributed;
 namespace BeniceSoft.Abp.EventBus.Dtm;
 
 /// <summary>
-/// The DTM event outbox doesn't need a sender.
+/// The DTM event outbox doesn't need a sender
 /// </summary>
 public class DtmOutboxSender : IOutboxSender
 {

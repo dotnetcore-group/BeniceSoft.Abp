@@ -9,7 +9,7 @@ namespace BeniceSoft.Abp.Extensions.RabbitMQ;
 public static class BeniceSoftRabbitMqServiceCollectionExtensions
 {
     /// <summary>
-    /// 注册作业队列能力，连接复用 ABP <c>RabbitMQ:Connections</c>（经 <see cref="IConnectionPool"/>）。
+    /// 注册作业队列能力，连接复用 ABP <c>RabbitMQ:Connections</c>（经 <see cref="IConnectionPool"/>）
     /// </summary>
     public static IServiceCollection AddBeniceSoftRabbitMq(this IServiceCollection services)
     {

@@ -4,7 +4,9 @@ using System.Data.Common;
 
 namespace BeniceSoft.Abp.EntityFrameworkCore;
 
-/// <summary>Oracle 结果集包装：将 16 字节 RAW 读为 Guid。</summary>
+/// <summary>
+/// Oracle 结果集包装：将 16 字节 RAW 读为 Guid
+/// </summary>
 internal sealed class QueryFutureOracleDbReader(DbDataReader reader) : DbDataReader
 {
     public DbDataReader Reader { get; } = reader;

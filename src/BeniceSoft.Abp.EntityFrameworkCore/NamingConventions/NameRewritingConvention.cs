@@ -52,7 +52,7 @@ internal class NameRewritingConvention
     {
         var entityType = entityTypeBuilder.Metadata;
 
-        // Note that the table name returned here may be the result of TableNameFromDbSetConvention which ran before us.
+        // Note that the table name returned here may be the result of TableNameFromDbSetConvention which ran before us
         if (entityType.GetTableName() is { } tableName)
         {
             entityTypeBuilder.ToTable(_namingNameRewriter.RewriteName(tableName), entityType.GetSchema());
@@ -141,7 +141,7 @@ internal class NameRewritingConvention
                         entityType.SetContainerColumnName(_namingNameRewriter.RewriteName(containerColumnName));
                     }
 
-                    // TODO: Note that we do not rewrite names of JSON properties (which aren't relational columns).
+                    // TODO: Note that we do not rewrite names of JSON properties (which aren't relational columns)
                     // TODO: We could introduce an option for doing so, though that's probably not usually what people want when doing JSON
                     foreach (var property in entityType.GetProperties())
                     {
@@ -314,7 +314,7 @@ internal class NameRewritingConvention
 
     /// <summary>
     /// EF Core's <see cref="SharedTableConvention" /> runs at model finalization time, and adds entity type prefixes to
-    /// clashing columns. These prefixes also needs to be rewritten by us, so we run after that convention to do that.
+    /// clashing columns. These prefixes also needs to be rewritten by us, so we run after that convention to do that
     /// </summary>
     public void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
     {

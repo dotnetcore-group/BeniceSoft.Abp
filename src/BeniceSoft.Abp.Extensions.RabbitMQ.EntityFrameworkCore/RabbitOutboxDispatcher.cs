@@ -11,7 +11,7 @@ namespace BeniceSoft.Abp.Extensions.RabbitMQ.EntityFrameworkCore;
 /// <summary>
 /// Creates the tables on startup, sends pending outbox rows (publisher confirms), marks them sent, retries with
 /// backoff, and cleans up old rows. Rows are claimed with a lock token + lease via a conditional UPDATE,
-/// so multiple instances never send the same row concurrently.
+/// so multiple instances never send the same row concurrently
 /// </summary>
 public class RabbitOutboxDispatcher : BackgroundService
 {
@@ -85,7 +85,9 @@ public class RabbitOutboxDispatcher : BackgroundService
         }
     }
 
-    /// <summary>Ensures tables, claims and sends one batch. Returns the number of rows claimed.</summary>
+    /// <summary>
+    /// Ensures tables, claims and sends one batch. Returns the number of rows claimed
+    /// </summary>
     public Task<int> DispatchOnceAsync(CancellationToken cancellationToken = default)
         => WithDbAsync(async (db, scopeServices) =>
         {
@@ -98,7 +100,9 @@ public class RabbitOutboxDispatcher : BackgroundService
             return rows.Count;
         }, cancellationToken);
 
-    /// <summary>Deletes sent outbox rows and inbox rows older than their retention.</summary>
+    /// <summary>
+    /// Deletes sent outbox rows and inbox rows older than their retention
+    /// </summary>
     public Task CleanupAsync(CancellationToken cancellationToken = default)
         => WithDbAsync(async (db, _) =>
         {
@@ -144,7 +148,7 @@ public class RabbitOutboxDispatcher : BackgroundService
             return [];
         }
 
-        // Conditional UPDATE: only one instance wins each row.
+        // Conditional UPDATE: only one instance wins each row
         var token = Guid.NewGuid().ToString();
         await db.ExecuteAsync(
             $@"UPDATE {_options.OutboxTable} SET lock_token = @token, locked_until = @lockedUntil
@@ -196,7 +200,7 @@ FROM {_options.OutboxTable} WHERE lock_token = @token ORDER BY creation_time",
                         Headers = RabbitOutboxHeaders.Deserialize(row.Headers)
                     };
 
-                    // With publisher confirms this completes only after the broker has accepted the message.
+                    // With publisher confirms this completes only after the broker has accepted the message
                     await channel.BasicPublishAsync(row.ExchangeName, row.RoutingKey, false, properties, row.Body, cancellationToken);
                     await db.ExecuteAsync(
                         $@"UPDATE {_options.OutboxTable} SET status = 1, sent_time = @now, lock_token = NULL, locked_until = NULL

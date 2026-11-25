@@ -7,7 +7,7 @@ public class DtmGrpcOptions
     private string _queryPreparedPath = "/dtm_boxes.DtmGrpcService/QueryPrepared";
 
     /// <summary>
-    /// Use this token to invoke action APIs.
+    /// Use this token to invoke action APIs
     /// </summary>
     /// <returns></returns>
     public string ActionApiToken { get; set; } = string.Empty;

@@ -170,7 +170,7 @@ internal static class TaskHelper
         {
             return Task.FromResult(Array.Empty<T>());
         }
-        // defensive copy.
+        // defensive copy
         var defensive = (tasks.Clone() as Task<T>[])!;
 
         var tcs = new TaskCompletionSource<T[]>();
@@ -181,19 +181,19 @@ internal static class TaskHelper
             switch (t.Status)
             {
                 case TaskStatus.Faulted:
-                    // we 'try' as some other task may beat us to the punch.
+                    // we 'try' as some other task may beat us to the punch
                     tcs.TrySetException(t.Exception!.InnerException!);
                     break;
                 case TaskStatus.Canceled:
-                    // we 'try' as some other task may beat us to the punch.
+                    // we 'try' as some other task may beat us to the punch
                     tcs.TrySetCanceled();
                     break;
                 default:
 
-                    // we can safely set here as no other task remains to run.
+                    // we can safely set here as no other task remains to run
                     if (Interlocked.Decrement(ref remaining) == 0)
                     {
-                        // get the results into an array.
+                        // get the results into an array
                         var results = new T[defensive.Length];
                         for (var i = 0; i < tasks.Length; ++i)
                         {

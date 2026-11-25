@@ -3,7 +3,7 @@ using System.Net;
 namespace BeniceSoft.Http.FluentClient;
 
 /// <summary>
-/// asynchronously parses an HTTP response.
+/// asynchronously parses an HTTP response
 /// </summary>
 public interface IHttpResponse
 {

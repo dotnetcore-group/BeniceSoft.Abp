@@ -66,7 +66,7 @@ public class ServiceRegistryOptions
     public int MaxStartupRetries { get; set; } = 3;
 
     /// <summary>
-    /// 注册成功后的心跳间隔（默认 10 秒）。再次调用注册接口刷新网关 LastHeartbeat。
+    /// 注册成功后的心跳间隔（默认 10 秒）。再次调用注册接口刷新网关 LastHeartbeat
     /// </summary>
     public TimeSpan HeartbeatInterval { get; set; } = TimeSpan.FromSeconds(10);
 }

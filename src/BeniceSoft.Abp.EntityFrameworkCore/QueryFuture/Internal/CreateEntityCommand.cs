@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace BeniceSoft.Abp.EntityFrameworkCore;
 
 /// <summary>
-/// 若已注入批查询的 DataReader 则直接返回，否则回落到原始 ExecuteReader。
+/// 若已注入批查询的 DataReader 则直接返回，否则回落到原始 ExecuteReader
 /// </summary>
 internal sealed class CreateEntityCommand(DbCommand originalCommand, DbDataReader? originalDataReader) : DbCommand
 {

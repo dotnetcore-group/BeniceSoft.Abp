@@ -8,16 +8,16 @@ using Volo.Abp.RabbitMQ;
 namespace BeniceSoft.Abp.Extensions.RabbitMQ;
 
 /// <summary>
-/// Moves messages from a dead-letter queue back to a work queue (ops replay).
+/// Moves messages from a dead-letter queue back to a work queue (ops replay)
 /// </summary>
 public interface IRabbitDeadLetterReplayer
 {
     /// <summary>
-    /// Replays up to <paramref name="count"/> messages from <paramref name="deadLetterQueue"/>.
-    /// When <paramref name="targetQueue"/> is null the original queue is taken from the <c>x-death</c> header.
-    /// The retry counter header is reset so the replayed message gets a full retry budget.
+    /// Replays up to <paramref name="count"/> messages from <paramref name="deadLetterQueue"/>
+    /// When <paramref name="targetQueue"/> is null the original queue is taken from the <c>x-death</c> header
+    /// The retry counter header is reset so the replayed message gets a full retry budget
     /// </summary>
-    /// <returns>Number of messages replayed.</returns>
+    /// <returns>Number of messages replayed</returns>
     Task<int> ReplayAsync(
         string deadLetterQueue,
         int count,
@@ -83,14 +83,14 @@ public class RabbitDeadLetterReplayer : IRabbitDeadLetterReplayer
 
             if (checkedQueues.Add(target))
             {
-                // Throws (404) if the target queue does not exist, instead of silently dropping the message.
+                // Throws (404) if the target queue does not exist, instead of silently dropping the message
                 await channel.QueueDeclarePassiveAsync(target, cancellationToken);
             }
 
             var properties = new BasicProperties(result.BasicProperties);
             properties.Headers?.Remove(RabbitSubscriber.ConsumptionFrequencyHeader);
 
-            // Publisher confirms: awaits broker ack before removing the message from the DLQ.
+            // Publisher confirms: awaits broker ack before removing the message from the DLQ
             await channel.BasicPublishAsync(string.Empty, target, false, properties, result.Body, cancellationToken);
             await channel.BasicAckAsync(result.DeliveryTag, false, cancellationToken);
             replayed++;

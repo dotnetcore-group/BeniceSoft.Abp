@@ -176,14 +176,14 @@ internal static class InternalExtensions
         ArgumentNullException.ThrowIfNull(type);
         ArgumentNullException.ThrowIfNull(generic);
 
-        // 测试接口。
+        // 测试接口
         var rawType = type.GetInterfaces().Exists(IsTheRawGenericType);
         if (rawType)
         {
             return true;
         }
 
-        // 测试类型。
+        // 测试类型
         Type? current = type;
         while (current != null && current != typeof(object))
         {
@@ -196,10 +196,10 @@ internal static class InternalExtensions
             current = current.BaseType;
         }
 
-        // 没有找到任何匹配的接口或类型。
+        // 没有找到任何匹配的接口或类型
         return false;
 
-        // 测试某个类型是否是指定的原始接口。
+        // 测试某个类型是否是指定的原始接口
         bool IsTheRawGenericType(Type test)
         {
             return generic == (test.IsGenericType ? test.GetGenericTypeDefinition() : test);

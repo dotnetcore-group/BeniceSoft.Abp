@@ -3,7 +3,9 @@ using System.Data.Common;
 
 namespace BeniceSoft.Abp.EntityFrameworkCore;
 
-/// <summary>对批查询 DataReader 的薄包装，兼容 DateTimeOffset / Guid(byte[]) 字段读取。</summary>
+/// <summary>
+/// 对批查询 DataReader 的薄包装，兼容 DateTimeOffset / Guid(byte[]) 字段读取
+/// </summary>
 internal sealed class CreateEntityDataReader(DbDataReader originalDataReader) : DbDataReader
 {
     public override object this[string name] => originalDataReader[name];

@@ -69,7 +69,7 @@ internal static class ShardingMergeExecutor
 
     /// <summary>
     /// 每个数据源下的分表结果按 maxQueryConnectionsLimit 进行组合分组每组大小 maxQueryConnectionsLimit
-    /// ConnectionModeEnum为用户配置或者系统自动计算,哪怕是用户指定也是按照maxQueryConnectionsLimit来进行分组。
+    /// ConnectionModeEnum为用户配置或者系统自动计算,哪怕是用户指定也是按照maxQueryConnectionsLimit来进行分组
     /// </summary>
     /// <param name="context"></param>
     /// <param name="sqlGroups"></param>

@@ -46,7 +46,7 @@ internal static class AnonymousTypeFactory
         var genericTypeDefinitionName = GenerateGenericTypeDefinitionName(propertyNames, isMutable, parent);
 
         // We need to check for the type and define/create it as one atomic operation, 
-        // otherwise we could get a TypeBuilder back instead of a full Type.
+        // otherwise we could get a TypeBuilder back instead of a full Type
         Type? genericTypeDefinition;
         lock (_locker)
         {
@@ -176,7 +176,7 @@ internal static class AnonymousTypeFactory
         il.Emit(OpCodes.Stloc_0);
         il.Emit(OpCodes.Ldloc_0);
 
-        // Only the last five fields can use the short form of the branch.
+        // Only the last five fields can use the short form of the branch
         const int maximumShortBranchFieldCount = 5;
         var shortBranchThreshold = Math.Max(fields.Count - maximumShortBranchFieldCount, 0);
 

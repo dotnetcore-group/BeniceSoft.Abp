@@ -3,7 +3,7 @@ using Volo.Abp.EventBus.Distributed;
 namespace BeniceSoft.Abp.EventBus.Dtm;
 
 /// <summary>
-/// The DTM event inbox doesn't need a processor.
+/// The DTM event inbox doesn't need a processor
 /// </summary>
 public class DtmInboxProcessor : IInboxProcessor
 {

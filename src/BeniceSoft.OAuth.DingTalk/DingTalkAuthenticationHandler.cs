@@ -37,7 +37,7 @@ public class DingTalkAuthenticationHandler : OAuthHandler<DingTalkAuthentication
         });
     }
 
-    // See https://developers.dingtalk.com/document/app/obtain-orgapp-token for details.
+    // See https://developers.dingtalk.com/document/app/obtain-orgapp-token for details
     protected override async Task<OAuthTokenResponse> ExchangeCodeAsync(OAuthCodeExchangeContext context)
     {
         var address = QueryHelpers.AddQueryString(Options.TokenEndpoint, new Dictionary<string, string?>
@@ -60,7 +60,7 @@ public class DingTalkAuthenticationHandler : OAuthHandler<DingTalkAuthentication
         var userInfoTmp = await GetUserInfoTemporaryAsync(code!);
         var userIdentifier = await GetUserIdentifierAsync(userInfoTmp.unionid!, tokens.AccessToken!);
 
-        // See https://developers.dingtalk.com/document/app/query-user-details for details.
+        // See https://developers.dingtalk.com/document/app/query-user-details for details
         var address = QueryHelpers.AddQueryString(Options.UserInformationEndpoint, "access_token", tokens.AccessToken!);
 
         using var requestContent = new ReadOnlyMemoryContent(JsonSerializer.SerializeToUtf8Bytes(new
@@ -145,7 +145,7 @@ public class DingTalkAuthenticationHandler : OAuthHandler<DingTalkAuthentication
         return Convert.ToBase64String(hashMessage);
     }
 
-    // See https://developers.dingtalk.com/document/app/obtain-the-user-information-based-on-the-sns-temporary-authorization for details.
+    // See https://developers.dingtalk.com/document/app/obtain-the-user-information-based-on-the-sns-temporary-authorization for details
     private async Task<(string? nick, string? unionid, string? openid, bool mainOrgAuthHighLevel)> GetUserInfoTemporaryAsync(string code)
     {
         var timestamp =
@@ -170,7 +170,7 @@ public class DingTalkAuthenticationHandler : OAuthHandler<DingTalkAuthentication
             mainOrgAuthHighLevel: userInfo.GetProperty("main_org_auth_high_level").GetBoolean());
     }
 
-    // See https://developers.dingtalk.com/document/app/query-a-user-by-the-union-id for details.
+    // See https://developers.dingtalk.com/document/app/query-a-user-by-the-union-id for details
     private async Task<(string? userid, int contactType)> GetUserIdentifierAsync(string unionid, string accessToken)
     {
         var address = QueryHelpers.AddQueryString(Options.GetByUnionIdEndpoint, "access_token", accessToken);

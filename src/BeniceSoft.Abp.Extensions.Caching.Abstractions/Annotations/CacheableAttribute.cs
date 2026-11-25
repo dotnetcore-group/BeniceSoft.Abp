@@ -25,7 +25,7 @@ public class CacheableAttribute : Attribute
     public string? Condition { get; set; }
 
     /// <summary>
-    /// 接收一个结果为 bool 的表达式作为方法执行后是否缓存的判断。
+    /// 接收一个结果为 bool 的表达式作为方法执行后是否缓存的判断
     /// 可以使用 <c>__result__</c> 引用方法返回值，例如：
     /// <code>
     /// __result__ == null || __result__.Count == 0

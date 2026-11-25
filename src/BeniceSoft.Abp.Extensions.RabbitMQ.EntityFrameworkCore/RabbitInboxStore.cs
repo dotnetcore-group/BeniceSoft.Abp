@@ -8,7 +8,7 @@ namespace BeniceSoft.Abp.Extensions.RabbitMQ.EntityFrameworkCore;
 
 /// <summary>
 /// Runs the handler inside a new transactional UoW and records (MessageId, ConsumerName) in the same
-/// transaction, so handler writes and the inbox row commit or roll back together.
+/// transaction, so handler writes and the inbox row commit or roll back together
 /// </summary>
 public class RabbitInboxStore : IRabbitInboxStore
 {
@@ -40,7 +40,7 @@ public class RabbitInboxStore : IRabbitInboxStore
     {
         using var unitOfWork = _unitOfWorkManager.Begin(requiresNew: true, isTransactional: true);
 
-        // Pre-check when a DbContext is known up front (skips the handler for duplicates).
+        // Pre-check when a DbContext is known up front (skips the handler for duplicates)
         var dbContext = await _dbContextResolver.GetConfiguredAsync();
         if (dbContext != null && await IsProcessedAsync(dbContext, messageId, consumerName, cancellationToken))
         {
@@ -69,7 +69,7 @@ public class RabbitInboxStore : IRabbitInboxStore
             new { messageId, consumerName, now = DateTime.UtcNow },
             cancellationToken);
 
-        // A concurrent duplicate fails on the primary key; the exception path retries and is then skipped.
+        // A concurrent duplicate fails on the primary key; the exception path retries and is then skipped
         await unitOfWork.CompleteAsync(cancellationToken);
         return result;
     }

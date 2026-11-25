@@ -9,7 +9,7 @@ namespace BeniceSoft.Abp.Http.Client;
 
 /// <summary>
 /// ABP 远程调用鉴权：若 Factory 已透传用户 Bearer 则跳过；
-/// 否则尝试机器身份；未配置或获取失败则保持空 Authorization。
+/// 否则尝试机器身份；未配置或获取失败则保持空 Authorization
 /// </summary>
 [Dependency(ReplaceServices = true)]
 [ExposeServices(typeof(IRemoteServiceHttpClientAuthenticator))]

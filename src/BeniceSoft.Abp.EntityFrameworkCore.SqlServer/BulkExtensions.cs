@@ -14,16 +14,22 @@ namespace BeniceSoft.Abp.EntityFrameworkCore.SqlServer;
 /// </summary>
 public static class BulkExtensions
 {
-    /// <summary>开启多步 bulk 会话（共享连接/事务）。</summary>
+    /// <summary>
+    /// 开启多步 bulk 会话（共享连接/事务）
+    /// </summary>
     public static SqlServerBulkOperation BulkOperation(this DbContext ctx)
         => new(ctx);
 
-    /// <summary>创建可配置的一次性 Atom（可先 RemoveColumn / 调超时，再调用 Bulk*）</summary>
+    /// <summary>
+    /// 创建可配置的一次性 Atom（可先 RemoveColumn / 调超时，再调用 Bulk*）
+    /// </summary>
     public static SqlServerBulkAtom<T> BulkAtom<T>(this DbContext ctx, IEnumerable<T> items)
         where T : class
         => new(ctx, items);
 
-    /// <summary>SqlBulkCopy 直写目标表</summary>
+    /// <summary>
+    /// SqlBulkCopy 直写目标表
+    /// </summary>
     public static int BulkInsert<T>(this DbContext ctx, IEnumerable<T> items, Action<SqlServerBulkAtom<T>>? tableBuilder = null)
         where T : class
     {
@@ -41,7 +47,9 @@ public static class BulkExtensions
         return bulk.BulkInsertAsync(cancellationToken);
     }
 
-    /// <summary>#TmpTable + MERGE WHEN MATCHED THEN DELETE</summary>
+    /// <summary>
+    /// #TmpTable + MERGE WHEN MATCHED THEN DELETE
+    /// </summary>
     public static int BulkDelete<T>(this DbContext ctx, IEnumerable<T> items, Action<SqlServerBulkAtom<T>>? tableBuilder = null, Action<BulkMatchOptions<T>>? matchBuilder = null)
         where T : class
     {
@@ -59,7 +67,9 @@ public static class BulkExtensions
         return bulk.BulkDeleteAsync(matchBuilder, cancellationToken);
     }
 
-    /// <summary>#TmpTable + MERGE WHEN MATCHED THEN UPDATE。</summary>
+    /// <summary>
+    /// #TmpTable + MERGE WHEN MATCHED THEN UPDATE
+    /// </summary>
     public static int BulkUpdate<T>(this DbContext ctx, IEnumerable<T> items, Action<SqlServerBulkAtom<T>>? tableBuilder = null, Action<BulkMatchOptions<T>>? matchBuilder = null)
         where T : class
     {
@@ -77,7 +87,9 @@ public static class BulkExtensions
         return bulk.BulkUpdateAsync(matchBuilder, cancellationToken);
     }
 
-    /// <summary>#TmpTable + MERGE Upsert（匹配更新，不匹配插入）。</summary>
+    /// <summary>
+    /// #TmpTable + MERGE Upsert（匹配更新，不匹配插入）
+    /// </summary>
     public static int BulkMerge<T>(this DbContext ctx, IEnumerable<T> items, Action<SqlServerBulkAtom<T>>? tableBuilder = null, Action<BulkMatchOptions<T>>? matchBuilder = null)
         where T : class
     {

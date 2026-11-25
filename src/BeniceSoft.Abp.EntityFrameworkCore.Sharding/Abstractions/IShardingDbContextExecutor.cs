@@ -390,7 +390,7 @@ internal sealed class ShardingDbContextExecutor : IShardingDbContextExecutor
     }
 
     /// <summary>
-    /// 已追踪实体不允许修改分片键（分表/分库属性），否则会静默写回原物理表导致数据错位。
+    /// 已追踪实体不允许修改分片键（分表/分库属性），否则会静默写回原物理表导致数据错位
     /// </summary>
     private void EnsureShardingKeysUnchanged()
     {

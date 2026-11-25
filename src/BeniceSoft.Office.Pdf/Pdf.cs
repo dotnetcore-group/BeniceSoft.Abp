@@ -3,7 +3,7 @@ using BeniceSoft.Office.Pdf.Internal;
 namespace BeniceSoft.Office.Pdf;
 
 /// <summary>
-/// Entry point for PDF parsing. Probe text/images first; render and scan barcodes only when requested.
+/// Entry point for PDF parsing. Probe text/images first; render and scan barcodes only when requested
 /// </summary>
 public static class Pdf
 {
@@ -27,7 +27,9 @@ public static class Pdf
         return PdfParsePipeline.Parse(bytes, options ?? PdfParseOptions.Default);
     }
 
-    /// <summary>Page-by-page enumeration without buffering all page payloads in a list first.</summary>
+    /// <summary>
+    /// Page-by-page enumeration without buffering all page payloads in a list first
+    /// </summary>
     public static IEnumerable<PdfPageResult> EnumeratePages(
         Stream stream,
         PdfParseOptions? options = null,
@@ -95,7 +97,9 @@ public static class Pdf
     }
 }
 
-/// <summary>DI-friendly wrapper over <see cref="Pdf"/>.</summary>
+/// <summary>
+/// DI-friendly wrapper over <see cref="Pdf"/>
+/// </summary>
 public interface IPdfParser
 {
     PdfDocumentResult Parse(Stream stream, PdfParseOptions? options = null, bool leaveOpen = false);

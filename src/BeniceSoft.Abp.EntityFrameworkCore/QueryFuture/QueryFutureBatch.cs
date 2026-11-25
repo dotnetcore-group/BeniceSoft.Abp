@@ -12,10 +12,10 @@ using System.Text;
 namespace BeniceSoft.Abp.EntityFrameworkCore;
 
 /// <summary>
-/// 同一 DbContext 上挂起的 Future 批。
+/// 同一 DbContext 上挂起的 Future 批
 /// <para>
 /// <b>原理：</b>多查询时把各 LINQ 编译出的 SQL 拼成一条多语句命令（参数重命名避免冲突），
-/// 一次 ExecuteReader，再按 NextResult 依次物化；单查询或禁用批处理时退回逐条执行。
+/// 一次 ExecuteReader，再按 NextResult 依次物化；单查询或禁用批处理时退回逐条执行
 /// </para>
 /// </summary>
 [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Batch SQL uses EF relational parameter internals.")]
@@ -196,7 +196,7 @@ public class QueryFutureBatch(DbContext ctx)
     }
 
     /// <summary>
-    /// 合并各 Future 的 SQL：参数改为 Z_{n}_{old}，语句以分号拼接；Oracle 使用 open :cursor for。
+    /// 合并各 Future 的 SQL：参数改为 Z_{n}_{old}，语句以分号拼接；Oracle 使用 open :cursor for
     /// </summary>
     protected DbCommand CreateCommandCombined()
     {

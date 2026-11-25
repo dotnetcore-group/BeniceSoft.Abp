@@ -2,7 +2,9 @@ using System.Collections;
 
 namespace BeniceSoft.Core.Strategy;
 
-/// <summary>优先队列。</summary>
+/// <summary>
+/// 优先队列
+/// </summary>
 public class PriorityQueue<T>(ICollection<T>? collection = null, SortDirection direction = SortDirection.Ascending, IComparer<T>? comparer = null)
     : IEnumerable<T>
     where T : IComparable

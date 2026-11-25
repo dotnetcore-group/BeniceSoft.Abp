@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BeniceSoft.Abp.EntityFrameworkCore.SqlServer.Bulk;
 
-/// <summary>SQL Server 多步 Bulk 会话：工厂产出 <see cref="SqlServerBulkAtom{T}"/>（SqlBulkCopy + MERGE）。</summary>
+/// <summary>
+/// SQL Server 多步 Bulk 会话：工厂产出 <see cref="SqlServerBulkAtom{T}"/>（SqlBulkCopy + MERGE）
+/// </summary>
 public class SqlServerBulkOperation : EfCoreBulkOperation
 {
     public SqlServerBulkOperation(DbContext ctx)

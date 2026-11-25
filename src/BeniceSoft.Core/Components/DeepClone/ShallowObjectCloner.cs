@@ -2,7 +2,9 @@ using System.Linq.Expressions;
 
 namespace BeniceSoft.Core;
 
-/// <summary>浅拷贝底层实现（MemberwiseClone）。</summary>
+/// <summary>
+/// 浅拷贝底层实现（MemberwiseClone）
+/// </summary>
 public abstract class ShallowObjectCloner
 {
     private static readonly ShallowObjectCloner UnsafeInstance;

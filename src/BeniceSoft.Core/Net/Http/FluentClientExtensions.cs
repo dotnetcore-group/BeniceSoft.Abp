@@ -8,7 +8,7 @@ using System.Text.Json;
 namespace BeniceSoft.Http.FluentClient;
 
 /// <summary>
-/// extension methods for FluentClient chain-style HTTP API.
+/// extension methods for FluentClient chain-style HTTP API
 /// </summary>
 public static class FluentClientExtensions
 {
@@ -214,8 +214,8 @@ public static class FluentClientExtensions
     #region ResponseResult Extensions
 
     /// <summary>
-    /// Deserialize the response as ResponseResult&lt;T&gt; and unwrap the data.
-    /// Throws ApiException if the response indicates failure.
+    /// Deserialize the response as ResponseResult&lt;T&gt; and unwrap the data
+    /// Throws ApiException if the response indicates failure
     /// </summary>
     public static async Task<T?> AsApi<T>(this IHttpRequest request)
     {

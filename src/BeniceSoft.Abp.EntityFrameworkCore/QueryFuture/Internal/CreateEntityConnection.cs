@@ -6,7 +6,7 @@ namespace BeniceSoft.Abp.EntityFrameworkCore;
 
 /// <summary>
 /// 包装真实连接：CreateCommand 时返回可劫持 DataReader 的 CreateEntityCommand，
-/// 以便 Future 批执行后把当前结果集注入 EF 编译查询枚举器。
+/// 以便 Future 批执行后把当前结果集注入 EF 编译查询枚举器
 /// </summary>
 internal sealed class CreateEntityConnection(DbConnection originalConnection, DbDataReader? originalDataReader) : DbConnection
 {

@@ -57,14 +57,14 @@ public static class AbpMethodInvocationExtensions
         if (valueType.IsTaskWithResult())
         {
             // NOTE: we can not use "result = (object)(await (dynamic)value)" here,
-            // because when T of Task<T> is non-public, we will get a RuntimeBinderException that says "Cannot implicitly convert type 'void' to 'object'".
+            // because when T of Task<T> is non-public, we will get a RuntimeBinderException that says "Cannot implicitly convert type 'void' to 'object'"
             await (Task)value;
             result = GetTaskResult(value, valueType);
         }
         else if (valueType.IsValueTaskWithResult())
         {
             // NOTE: we can not use "result = (object)(await (dynamic)value)" here,
-            // because when T of ValueTask<T> is non-public, we will get a RuntimeBinderException that says "'System.ValueType' does not contain a definition for 'GetAwaiter'".
+            // because when T of ValueTask<T> is non-public, we will get a RuntimeBinderException that says "'System.ValueType' does not contain a definition for 'GetAwaiter'"
             await ValueTaskWithResultToTask(value, valueType);
             result = GetTaskResult(value, valueType);
         }
@@ -95,7 +95,7 @@ public static class AbpMethodInvocationExtensions
         return result;
     }
 
-    // mark this method as "internal" for testing.
+    // mark this method as "internal" for testing
     internal static Func<object, object> CreateFuncToGetTaskResult(Type type)
     {
         var parameter = Expression.Parameter(typeof(object), "type");
@@ -110,9 +110,9 @@ public static class AbpMethodInvocationExtensions
     private static Task ValueTaskWithResultToTask(object value, Type valueType)
     {
         // NOTE: if we use "await (dynamic)value" to await a ValueTask<T> when T is non-public, we will get an RuntimeBinderException that says
-        // 'System.ValueType' does not contain a definition for 'GetAwaiter'.
-        // So we have to convert ValueTask<T> to Task and then await it.
-        // Please fix this logic if there is a better solution.
+        // 'System.ValueType' does not contain a definition for 'GetAwaiter'
+        // So we have to convert ValueTask<T> to Task and then await it
+        // Please fix this logic if there is a better solution
         var func = AsTaskFuncCache.GetOrAdd(valueType, k =>
         {
             var parameter = Expression.Parameter(typeof(object), "type");
@@ -129,8 +129,8 @@ public static class AbpMethodInvocationExtensions
     // value should be Task<T> or ValueTask<T>
     private static object GetTaskResult(object value, Type valueType)
     {
-        // There are several ways to get the value of "Result" of Task<T> or ValueTask<T> after it is awaited.
-        // The Benchmark can be viewed in GetTaskResultBenchmarks.cs in AspectCore.Core.Benchmark.
+        // There are several ways to get the value of "Result" of Task<T> or ValueTask<T> after it is awaited
+        // The Benchmark can be viewed in GetTaskResultBenchmarks.cs in AspectCore.Core.Benchmark
         // Here is a test result that can be referred to:
         /*
             |                            Method |         Mean |
@@ -141,8 +141,8 @@ public static class AbpMethodInvocationExtensions
             | GetTaskResult_ExpressionWithCache |     126.2 ns |
             |        GetTaskResult_AwaitDynamic |     117.1 ns |
         */
-        // So we use "ExpressionWithCache" here.
-        // Please fix this logic if there is a better solution.
+        // So we use "ExpressionWithCache" here
+        // Please fix this logic if there is a better solution
         var func = ResultFuncCache.GetOrAdd(valueType, k => CreateFuncToGetTaskResult(k));
         return func(value);
     }

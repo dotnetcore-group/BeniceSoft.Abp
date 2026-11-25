@@ -16,18 +16,24 @@ public class BulkMatchOptions<T>
         _atom = atom;
     }
 
-    /// <summary>MERGE / JOIN 中源表别名</summary>
+    /// <summary>
+    /// MERGE / JOIN 中源表别名
+    /// </summary>
     public string SourceAlias { get; set; } = "Source";
 
-    /// <summary>MERGE / JOIN 中目标表别名</summary>
+    /// <summary>
+    /// MERGE / JOIN 中目标表别名
+    /// </summary>
     public string TargetAlias { get; set; } = "Target";
 
-    /// <summary>显式指定的匹配列（数据库列映射）</summary>
+    /// <summary>
+    /// 显式指定的匹配列（数据库列映射）
+    /// </summary>
     public ICollection<Microsoft.EntityFrameworkCore.Metadata.IColumnMapping> MatchColumns { get; } = [];
 
     /// <summary>
     /// 指定用于对齐目标表的业务主键
-    /// 例：<c>m => m.MatchTargetOn(x => x.Id)</c> 或复合键 <c>x => new { x.A, x.B }</c>。
+    /// 例：<c>m => m.MatchTargetOn(x => x.Id)</c> 或复合键 <c>x => new { x.A, x.B }</c>
     /// </summary>
     public void MatchTargetOn(Expression<Func<T, object>> keyExpression)
     {
@@ -40,7 +46,9 @@ public class BulkMatchOptions<T>
         }
     }
 
-    /// <summary>解析最终匹配列名：优先显式 MatchColumns，否则取实体第一个主键</summary>
+    /// <summary>
+    /// 解析最终匹配列名：优先显式 MatchColumns，否则取实体第一个主键
+    /// </summary>
     public IList<string> GetMatchColumns()
     {
         if (MatchColumns.IsNotNull())

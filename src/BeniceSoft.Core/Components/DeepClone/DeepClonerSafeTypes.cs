@@ -5,7 +5,7 @@ using System.Reflection;
 namespace BeniceSoft.Core;
 
 /// <summary>
-/// 无需递归克隆即可安全共享的类型（不可变 / 简单值类型等）。
+/// 无需递归克隆即可安全共享的类型（不可变 / 简单值类型等）
 /// </summary>
 internal static class DeepClonerSafeTypes
 {

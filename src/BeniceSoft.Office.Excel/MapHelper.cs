@@ -52,7 +52,7 @@ public partial class MapHelper
 
             columnMeta.SetProperty(pi, type.Name, pi.Name);
 
-            // Note that attribute from Map method takes precedence over Attribute meta data.
+            // Note that attribute from Map method takes precedence over Attribute meta data
             columnMeta.MergeTo(attributes, false);
         }
     }
@@ -143,7 +143,7 @@ public partial class MapHelper
         }
         else if (workbook != null)
         {
-            var format = columnFormat ?? 0; // Defaults to 0.
+            var format = columnFormat ?? 0; // Defaults to 0
 
             if (format == 0)
             {
@@ -291,7 +291,7 @@ public partial class MapHelper
             case CellType.Error:
             case CellType._None:
             case CellType.Blank:
-                // Dose nothing to keep return value null.
+                // Dose nothing to keep return value null
                 break;
 
             default:
@@ -573,7 +573,7 @@ public partial class MapHelper
                 return parsed;
             }
 
-            // Ensure we are not throwing exception and just read a null for nullable property.
+            // Ensure we are not throwing exception and just read a null for nullable property
             if (underlyingType != null)
             {
                 if (stringValue.IsNull())
@@ -649,7 +649,7 @@ public partial class MapHelper
 
         if (value is DateTime dateTimeValue)
         {
-            // Ternary expression will implicitly convert result as a DateTimeOffset.
+            // Ternary expression will implicitly convert result as a DateTimeOffset
             if (isDateTimeOffset)
             {
                 result = new DateTimeOffset(dateTimeValue);

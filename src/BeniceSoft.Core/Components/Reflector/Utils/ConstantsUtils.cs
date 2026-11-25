@@ -118,7 +118,7 @@ internal static class TypeInfoUtils
     {
         // void -> void conversion is handled elsewhere
         // (it's an identity conversion)
-        // All other void conversions are disallowed.
+        // All other void conversions are disallowed
         if (source.AsType() == typeof(void) || dest.AsType() == typeof(void))
         {
             return false;

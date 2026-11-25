@@ -3,7 +3,9 @@ using System.Collections.Immutable;
 
 namespace BeniceSoft.Core.Strategy;
 
-/// <summary>线程安全只读追加列表。</summary>
+/// <summary>
+/// 线程安全只读追加列表
+/// </summary>
 public class SafeReadList<T>(IEnumerable<T> list) : IReadOnlyList<T>
 {
     private readonly Lock _locker = new();

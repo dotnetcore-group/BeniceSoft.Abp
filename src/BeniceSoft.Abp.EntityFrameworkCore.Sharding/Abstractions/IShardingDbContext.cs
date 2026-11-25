@@ -6,17 +6,17 @@ namespace BeniceSoft.Abp.EntityFrameworkCore.Sharding;
 public interface IShardingDbContext
 {
     /// <summary>
-    /// 壳 DbContext 返回执行器；物理分片 DbContext 返回 null。
+    /// 壳 DbContext 返回执行器；物理分片 DbContext 返回 null
     /// </summary>
     IShardingDbContextExecutor? TryGetExecutor();
 
     /// <summary>
-    /// 同 <see cref="TryGetExecutor"/>；在物理 DbContext 上调用时抛出异常。
+    /// 同 <see cref="TryGetExecutor"/>；在物理 DbContext 上调用时抛出异常
     /// </summary>
     IShardingDbContextExecutor GetExecutor();
 
     /// <summary>
-    /// true 表示当前实例是物理分片 DbContext（无 Executor）；壳为 false。
+    /// true 表示当前实例是物理分片 DbContext（无 Executor）；壳为 false
     /// </summary>
     bool IsExecutor { get; }
 }

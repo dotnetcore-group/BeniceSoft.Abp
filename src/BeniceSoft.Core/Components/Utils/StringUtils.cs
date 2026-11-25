@@ -356,7 +356,7 @@ public static partial class StringUtils
 
     #region Extensions
     /// <summary>
-    /// indicates whether the specified string is null or an empty string ("").
+    /// indicates whether the specified string is null or an empty string ("")
     /// </summary>
     /// <param name="aim"></param>
     /// <returns></returns>
@@ -373,7 +373,7 @@ public static partial class StringUtils
     }
 
     /// <summary>
-    /// indicates whether a specified string is null, empty, or consists only of white-space characters.
+    /// indicates whether a specified string is null, empty, or consists only of white-space characters
     /// </summary>
     /// <param name="aim"></param>
     /// <returns></returns>

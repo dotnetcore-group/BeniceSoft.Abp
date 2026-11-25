@@ -5,13 +5,13 @@ namespace BeniceSoft.Http.FluentClient;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Register a singleton IFluentClient backed by IHttpClientFactory.
-    /// Use <paramref name="configureHttpClient"/> to add DelegatingHandlers (e.g. auth), configure timeouts, etc.
+    /// Register a singleton IFluentClient backed by IHttpClientFactory
+    /// Use <paramref name="configureHttpClient"/> to add DelegatingHandlers (e.g. auth), configure timeouts, etc
     /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="baseUrl">The base URL for all requests made through this client.</param>
-    /// <param name="configureHttpClient">Optional callback to configure the underlying IHttpClientBuilder.</param>
-    /// <param name="configureFluentClient">Optional callback to configure the IFluentClient instance (e.g. add Filters, set serializer).</param>
+    /// <param name="services">The service collection</param>
+    /// <param name="baseUrl">The base URL for all requests made through this client</param>
+    /// <param name="configureHttpClient">Optional callback to configure the underlying IHttpClientBuilder</param>
+    /// <param name="configureFluentClient">Optional callback to configure the IFluentClient instance (e.g. add Filters, set serializer)</param>
     public static IServiceCollection AddFluentClient(
         this IServiceCollection services,
         string baseUrl,

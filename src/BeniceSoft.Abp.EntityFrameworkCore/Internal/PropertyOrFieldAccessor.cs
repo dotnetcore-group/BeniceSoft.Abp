@@ -6,7 +6,7 @@ using System.Reflection;
 namespace BeniceSoft.Abp.EntityFrameworkCore;
 
 /// <summary>
-/// 表达式成员访问路径（属性/字段链），供 InternalExtensions 与后续 Audit 等能力使用。
+/// 表达式成员访问路径（属性/字段链），供 InternalExtensions 与后续 Audit 等能力使用
 /// </summary>
 internal sealed class PropertyOrFieldAccessor
 {

@@ -2,7 +2,9 @@ using System.Data.Common;
 
 namespace BeniceSoft.Abp.EntityFrameworkCore;
 
-/// <summary>延迟标量查询（如 Count/First）：访问 Value / ValueAsync 时触发 Batch。</summary>
+/// <summary>
+/// 延迟标量查询（如 Count/First）：访问 Value / ValueAsync 时触发 Batch
+/// </summary>
 public class QueryFutureValue<TResult> : BaseQueryFuture
 {
     private TResult? _result;

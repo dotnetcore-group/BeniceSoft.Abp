@@ -3,7 +3,9 @@ using System.Data.Common;
 
 namespace BeniceSoft.Abp.EntityFrameworkCore;
 
-/// <summary>延迟列表查询：首次枚举 / ToListAsync 时触发所属 Batch 执行。</summary>
+/// <summary>
+/// 延迟列表查询：首次枚举 / ToListAsync 时触发所属 Batch 执行
+/// </summary>
 public class QueryFutureEnumerable<T> : BaseQueryFuture, IEnumerable<T>
 {
     private IEnumerable<T>? _result;

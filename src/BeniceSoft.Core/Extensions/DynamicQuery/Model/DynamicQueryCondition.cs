@@ -16,7 +16,7 @@ public class DynamicQueryCondition
     public string FieldName { get; set; } = string.Empty;
 
     /// <summary>
-    /// 字段类型，支持： "integer", "double", "string", "date", "datetime", and "boolean".
+    /// 字段类型，支持： "integer", "double", "string", "date", "datetime", and "boolean"
     /// </summary>
     public string FieldType { get; set; } = string.Empty;
 

@@ -20,7 +20,7 @@ namespace BeniceSoft.Abp.EntityFrameworkCore;
 /// <summary>
 /// EF Core 内部反射基建
 /// <para>
-/// 供 QueryFuture / Hint 等能力：从 <see cref="IQueryable"/> 还原 DbContext、编译 SQL 命令、创建挂事务的 StoreCommand。
+/// 供 QueryFuture / Hint 等能力：从 <see cref="IQueryable"/> 还原 DbContext、编译 SQL 命令、创建挂事务的 StoreCommand
 /// </para>
 /// </summary>
 [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "QueryFuture/Hint require EF Core internal query pipeline access.")]
@@ -48,7 +48,9 @@ public static class InternalExtensions
             .GetReflector().GetValue(compiler)!;
     }
 
-    /// <summary>从 IQueryable 反查所属 DbContext。</summary>
+    /// <summary>
+    /// 从 IQueryable 反查所属 DbContext
+    /// </summary>
     internal static DbContext GetDbContext(this IQueryable query)
     {
         var compiler = query.GetQueryCompiler();
@@ -75,8 +77,8 @@ public static class InternalExtensions
     }
 
     /// <summary>
-    /// 编译查询并得到可执行的 <see cref="IRelationalCommand"/>（含参数上下文）。
-    /// EF10：通过 <see cref="RelationalCommandResolver"/> 委托 + <see cref="QueryContext.Parameters"/> 解析命令。
+    /// 编译查询并得到可执行的 <see cref="IRelationalCommand"/>（含参数上下文）
+    /// EF10：通过 <see cref="RelationalCommandResolver"/> 委托 + <see cref="QueryContext.Parameters"/> 解析命令
     /// </summary>
     internal static IRelationalCommand CreateCommand(this IQueryable query, out RelationalQueryContext queryContext)
     {
@@ -84,14 +86,18 @@ public static class InternalExtensions
         return relationalCommand;
     }
 
-    /// <summary>同上，并返回编译后的 QueryingEnumerable（供 Future 注入 DataReader 物化）。</summary>
+    /// <summary>
+    /// 同上，并返回编译后的 QueryingEnumerable（供 Future 注入 DataReader 物化）
+    /// </summary>
     internal static IRelationalCommand CreateCommand(this IQueryable query, out RelationalQueryContext queryContext, out object compiledQuery)
     {
         query.GetExpression(out queryContext, out var relationalCommand, out compiledQuery);
         return relationalCommand;
     }
 
-    /// <summary>解析 SelectExpression（Hint / Future 共用）。</summary>
+    /// <summary>
+    /// 解析 SelectExpression（Hint / Future 共用）
+    /// </summary>
     public static SelectExpression GetSelectExpression(this IQueryable query)
     {
         return query.GetSelectExpression(out _, out _, out _)
@@ -155,8 +161,8 @@ public static class InternalExtensions
     }
 
     /// <summary>
-    /// 完整编译管线 → QueryingEnumerable + IRelationalCommand。
-    /// 原理：走 EF 内部 Translate/Compile，再 Invoke RelationalCommandResolver(Parameters) 得到命令文本与参数。
+    /// 完整编译管线 → QueryingEnumerable + IRelationalCommand
+    /// 原理：走 EF 内部 Translate/Compile，再 Invoke RelationalCommandResolver(Parameters) 得到命令文本与参数
     /// </summary>
     internal static SelectExpression? GetExpression(
         this IQueryable query,
@@ -262,7 +268,9 @@ public static class InternalExtensions
         return entityType.GetKeys().SelectMany(x => x.Properties.Select(y => y.Name)).ToArray();
     }
 
-    /// <summary>创建绑定当前事务与超时的 ADO Command（批 SQL 执行入口）。</summary>
+    /// <summary>
+    /// 创建绑定当前事务与超时的 ADO Command（批 SQL 执行入口）
+    /// </summary>
     internal static DbCommand CreateStoreCommand(this DbContext ctx)
     {
         DbCommand command;

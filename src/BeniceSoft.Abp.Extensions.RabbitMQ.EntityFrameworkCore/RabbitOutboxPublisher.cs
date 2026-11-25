@@ -7,11 +7,11 @@ namespace BeniceSoft.Abp.Extensions.RabbitMQ.EntityFrameworkCore;
 
 /// <summary>
 /// Writes messages to the outbox table inside the current unit of work, on the same connection/transaction
-/// as the business DbContext. Nothing reaches RabbitMQ unless the UoW commits.
+/// as the business DbContext. Nothing reaches RabbitMQ unless the UoW commits
 /// </summary>
 public interface IRabbitOutboxPublisher
 {
-    /// <returns>The MessageId (also the consumer idempotency key).</returns>
+    /// <returns>The MessageId (also the consumer idempotency key)</returns>
     Task<string> PublishAsync<T>(
         RabbitRelational relational,
         T data,

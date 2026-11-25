@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BeniceSoft.Abp.EntityFrameworkCore.SqlServer;
 
 /// <summary>
-/// <see cref="IIdGenerator"/> backed by a SQL Server SEQUENCE.
+/// <see cref="IIdGenerator"/> backed by a SQL Server SEQUENCE
 /// </summary>
 public class SqlServerIdGenerator : IIdGenerator
 {

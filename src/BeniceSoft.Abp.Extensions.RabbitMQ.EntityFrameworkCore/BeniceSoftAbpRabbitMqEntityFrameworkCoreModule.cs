@@ -9,7 +9,7 @@ namespace BeniceSoft.Abp.Extensions.RabbitMQ.EntityFrameworkCore;
 
 /// <summary>
 /// Zero-setup outbox / inbox: depend on this module. Tables are created automatically (raw SQL, per provider)
-/// on first use and at dispatcher startup. No DbContext changes or migrations needed.
+/// on first use and at dispatcher startup. No DbContext changes or migrations needed
 /// </summary>
 [DependsOn(
     typeof(BeniceSoftAbpRabbitMqModule),
@@ -32,8 +32,8 @@ public class BeniceSoftAbpRabbitMqEntityFrameworkCoreModule : AbpModule
 
     public override void PostConfigureServices(ServiceConfigurationContext context)
     {
-        // Auto-detect the host DbContext when exactly one is registered.
-        // AddAbpDbContext<T>() registers DbContextOptions<T>.
+        // Auto-detect the host DbContext when exactly one is registered
+        // AddAbpDbContext<T>() registers DbContextOptions<T>
         var dbContextTypes = context.Services
             .Select(x => x.ServiceType)
             .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(DbContextOptions<>))

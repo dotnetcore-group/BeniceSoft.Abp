@@ -67,8 +67,8 @@ public static class ShardingExtensions
     }
 
     /// <summary>
-    /// 先执行 Provider / Hint 等配置，再挂 <see cref="UseSharding{T}(DbContextOptionsBuilder, IServiceProvider)"/>。
-    /// 任何二次 <c>AbpDbContextOptions.Configure</c> 覆盖连接时也应走此入口，避免冲掉分片。
+    /// 先执行 Provider / Hint 等配置，再挂 <see cref="UseSharding{T}(DbContextOptionsBuilder, IServiceProvider)"/>
+    /// 任何二次 <c>AbpDbContextOptions.Configure</c> 覆盖连接时也应走此入口，避免冲掉分片
     /// </summary>
     public static DbContextOptionsBuilder UseShardingAfter<T>(
         this DbContextOptionsBuilder optionsBuilder,

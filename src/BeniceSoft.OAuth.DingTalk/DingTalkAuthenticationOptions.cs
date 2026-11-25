@@ -7,7 +7,7 @@ using static BeniceSoft.OAuth.DingTalk.DingTalkAuthenticationConstants;
 namespace BeniceSoft.OAuth.DingTalk;
 
 /// <summary>
-/// Defines a set of options used by <see cref="DingTalkAuthenticationHandler"/>.
+/// Defines a set of options used by <see cref="DingTalkAuthenticationHandler"/>
 /// </summary>
 public class DingTalkAuthenticationOptions : OAuthOptions
 {
@@ -37,19 +37,19 @@ public class DingTalkAuthenticationOptions : OAuthOptions
     }
 
     /// <summary>
-    /// Address book language.
+    /// Address book language
     ///     zh_CN: Chinese (default)
     ///     en_US: English
     /// </summary>
     public string Language { get; set; } = "zh_CN";
 
     /// <summary>
-    /// Gets or sets the URL of the UnionId endpoint.
+    /// Gets or sets the URL of the UnionId endpoint
     /// </summary>
     public string GetByUnionIdEndpoint { get; set; }
 
     /// <summary>
-    /// Gets or sets the URL of the UserInfo endpoint.
+    /// Gets or sets the URL of the UserInfo endpoint
     /// </summary>
     public string GetUserInfoByCodeEndpoint { get; set; }
 }

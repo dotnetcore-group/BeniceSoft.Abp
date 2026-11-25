@@ -4,12 +4,12 @@ using RabbitMQ.Client;
 namespace BeniceSoft.Abp.Extensions.RabbitMQ;
 
 /// <summary>
-/// RabbitMQ 拓扑关系：Work / Fanout / Direct / Topic。
+/// RabbitMQ 拓扑关系：Work / Fanout / Direct / Topic
 /// </summary>
 public abstract class RabbitRelational
 {
     /// <summary>
-    /// 工作队列：多消费者竞争消费同一队列。发布时 Exchange 为空，RoutingKey=队列名。
+    /// 工作队列：多消费者竞争消费同一队列。发布时 Exchange 为空，RoutingKey=队列名
     /// </summary>
     public static RabbitRelational Work(RabbitQueueDeclare queueDeclare)
     {
@@ -30,7 +30,7 @@ public abstract class RabbitRelational
         => Work(new RabbitQueueDeclare { Name = queueName, Arguments = arguments });
 
     /// <summary>
-    /// 广播：Exchange 将同一份数据分发给多个队列。
+    /// 广播：Exchange 将同一份数据分发给多个队列
     /// </summary>
     public static RabbitRelational Fanout(RabbitExchangeDeclare exchangeDeclare, RabbitQueueDeclare queueDeclare)
     {
@@ -62,7 +62,7 @@ public abstract class RabbitRelational
             new RabbitQueueDeclare { Name = queueName, Arguments = queueArguments });
 
     /// <summary>
-    /// 路由：按 RoutingKey 精确分发。
+    /// 路由：按 RoutingKey 精确分发
     /// </summary>
     public static RabbitRelational Direct(RabbitExchangeDeclare exchangeDeclare, RabbitQueueDeclare queueDeclare, string routingKey)
     {
@@ -92,7 +92,7 @@ public abstract class RabbitRelational
             routingKey);
 
     /// <summary>
-    /// 主题：RoutingKey 模糊匹配（* / #）。
+    /// 主题：RoutingKey 模糊匹配（* / #）
     /// </summary>
     public static RabbitRelational Topic(
         RabbitExchangeDeclare exchangeDeclare,

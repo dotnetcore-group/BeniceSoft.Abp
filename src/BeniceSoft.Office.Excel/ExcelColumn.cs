@@ -73,7 +73,7 @@ public class ExcelColumn
     {
         CurrentValue = value;
 
-        // Specially check for string.
+        // Specially check for string
         if ((value as string).IsNull())
         {
             return Attribute.UseLastNonBlankValue == true ? LastNonBlankValue : value;

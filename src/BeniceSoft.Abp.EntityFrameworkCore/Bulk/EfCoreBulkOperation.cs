@@ -7,10 +7,10 @@ using System.Data.Common;
 namespace BeniceSoft.Abp.EntityFrameworkCore.Bulk;
 
 /// <summary>
-/// 多步批量写的共享会话：多次 Insert/Update/Delete/Merge 共用同一连接与事务。
+/// 多步批量写的共享会话：多次 Insert/Update/Delete/Merge 共用同一连接与事务
 /// <para>
-/// <b>原理：</b>与一次性 <see cref="EfCoreBulkAtom{T}"/> 不同，这里不会在每步后自动提交。
-/// 适合「先插一批、再更新一批」需要原子性的场景；结束后必须显式 <see cref="Commit"/> / <see cref="Rollback"/>。
+/// <b>原理：</b>与一次性 <see cref="EfCoreBulkAtom{T}"/> 不同，这里不会在每步后自动提交
+/// 适合「先插一批、再更新一批」需要原子性的场景；结束后必须显式 <see cref="Commit"/> / <see cref="Rollback"/>
 /// Dispose 时仅释放本对象自开的事务/连接，不会替你提交
 /// </para>
 /// </summary>
@@ -30,7 +30,9 @@ public abstract class EfCoreBulkOperation : IAsyncDisposable, IDisposable
         _ctx = ctx ?? throw new ArgumentNullException(nameof(ctx));
     }
 
-    /// <summary>在当前会话事务内执行批量插入（不自动提交）</summary>
+    /// <summary>
+    /// 在当前会话事务内执行批量插入（不自动提交）
+    /// </summary>
     public int BulkInsert<T>(IEnumerable<T> items, Action<EfCoreBulkAtom<T>>? tableBuilder = null)
         where T : class
     {
@@ -50,7 +52,9 @@ public abstract class EfCoreBulkOperation : IAsyncDisposable, IDisposable
         return atom.BulkInsertAsync(_connection!, _transaction!, cancellationToken);
     }
 
-    /// <summary>在当前会话事务内按匹配列批量删除（不自动提交）。</summary>
+    /// <summary>
+    /// 在当前会话事务内按匹配列批量删除（不自动提交）
+    /// </summary>
     public int BulkDelete<T>(IEnumerable<T> items, Action<EfCoreBulkAtom<T>>? tableBuilder = null, Action<BulkMatchOptions<T>>? matchBuilder = null)
         where T : class
     {
@@ -70,7 +74,9 @@ public abstract class EfCoreBulkOperation : IAsyncDisposable, IDisposable
         return atom.BulkDeleteAsync(_connection!, _transaction!, matchBuilder, cancellationToken);
     }
 
-    /// <summary>在当前会话事务内按匹配列批量更新（不自动提交）。</summary>
+    /// <summary>
+    /// 在当前会话事务内按匹配列批量更新（不自动提交）
+    /// </summary>
     public int BulkUpdate<T>(IEnumerable<T> items, Action<EfCoreBulkAtom<T>>? tableBuilder = null, Action<BulkMatchOptions<T>>? matchBuilder = null)
         where T : class
     {
@@ -90,7 +96,9 @@ public abstract class EfCoreBulkOperation : IAsyncDisposable, IDisposable
         return atom.BulkUpdateAsync(_connection!, _transaction!, matchBuilder, cancellationToken);
     }
 
-    /// <summary>在当前会话事务内 Upsert（不自动提交）。</summary>
+    /// <summary>
+    /// 在当前会话事务内 Upsert（不自动提交）
+    /// </summary>
     public int BulkMerge<T>(IEnumerable<T> items, Action<EfCoreBulkAtom<T>>? tableBuilder = null, Action<BulkMatchOptions<T>>? matchBuilder = null)
         where T : class
     {
@@ -110,7 +118,9 @@ public abstract class EfCoreBulkOperation : IAsyncDisposable, IDisposable
         return atom.BulkMergeAsync(_connection!, _transaction!, matchBuilder, cancellationToken);
     }
 
-    /// <summary>提交本对象自开的事务；若复用外部事务则 no-op（由外部 UoW 提交）。</summary>
+    /// <summary>
+    /// 提交本对象自开的事务；若复用外部事务则 no-op（由外部 UoW 提交）
+    /// </summary>
     public void Commit()
     {
         if (_ownTransaction)
@@ -128,7 +138,9 @@ public abstract class EfCoreBulkOperation : IAsyncDisposable, IDisposable
         }
     }
 
-    /// <summary>回滚本对象自开的事务；复用外部事务时 no-op。</summary>
+    /// <summary>
+    /// 回滚本对象自开的事务；复用外部事务时 no-op
+    /// </summary>
     public void Rollback()
     {
         if (_ownTransaction)
@@ -146,12 +158,14 @@ public abstract class EfCoreBulkOperation : IAsyncDisposable, IDisposable
         }
     }
 
-    /// <summary>由提供程序创建具体 Atom（SqlServer / Npgsql）。</summary>
+    /// <summary>
+    /// 由提供程序创建具体 Atom（SqlServer / Npgsql）
+    /// </summary>
     protected abstract EfCoreBulkAtom<T> CreateAtom<T>(IEnumerable<T> items)
         where T : class;
 
     /// <summary>
-    /// 懒初始化：第一次调用任意 Bulk* 时打开连接并绑定事务，后续步骤复用，保证多步在同一事务边界内。
+    /// 懒初始化：第一次调用任意 Bulk* 时打开连接并绑定事务，后续步骤复用，保证多步在同一事务边界内
     /// </summary>
     private void Initialize()
     {

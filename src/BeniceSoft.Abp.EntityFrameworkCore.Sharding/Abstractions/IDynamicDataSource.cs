@@ -57,7 +57,7 @@ internal sealed class DynamicDataSource(
     }
 
     /// <summary>
-    /// 当前数据源上会参与补偿的分片实体（对齐 ShardingCore DefaultDataSourceInitializer 筛选逻辑）。
+    /// 当前数据源上会参与补偿的分片实体（对齐 ShardingCore DefaultDataSourceInitializer 筛选逻辑）
     /// </summary>
     private IEnumerable<EntityMetadata> GetEntitiesOnDataSource(string dataSource)
     {
@@ -85,8 +85,8 @@ internal sealed class DynamicDataSource(
     }
 
     /// <summary>
-    /// null/true → 允许建库；仅分库实体的 <see cref="EntityMetadata.AutoCreateDataSource"/> 参与判断。
-    /// 无分库实体或均为 null/true 时 EnsureCreated；该数据源上全部分库实体均为 false 时跳过。
+    /// null/true → 允许建库；仅分库实体的 <see cref="EntityMetadata.AutoCreateDataSource"/> 参与判断
+    /// 无分库实体或均为 null/true 时 EnsureCreated；该数据源上全部分库实体均为 false 时跳过
     /// </summary>
     private static bool ShouldAutoCreateDataSource(IReadOnlyList<EntityMetadata> entitiesOnDataSource)
     {
@@ -99,7 +99,9 @@ internal sealed class DynamicDataSource(
         return dataSourceEntities.Any(static m => m.AutoCreateDataSource != false);
     }
 
-    /// <summary>null/true → 允许建表；false → 跳过。</summary>
+    /// <summary>
+    /// null/true → 允许建表；false → 跳过
+    /// </summary>
     private static bool ShouldAutoCreateTable(EntityMetadata entityMetadata)
         => entityMetadata.AutoCreateTable != false;
 

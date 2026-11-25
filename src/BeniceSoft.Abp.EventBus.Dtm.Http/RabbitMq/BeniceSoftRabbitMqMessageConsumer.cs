@@ -29,7 +29,7 @@ public class BeniceSoftRabbitMqMessageConsumer : RabbitMqMessageConsumer
 
     protected override async Task TryCreateChannelAsync()
     {
-        // 尚未挂上有效回调时不要 BasicConsume，否则会空 Callbacks 直接 Ack 丢消息。
+        // 尚未挂上有效回调时不要 BasicConsume，否则会空 Callbacks 直接 Ack 丢消息
         if (Callbacks.IsEmpty)
         {
             return;

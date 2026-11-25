@@ -125,11 +125,11 @@ public static class DateTimeUtils
 
     #region Common
     /// <summary>
-    /// converts a DateTime to local time (with special handling for MinValue and MaxValue).
+    /// converts a DateTime to local time (with special handling for MinValue and MaxValue)
     /// </summary>
-    /// <param name="dateTime">A DateTime.</param>
-    /// <param name="kind">A DateTimeKind.</param>
-    /// <returns>The DateTime in local time.</returns>
+    /// <param name="dateTime">A DateTime</param>
+    /// <param name="kind">A DateTimeKind</param>
+    /// <returns>The DateTime in local time</returns>
     public static DateTime SpecifyKind(DateTime dateTime, DateTimeKind kind = DateTimeKind.Utc)
     {
         if (dateTime.Kind == kind)

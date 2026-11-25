@@ -5,7 +5,9 @@ public interface IThreadLock : IDisposable
     bool IsAcquired { get; }
 }
 
-/// <summary>一次性获取锁：同一实例仅首次 <see cref="IsAcquired"/> 为 true。</summary>
+/// <summary>
+/// 一次性获取锁：同一实例仅首次 <see cref="IsAcquired"/> 为 true
+/// </summary>
 public class OnceLock : IThreadLock
 {
     private const int Undo = 0;

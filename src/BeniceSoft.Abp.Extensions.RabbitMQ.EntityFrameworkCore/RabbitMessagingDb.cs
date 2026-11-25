@@ -13,7 +13,9 @@ using Volo.Abp.Uow.EntityFrameworkCore;
 
 namespace BeniceSoft.Abp.Extensions.RabbitMQ.EntityFrameworkCore;
 
-/// <summary>Raw-SQL access bound to a DbContext's connection and current transaction.</summary>
+/// <summary>
+/// Raw-SQL access bound to a DbContext's connection and current transaction
+/// </summary>
 public sealed class RabbitMessagingDb
 {
     private RabbitMessagingDb(DbConnection connection, DbTransaction? transaction, RabbitMessagingDialect dialect)
@@ -53,7 +55,7 @@ public sealed class RabbitMessagingDb
 
 /// <summary>
 /// Picks the DbContext for outbox/inbox SQL: the one already active in the current UoW (same transaction
-/// as the business writes), else <see cref="RabbitOutboxOptions.DbContextType"/>.
+/// as the business writes), else <see cref="RabbitOutboxOptions.DbContextType"/>
 /// </summary>
 public class RabbitMessagingDbContextResolver
 {
@@ -96,7 +98,9 @@ public class RabbitMessagingDbContextResolver
         => (preferActive ? GetActive() : null) ?? await GetConfiguredAsync() ?? GetActive();
 }
 
-/// <summary>Creates the outbox/inbox tables if missing (idempotent, once per connection string), like the DTM barrier table.</summary>
+/// <summary>
+/// Creates the outbox/inbox tables if missing (idempotent, once per connection string), like the DTM barrier table
+/// </summary>
 public class RabbitMessagingTableInitializer
 {
     private readonly ConcurrentDictionary<string, bool> _created = new();
@@ -132,7 +136,7 @@ public class RabbitMessagingTableInitializer
             await db.ExecuteAsync(sql, cancellationToken: cancellationToken);
             if (db.Transaction != null && _unitOfWorkManager.Current != null)
             {
-                // DDL may be rolled back with the business transaction (SQLite); only cache after commit.
+                // DDL may be rolled back with the business transaction (SQLite); only cache after commit
                 _unitOfWorkManager.Current.OnCompleted(() =>
                 {
                     _created[connectionString] = true;
@@ -152,7 +156,7 @@ public class RabbitMessagingTableInitializer
             }
             catch (Exception ex)
             {
-                // e.g. a concurrent instance created it first; the following statements will surface real problems.
+                // e.g. a concurrent instance created it first; the following statements will surface real problems
                 _logger.LogWarning(ex, "Creating RabbitMQ outbox/inbox tables failed");
                 return;
             }

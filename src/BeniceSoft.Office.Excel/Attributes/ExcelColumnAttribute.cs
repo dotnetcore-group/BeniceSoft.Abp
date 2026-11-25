@@ -137,7 +137,7 @@ public class ExcelColumnAttribute : Attribute
     /// 合并
     /// </summary>
     /// <param name="source">源属性</param>
-    /// <param name="overwrite">如果源的属性为空，则是否覆盖源中的指定属性指定。注释索引和名称一起被视为一个键属性。</param>
+    /// <param name="overwrite">如果源的属性为空，则是否覆盖源中的指定属性指定。注释索引和名称一起被视为一个键属性</param>
     public void MergeFrom(ExcelColumnAttribute source, bool overwrite = true)
     {
         if (source == null)
@@ -199,7 +199,7 @@ public class ExcelColumnAttribute : Attribute
     /// 合并
     /// </summary>
     /// <param name="attributes">需要合并到对象</param>
-    /// <param name="overwrite">如果对象的属性为空，是否将指定的属性覆盖到现有对象指定。注释索引和名称一起被视为一个键属性。</param>
+    /// <param name="overwrite">如果对象的属性为空，是否将指定的属性覆盖到现有对象指定。注释索引和名称一起被视为一个键属性</param>
     public void MergeTo(Dictionary<string, ExcelColumnAttribute> attributes, bool overwrite = true)
     {
         if (PropertyFullPath is null)
@@ -214,7 +214,7 @@ public class ExcelColumnAttribute : Attribute
         {
             if (attributes.Any(p => p.Key != PropertyFullPath && p.Value.Index == Index))
             {
-                // Clear Index if there is same index already set (with overwrite = false).
+                // Clear Index if there is same index already set (with overwrite = false)
                 Index = -1;
                 isIndexSet = false;
             }
@@ -231,15 +231,15 @@ public class ExcelColumnAttribute : Attribute
             attributes[PropertyFullPath] = this;
         }
 
-        if (isIndexSet) // True if the index set successfully, otherwise it's been ignored/ cleared.
+        if (isIndexSet) // True if the index set successfully, otherwise it's been ignored/ cleared
         {
-            // Clear other attributes' Index if they have same index.
+            // Clear other attributes' Index if they have same index
             attributes.Where(p => p.Key != PropertyFullPath && p.Value.Index == Index).ForEach(p => p.Value.Index = -1);
         }
     }
 
     /// <summary>
-    /// Set property type, name, also set underlying type and type convert.
+    /// Set property type, name, also set underlying type and type convert
     /// </summary>
     public ExcelColumnAttribute SetProperty(PropertyInfo? value, string hostTypeName, string propertyPath)
     {
@@ -258,7 +258,7 @@ public class ExcelColumnAttribute : Attribute
     }
 
     /// <summary>
-    /// Set property type, name, also set underlying type and type convert.
+    /// Set property type, name, also set underlying type and type convert
     /// </summary>
     public ExcelColumnAttribute SetProperty(PropertyInfo? value, string? propertyFullPath)
     {

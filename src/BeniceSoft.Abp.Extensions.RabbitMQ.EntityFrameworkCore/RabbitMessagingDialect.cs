@@ -1,6 +1,8 @@
 namespace BeniceSoft.Abp.Extensions.RabbitMQ.EntityFrameworkCore;
 
-/// <summary>Provider-specific DDL / paging (same provider names as the DTM barrier tables).</summary>
+/// <summary>
+/// Provider-specific DDL / paging (same provider names as the DTM barrier tables)
+/// </summary>
 public abstract class RabbitMessagingDialect
 {
     private static readonly RabbitMessagingDialect MySql = new MySqlDialect();
@@ -25,17 +27,21 @@ public abstract class RabbitMessagingDialect
             : throw new NotSupportedException($"Database provider {providerName} is not supported by the RabbitMQ outbox/inbox");
 
     /// <summary>
-    /// True: DDL runs on the business connection/transaction (SQLite; required for in-memory DBs).
-    /// False: DDL runs on a separate connection (avoids MySQL implicit commit inside the business transaction).
+    /// True: DDL runs on the business connection/transaction (SQLite; required for in-memory DBs)
+    /// False: DDL runs on a separate connection (avoids MySQL implicit commit inside the business transaction)
     /// </summary>
     public virtual bool DdlOnBusinessConnection => false;
 
     public abstract string CreateTablesSql(RabbitOutboxOptions options);
 
-    /// <summary>List predicate for a Dapper list parameter.</summary>
+    /// <summary>
+    /// List predicate for a Dapper list parameter
+    /// </summary>
     public virtual string InList(string column, string parameter) => $"{column} IN @{parameter}";
 
-    /// <summary>SELECT id ... with a row limit parameter @take.</summary>
+    /// <summary>
+    /// SELECT id ... with a row limit parameter @take
+    /// </summary>
     public virtual string ClaimCandidatesSql(string outboxTable)
         => $"SELECT id FROM {outboxTable} WHERE status = 0 AND next_retry_time <= @now AND (locked_until IS NULL OR locked_until < @now) ORDER BY creation_time LIMIT @take";
 
@@ -73,7 +79,7 @@ CREATE TABLE IF NOT EXISTS {o.InboxTable} (
 
     private sealed class PostgreSqlDialect : RabbitMessagingDialect
     {
-        // Dapper passes arrays natively to Npgsql (no IN-list expansion).
+        // Dapper passes arrays natively to Npgsql (no IN-list expansion)
         public override string InList(string column, string parameter) => $"{column} = ANY(@{parameter})";
 
         public override string CreateTablesSql(RabbitOutboxOptions o) => $@"

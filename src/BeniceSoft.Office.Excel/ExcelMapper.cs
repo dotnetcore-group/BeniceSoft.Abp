@@ -149,7 +149,7 @@ public class ExcelMapper
             }
             else
             {
-                // Ensures column name for the first time mapping.
+                // Ensures column name for the first time mapping
                 attribute.Name ??= attribute.PropertyName;
                 DynamicAttributes[attribute.PropertyName] = attribute;
             }
@@ -225,23 +225,23 @@ public class ExcelMapper
         var firstRow = sheet.GetRow(firstRowIndex);
 
         var targetType = typeof(T);
-        if (targetType == typeof(object)) // Dynamic type.
+        if (targetType == typeof(object)) // Dynamic type
         {
             targetType = GetDynamicType(sheet, columnType);
             MapHelper.LoadDynamicAttributes(Attributes, DynamicAttributes, targetType);
-            DynamicAttributes.Clear(); // Avoid mixed with other sheet.
+            DynamicAttributes.Clear(); // Avoid mixed with other sheet
         }
 
-        // Scan object attributes.
+        // Scan object attributes
         MapHelper.LoadAttributes(Attributes, targetType);
 
-        // Read the first row to get column information.
+        // Read the first row to get column information
         var columns = GetColumns(firstRow, targetType);
 
-        // Detect column format based on the first non-null cell.
+        // Detect column format based on the first non-null cell
         _helper.LoadDataFormats(sheet, HasHeader ? firstRowIndex + 1 : firstRowIndex, columns, TypeFormats);
 
-        // Loop rows in file. Generate one target object for each row.
+        // Loop rows in file. Generate one target object for each row
         var errorCount = 0;
         var firstDataRowIndex = HasHeader ? firstRowIndex + 1 : firstRowIndex;
         foreach (IRow row in sheet)
@@ -372,15 +372,15 @@ public class ExcelMapper
     {
         var sheetName = headerRow.Sheet.SheetName;
         var columns = new List<ExcelColumn>();
-        var columnsCache = new List<object>(); // Cached for export usage.
+        var columnsCache = new List<object>(); // Cached for export usage
 
-        // Prepare a list of ColumnInfo by the first row.
+        // Prepare a list of ColumnInfo by the first row
         foreach (var header in headerRow)
         {
-            // Custom mappings via attributes.
+            // Custom mappings via attributes
             var column = GetColumnByAttribute(header, type);
 
-            // Naming convention.
+            // Naming convention
             if (column == null && HasHeader && MapHelper.GetCellType(header) == CellType.String)
             {
                 var s = header.StringCellValue;
@@ -391,12 +391,12 @@ public class ExcelMapper
                 }
             }
 
-            // Column filter.
+            // Column filter
             if (column == null)
             {
                 column = GetColumnByFilter(header, _columnFilter);
 
-                if (column != null) // Set default resolvers since the column is not mapped explicitly.
+                if (column != null) // Set default resolvers since the column is not mapped explicitly
                 {
                     column.Attribute.TryPut = _defaultPutResolver;
                     column.Attribute.TryTake = _defaultTakeResolver;
@@ -405,7 +405,7 @@ public class ExcelMapper
 
             if (column == null)
             {
-                continue; // No property was mapped to this column.
+                continue; // No property was mapped to this column
             }
 
             if (header.CellStyle != null)
@@ -433,7 +433,7 @@ public class ExcelMapper
         {
             var attribute = pair.Value;
 
-            // If no header, cannot get a ColumnInfo by resolving header string.
+            // If no header, cannot get a ColumnInfo by resolving header string
             if (!HasHeader && attribute.Index < 0)
             {
                 continue;
@@ -443,11 +443,11 @@ public class ExcelMapper
             var indexMatch = attribute.Index == index;
             var nameMatch = cellType == CellType.String && string.Equals(attribute.Name, header.StringCellValue, StringComparison.Ordinal);
 
-            // Index takes precedence over Name.
+            // Index takes precedence over Name
             if (indexMatch || attribute.Index < 0 && nameMatch)
             {
                 // Use a clone so no pollution to original attribute,
-                // The origin might be used later again for multi-column/DefaultResolverType purpose.
+                // The origin might be used later again for multi-column/DefaultResolverType purpose
                 attribute = attribute.Clone(index);
                 return new ExcelColumn(headerValue, attribute);
             }
@@ -470,7 +470,7 @@ public class ExcelMapper
                 continue;
             }
 
-            // If no header, cannot get a ColumnInfo by resolving header string.
+            // If no header, cannot get a ColumnInfo by resolving header string
             if (!HasHeader && attribute.Index < 0)
             {
                 continue;
@@ -480,11 +480,11 @@ public class ExcelMapper
             var indexMatch = attribute.Index == index;
             var nameMatch = cellType == CellType.String && string.Equals(attribute.Name?.Trim(), header.StringCellValue?.Trim(), StringComparison.Ordinal);
 
-            // Index takes precedence over Name.
+            // Index takes precedence over Name
             if (indexMatch || attribute.Index < 0 && nameMatch)
             {
                 // Use a clone so no pollution to original attribute,
-                // The origin might be used later again for multi-column/DefaultResolverType purpose.
+                // The origin might be used later again for multi-column/DefaultResolverType purpose
                 attribute = attribute.Clone(index);
                 return new ExcelColumn(headerValue, attribute);
             }
@@ -495,12 +495,12 @@ public class ExcelMapper
 
     private ExcelColumn? GetColumnByName(string name, int index, Type type)
     {
-        // First attempt: search by string (ignore case).
+        // First attempt: search by string (ignore case)
         var pi = type.GetProperty(name, MapHelper.BindingFlag);
 
         if (pi == null)
         {
-            // Second attempt: search display name of DisplayAttribute if any.
+            // Second attempt: search display name of DisplayAttribute if any
             foreach (var propertyInfo in type.GetProperties(MapHelper.BindingFlag))
             {
                 var attributes = propertyInfo.GetCustomAttributes<DisplayAttribute>(false);
@@ -515,7 +515,7 @@ public class ExcelMapper
 
         if (pi == null)
         {
-            // Third attempt: remove ignored chars and do the truncation.
+            // Third attempt: remove ignored chars and do the truncation
             pi = type.GetProperty(MapHelper.GetRefinedName(name, IgnoredNameChars, TruncateNameFrom)!, MapHelper.BindingFlag);
         }
 
@@ -562,7 +562,7 @@ public class ExcelMapper
         {
             if (errorIndex >= 0)
             {
-                return; // Ensures the first error will not be overwritten.
+                return; // Ensures the first error will not be overwritten
             }
 
             if (column.Attribute.IgnoreErrors == true)
@@ -605,7 +605,7 @@ public class ExcelMapper
                 }
                 else if (propertyType != null)
                 {
-                    // Change types between IConvertible objects, such as double, float, int and etc.
+                    // Change types between IConvertible objects, such as double, float, int and etc
                     if (MapHelper.TryConvertType(valueObj, column, UseDefaultValueAttribute, out var result))
                     {
                         column.Attribute.GetSetterOrDefault(target)?.Invoke(target, result);
@@ -677,7 +677,7 @@ public class ExcelMapper
 
             if (overwrite && row != null)
             {
-                row.Cells?.ForEach(c => c.SetCellType(CellType.Blank)); // erase content and try keep format.
+                row.Cells?.ForEach(c => c.SetCellType(CellType.Blank)); // erase content and try keep format
             }
 
             row ??= sheet.CreateRow(rowIndex);
@@ -697,7 +697,7 @@ public class ExcelMapper
             rowIndex++;
         }
 
-        // Remove not used rows if any.
+        // Remove not used rows if any
         while (overwrite && rowIndex <= sheet.LastRowNum)
         {
             var row = sheet.GetRow(rowIndex);
@@ -709,7 +709,7 @@ public class ExcelMapper
             rowIndex++;
         }
 
-        // Injects custom action for headers.
+        // Injects custom action for headers
         if (overwrite && HasHeader && _headerAction != null)
         {
             firstRow?.Cells.ForEach(c => _headerAction(c));
@@ -726,7 +726,7 @@ public class ExcelMapper
     {
         var row = sheet.CreateRow(GetFirstRowIndex(sheet));
 
-        // Use existing column populate the first row.
+        // Use existing column populate the first row
 
         if (columns != null)
         {
@@ -745,14 +745,14 @@ public class ExcelMapper
             return row;
         }
 
-        // If no column cached, populate the first row with attributes and object properties.
+        // If no column cached, populate the first row with attributes and object properties
 
         MapHelper.LoadAttributes(Attributes, type);
 
         var attributes = Attributes.Where(p => p.Value.PropertyFullPath?.StartsWith(type.Name + ".") == true);
         var properties = type.GetProperties(MapHelper.BindingFlag).FindAll(p => p.PropertyType.CanBeExported()).ToList();
 
-        // Firstly populate for those have Attribute specified.
+        // Firstly populate for those have Attribute specified
         foreach (var attr in attributes)
         {
             var attribute = attr.Value;
@@ -767,12 +767,12 @@ public class ExcelMapper
                 cell.SetCellValue(attribute.Name ?? attribute.PropertyName);
             }
 
-            properties.RemoveAll(p => p.Name == attribute.PropertyName); // Remove populated property.
+            properties.RemoveAll(p => p.Name == attribute.PropertyName); // Remove populated property
         }
 
         var index = 0;
 
-        // Then populate for those do not have Attribute specified.
+        // Then populate for those do not have Attribute specified
         foreach (var pi in properties)
         {
             var key = type.Name + "." + pi.Name;

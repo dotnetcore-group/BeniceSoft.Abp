@@ -409,17 +409,17 @@ internal sealed class ShardingModelSource(ModelSourceDependencies dependencies, 
     private readonly IShardingRuntimeContext _context = context;
 
     /// <summary>
-    ///     Dependencies for this service.
+    ///     Dependencies for this service
     /// </summary>
     protected override ModelSourceDependencies Dependencies { get; } = dependencies;
 
     /// <summary>
-    ///     Gets the model to be used.
+    ///     Gets the model to be used
     /// </summary>
-    /// <param name="ctx">The context the model is being produced for.</param>
-    /// <param name="modelCreationDependencies">The dependencies object used during the creation of the model.</param>
-    /// <param name="designTime">Whether the model should contain design-time configuration.</param>
-    /// <returns>The model to be used.</returns>
+    /// <param name="ctx">The context the model is being produced for</param>
+    /// <param name="modelCreationDependencies">The dependencies object used during the creation of the model</param>
+    /// <param name="designTime">Whether the model should contain design-time configuration</param>
+    /// <returns>The model to be used</returns>
     public override IModel GetModel(DbContext ctx, ModelCreationDependencies modelCreationDependencies, bool designTime)
     {
         CacheItemPriority? setPriority = null;
@@ -453,7 +453,7 @@ internal sealed class ShardingModelSource(ModelSourceDependencies dependencies, 
             var size = cacheLockProvider.GetEntrySize();
             var waitSeconds = cacheLockProvider.GetWaitSeconds();
             var cacheLockObject = cacheLockProvider.GetObject(cacheKey);
-            // Make sure OnModelCreating really only gets called once, since it may not be thread safe.
+            // Make sure OnModelCreating really only gets called once, since it may not be thread safe
             var acquire = Monitor.TryEnter(cacheLockObject, TimeSpan.FromSeconds(waitSeconds));
             if (!acquire)
             {
@@ -866,7 +866,7 @@ internal sealed class ShardingLocalView<T>(DbSet<T> set) : LocalView<T>(set)
 }
 
 /// <summary>
-/// 壳 DbSet：Local 聚合各物理库已追踪实体。
+/// 壳 DbSet：Local 聚合各物理库已追踪实体
 /// </summary>
 internal sealed class ShardingInternalDbSet<TEntity> : InternalDbSet<TEntity>
     where TEntity : class

@@ -6,27 +6,33 @@ using Microsoft.EntityFrameworkCore;
 namespace BeniceSoft.Abp.EntityFrameworkCore.SqlServer.Bulk;
 
 /// <summary>
-/// SQL Server 批量写实现。
+/// SQL Server 批量写实现
 /// <para>
 /// <b>Insert：</b><c>SqlBulkCopy</c> 直写目标表（服务端 TDS 批量协议，远快于逐行 INSERT）<br/>
 /// <b>Update / Delete / Merge：</b>
 /// ① 建会话临时表 <c>#TmpTable</c> 
 /// ② BulkCopy 灌入源数据 
 /// ③ <c>MERGE ... WITH (HOLDLOCK)</c> 按匹配列对齐目标表 
-/// ④ DROP 临时表。
-/// HOLDLOCK 降低并发下 MERGE 的幻读/竞态风险。
+/// ④ DROP 临时表
+/// HOLDLOCK 降低并发下 MERGE 的幻读/竞态风险
 /// </para>
 /// </summary>
 public class SqlServerBulkAtom<T> : EfCoreBulkAtom<T>
     where T : class
 {
-    /// <summary>会话级临时表，仅当前连接可见，事务结束后自动清理；用于承载源数据再 MERGE</summary>
+    /// <summary>
+    /// 会话级临时表，仅当前连接可见，事务结束后自动清理；用于承载源数据再 MERGE
+    /// </summary>
     private const string TmpTable = "#TmpTable";
 
-    /// <summary>写入前后禁用全部非聚集索引（大表批量写时可减少索引维护开销，结束后 Rebuild）</summary>
+    /// <summary>
+    /// 写入前后禁用全部非聚集索引（大表批量写时可减少索引维护开销，结束后 Rebuild）
+    /// </summary>
     public bool DisableIndex { get; set; }
 
-    /// <summary>仅禁用指定名称的非聚集索引（与 <see cref="DisableIndex"/> 组合使用）</summary>
+    /// <summary>
+    /// 仅禁用指定名称的非聚集索引（与 <see cref="DisableIndex"/> 组合使用）
+    /// </summary>
     public ICollection<string> DisableIndexes { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     public SqlBulkCopyOptions BulkCopyOptions { get; set; } = SqlBulkCopyOptions.Default;
@@ -335,14 +341,14 @@ public class SqlServerBulkAtom<T> : EfCoreBulkAtom<T>
     }
 
     private string BuildDeleteText(IList<string> updateOn, BulkMatchOptions<T> options)
-        // 仅 WHEN MATCHED THEN DELETE：临时表里有的键，目标表对应行删除。
+        // 仅 WHEN MATCHED THEN DELETE：临时表里有的键，目标表对应行删除
         => $"MERGE INTO {GetQuotedTableName()} WITH (HOLDLOCK) AS {options.TargetAlias} USING {TmpTable} AS {options.SourceAlias} {BuildConditions(updateOn, options.SourceAlias, options.TargetAlias)} WHEN MATCHED THEN DELETE; DROP TABLE {TmpTable};";
 
     private string BuildUpdateText(IList<string> updateOn, BulkMatchOptions<T> options)
-        // 仅 WHEN MATCHED THEN UPDATE：用源行覆盖目标行各列。
+        // 仅 WHEN MATCHED THEN UPDATE：用源行覆盖目标行各列
         => $"MERGE INTO {GetQuotedTableName()} WITH (HOLDLOCK) AS {options.TargetAlias} USING {TmpTable} AS {options.SourceAlias} {BuildConditions(updateOn, options.SourceAlias, options.TargetAlias)} WHEN MATCHED THEN {BuildUpdateSet(options.SourceAlias, options.TargetAlias)}; DROP TABLE {TmpTable};";
 
     private string BuildMergeText(IList<string> updateOn, BulkMatchOptions<T> options)
-        // Upsert：匹配则更新，目标侧不存在则插入。
+        // Upsert：匹配则更新，目标侧不存在则插入
         => $"MERGE INTO {GetQuotedTableName()} WITH (HOLDLOCK) AS {options.TargetAlias} USING {TmpTable} AS {options.SourceAlias} {BuildConditions(updateOn, options.SourceAlias, options.TargetAlias)} WHEN MATCHED THEN {BuildUpdateSet(options.SourceAlias, options.TargetAlias)} WHEN NOT MATCHED BY TARGET THEN {BuildInsertSet(options.SourceAlias)}; DROP TABLE {TmpTable};";
 }

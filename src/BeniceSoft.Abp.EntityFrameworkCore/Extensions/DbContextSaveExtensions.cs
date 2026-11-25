@@ -9,7 +9,7 @@ namespace BeniceSoft.Abp.EntityFrameworkCore;
 public static class DbContextSaveExtensions
 {
     /// <summary>
-    /// Saves changes and retries on concurrency conflict by refreshing OriginalValues (client wins for non-token fields).
+    /// Saves changes and retries on concurrency conflict by refreshing OriginalValues (client wins for non-token fields)
     /// </summary>
     public static int ForceSaveChange(this DbContext ctx, int retryCount = 2)
     {
@@ -55,8 +55,8 @@ public static class DbContextSaveExtensions
     }
 
     /// <summary>
-    /// Executes <paramref name="operation"/> inside EF execution strategy.
-    /// Reuses the current transaction when one exists; otherwise begins and commits a new one.
+    /// Executes <paramref name="operation"/> inside EF execution strategy
+    /// Reuses the current transaction when one exists; otherwise begins and commits a new one
     /// </summary>
     public static async Task<T> ExecuteStrategyAsync<T>(this DbContext ctx, Func<CancellationToken, Task<T>> operation, CancellationToken cancellationToken = default)
     {
@@ -183,7 +183,7 @@ public static class DbContextSaveExtensions
 
             entry.OriginalValues.SetValues(databaseValues);
 
-            // Keep business field CurrentValues; sync concurrency tokens to DB so the retry can succeed.
+            // Keep business field CurrentValues; sync concurrency tokens to DB so the retry can succeed
             foreach (var property in entry.Properties)
             {
                 if (property.Metadata.IsConcurrencyToken)

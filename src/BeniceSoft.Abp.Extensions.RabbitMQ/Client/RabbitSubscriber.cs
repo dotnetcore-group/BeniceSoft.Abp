@@ -8,8 +8,8 @@ using RabbitMQ.Client.Events;
 namespace BeniceSoft.Abp.Extensions.RabbitMQ;
 
 /// <summary>
-/// PrefetchCount（Qos）控制未 ACK 在途消息数；每条消息仍单独调用一次 Handler。
-/// 异步消费者在 Prefetch&gt;1 时可能并发执行同一 Handler，需保证 Handler 线程安全。
+/// PrefetchCount（Qos）控制未 ACK 在途消息数；每条消息仍单独调用一次 Handler
+/// 异步消费者在 Prefetch&gt;1 时可能并发执行同一 Handler，需保证 Handler 线程安全
 /// </summary>
 public class RabbitSubscriber : IAsyncDisposable
 {
@@ -110,13 +110,19 @@ public class RabbitSubscriber : IAsyncDisposable
             _handlerType.Name);
     }
 
-    /// <summary>Max retries for unhandled handler exceptions; &lt;0 = legacy unbounded requeue.</summary>
+    /// <summary>
+    /// Max retries for unhandled handler exceptions; &lt;0 = legacy unbounded requeue
+    /// </summary>
     public int MaxExceptionRetryTimes { get; set; } = 3;
 
-    /// <summary>Action when retries are exhausted.</summary>
+    /// <summary>
+    /// Action when retries are exhausted
+    /// </summary>
     public RabbitRetryExhaustedAction RetryExhaustedAction { get; set; } = RabbitRetryExhaustedAction.Auto;
 
-    /// <summary>Non-empty enables idempotent consumption via <see cref="IRabbitInboxStore"/>.</summary>
+    /// <summary>
+    /// Non-empty enables idempotent consumption via <see cref="IRabbitInboxStore"/>
+    /// </summary>
     public string? InboxConsumerName { get; set; }
 
     private bool HasDeadLetterExchange =>
@@ -193,7 +199,7 @@ public class RabbitSubscriber : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            // Channel failure: the broker will redeliver the unacked message.
+            // Channel failure: the broker will redeliver the unacked message
             _logger.LogError(ex, "Failed to settle rabbit message on queue {Queue}", _queueName);
         }
     }
@@ -243,8 +249,8 @@ public class RabbitSubscriber : IAsyncDisposable
     }
 
     /// <summary>
-    /// <paramref name="maxAttempts"/> = total deliveries allowed (same semantics as MaxRedeliveryTimes).
-    /// Retries are republished to this queue only (default exchange), so fanout/topic peers are not duplicated.
+    /// <paramref name="maxAttempts"/> = total deliveries allowed (same semantics as MaxRedeliveryTimes)
+    /// Retries are republished to this queue only (default exchange), so fanout/topic peers are not duplicated
     /// </summary>
     private async Task RetryOrExhaustAsync(BasicDeliverEventArgs e, int maxAttempts)
     {

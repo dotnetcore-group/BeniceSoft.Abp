@@ -3,22 +3,22 @@ using System.Collections.Specialized;
 namespace BeniceSoft.Http.FluentClient;
 
 /// <summary>
-/// constructs HTTP request bodies.
+/// constructs HTTP request bodies
 /// </summary>
 public interface IBodyBuilder
 {
     /// <summary>
-    /// get a form URL-encoded body.
+    /// get a form URL-encoded body
     /// </summary>
     HttpContent FormUrlEncoded(IEnumerable<KeyValuePair<string, object?>> arguments);
 
     /// <summary>
-    /// get a form data body.
+    /// get a form data body
     /// </summary>
     HttpContent FormData(NameValueCollection arguments);
 
     /// <summary>
-    /// get a file upload body (using multi-part form data).
+    /// get a file upload body (using multi-part form data)
     /// </summary>
     HttpContent FileUpload(IEnumerable<KeyValuePair<string, Stream>> files);
 }

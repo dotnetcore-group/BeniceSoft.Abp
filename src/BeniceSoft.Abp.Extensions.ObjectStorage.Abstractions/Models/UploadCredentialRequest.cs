@@ -12,6 +12,8 @@ public class UploadCredentialRequest
 
     public int ExpireSeconds { get; set; } = 1800;
 
-    /// <summary>大于 0 时写入 Policy content-length-range。</summary>
+    /// <summary>
+    /// 大于 0 时写入 Policy content-length-range
+    /// </summary>
     public long MaxSize { get; set; }
 }

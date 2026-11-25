@@ -546,7 +546,7 @@ public static class TypeUtils
 
     #region Common Type
     /// <summary>
-    /// Returns true if the type is one of the built in simple types.
+    /// Returns true if the type is one of the built in simple types
     /// </summary>
     public static bool IsSimpleType(this Type type, bool includeNullable = true)
     {
@@ -702,7 +702,7 @@ public static class TypeUtils
         if ((bindingFlags & (BindingFlags.Public | BindingFlags.NonPublic)) == (BindingFlags.Public | BindingFlags.NonPublic))
         {
             // If we're searching for both public and nonpublic properties, search for only public first
-            // because chances are if there is a public property, it would be very surprising to detect the private shadowing property.
+            // because chances are if there is a public property, it would be very surprising to detect the private shadowing property
 
             for (var publicSearchType = type; publicSearchType != null; publicSearchType = publicSearchType.GetTypeInfo().BaseType)
             {
@@ -713,7 +713,7 @@ public static class TypeUtils
                 }
             }
 
-            // There is no public property, so may as well not ask to include them during the second search.
+            // There is no public property, so may as well not ask to include them during the second search
             bindingFlags &= ~BindingFlags.Public;
         }
 
@@ -754,14 +754,14 @@ public static class TypeUtils
     };
 
     /// <summary>
-    /// Pretty print a type name.
+    /// Pretty print a type name
     /// </summary>
-    /// <param name="type">The <see cref="Type"/>.</param>
-    /// <param name="fullName"><c>true</c> to print a fully qualified name.</param>
-    /// <param name="includeGenericParameterNames"><c>true</c> to include generic parameter names.</param>
-    /// <param name="includeGenericParameters"><c>true</c> to include generic parameters.</param>
+    /// <param name="type">The <see cref="Type"/></param>
+    /// <param name="fullName"><c>true</c> to print a fully qualified name</param>
+    /// <param name="includeGenericParameterNames"><c>true</c> to include generic parameter names</param>
+    /// <param name="includeGenericParameters"><c>true</c> to include generic parameters</param>
     /// <param name="nestedTypeDelimiter">Character to use as a delimiter in nested type names</param>
-    /// <returns>The pretty printed type name.</returns>
+    /// <returns>The pretty printed type name</returns>
     public static string GetDisplayName(this Type type, bool fullName = true, bool includeGenericParameterNames = false, bool includeGenericParameters = false, char nestedTypeDelimiter = '.')
     {
         var builder = new StringBuilder();

@@ -8,20 +8,22 @@ using Npgsql;
 namespace BeniceSoft.Abp.EntityFrameworkCore.PostgreSql.Bulk;
 
 /// <summary>
-/// PostgreSQL 批量写实现。
+/// PostgreSQL 批量写实现
 /// <para>
 /// <b>Insert：</b><c>COPY ... FROM STDIN (FORMAT BINARY)</c>（Npgsql BinaryImporter），等价于 PG 侧最高效的装载路径。<br/>
 /// <b>Update / Delete / Merge：</b>
 /// ① <c>CREATE TEMP TABLE</c> → ② COPY 灌入源数据 → ③
 /// Update 用 <c>UPDATE ... FROM temp</c>，Delete 用 <c>DELETE ... USING temp</c>，
-/// Merge 用 <c>INSERT ... ON CONFLICT (...) DO UPDATE</c> → ④ DROP TEMP。
-/// 匹配列必须落在唯一约束/主键上，否则 ON CONFLICT 无法使用。
+/// Merge 用 <c>INSERT ... ON CONFLICT (...) DO UPDATE</c> → ④ DROP TEMP
+/// 匹配列必须落在唯一约束/主键上，否则 ON CONFLICT 无法使用
 /// </para>
 /// </summary>
 public class NpgsqlBulkAtom<T> : EfCoreBulkAtom<T>
     where T : class
 {
-    /// <summary>当前会话临时表名（ON COMMIT DROP，事务结束自动消失）。</summary>
+    /// <summary>
+    /// 当前会话临时表名（ON COMMIT DROP，事务结束自动消失）
+    /// </summary>
     private const string TmpTable = "tmp_bulk";
 
     public NpgsqlBulkAtom(DbContext ctx, IEnumerable<T> items)
@@ -55,7 +57,9 @@ public class NpgsqlBulkAtom<T> : EfCoreBulkAtom<T>
 
     protected override string QuoteIdentifier(string name) => $"\"{name}\"";
 
-    /// <summary>COPY 二进制直写目标表。</summary>
+    /// <summary>
+    /// COPY 二进制直写目标表
+    /// </summary>
     protected override int BulkInsert(DbConnection connection, DbTransaction transaction)
     {
         var (conn, _) = Cast(connection, transaction);
@@ -89,8 +93,8 @@ public class NpgsqlBulkAtom<T> : EfCoreBulkAtom<T>
         => ExecuteTempPathAsync(connection, transaction, setup, BuildMergeSql, cancellationToken);
 
     /// <summary>
-    /// Update/Delete/Merge 共用：先把源数据集中进 TEMP，再一条集合 SQL 对齐正式表。
-    /// 比「客户端循环 Execute」少往返，也比巨型 VALUES 列表更稳。
+    /// Update/Delete/Merge 共用：先把源数据集中进 TEMP，再一条集合 SQL 对齐正式表
+    /// 比「客户端循环 Execute」少往返，也比巨型 VALUES 列表更稳
     /// </summary>
     private int ExecuteTempPath(
         DbConnection connection,
@@ -107,14 +111,14 @@ public class NpgsqlBulkAtom<T> : EfCoreBulkAtom<T>
         command.Transaction = trans;
         command.CommandTimeout = Options.CommandTimeout;
 
-        // ① 会话临时表，结构取自 EF 列 StoreType。
+        // ① 会话临时表，结构取自 EF 列 StoreType
         command.CommandText = BuildTempTableSql();
         command.ExecuteNonQuery();
 
-        // ② Binary COPY 灌源数据。
+        // ② Binary COPY 灌源数据
         BinaryImport(conn, TmpTable);
 
-        // ③ 集合 SQL：UPDATE FROM / DELETE USING / INSERT ON CONFLICT。
+        // ③ 集合 SQL：UPDATE FROM / DELETE USING / INSERT ON CONFLICT
         command.CommandText = buildSql(updateOn, match);
         var result = command.ExecuteNonQuery();
 
@@ -152,7 +156,7 @@ public class NpgsqlBulkAtom<T> : EfCoreBulkAtom<T>
     }
 
     /// <summary>
-    /// Npgsql BinaryImporter：客户端按行写入二进制流，服务端以 COPY 协议落表，避免文本解析与逐参绑定。
+    /// Npgsql BinaryImporter：客户端按行写入二进制流，服务端以 COPY 协议落表，避免文本解析与逐参绑定
     /// </summary>
     private void BinaryImport(NpgsqlConnection connection, string destinationTable)
     {
@@ -220,7 +224,7 @@ public class NpgsqlBulkAtom<T> : EfCoreBulkAtom<T>
 
     private string BuildDeleteSql(IList<string> updateOn, BulkMatchOptions<T> options)
     {
-        // DELETE ... USING temp：等价于「目标表 JOIN 临时表后删除匹配行」。
+        // DELETE ... USING temp：等价于「目标表 JOIN 临时表后删除匹配行」
         var conditions = string.Join(" AND ", updateOn.Select(c =>
             $"{QuoteIdentifier(options.TargetAlias)}.{QuoteIdentifier(c)} = {QuoteIdentifier(options.SourceAlias)}.{QuoteIdentifier(c)}"));
         return $"DELETE FROM {GetQuotedTableName()} AS {QuoteIdentifier(options.TargetAlias)} USING {TmpTable} AS {QuoteIdentifier(options.SourceAlias)} WHERE {conditions};";
@@ -228,7 +232,7 @@ public class NpgsqlBulkAtom<T> : EfCoreBulkAtom<T>
 
     private string BuildUpdateSql(IList<string> updateOn, BulkMatchOptions<T> options)
     {
-        // UPDATE ... FROM temp：匹配列作 JOIN 条件，其余列从源表赋值（匹配列本身不更新）。
+        // UPDATE ... FROM temp：匹配列作 JOIN 条件，其余列从源表赋值（匹配列本身不更新）
         var matchSet = updateOn.ToHashSet(StringComparer.OrdinalIgnoreCase);
         var sets = ColumnMappings
             .Where(m => !matchSet.Contains(m.Column.Name))
@@ -240,8 +244,8 @@ public class NpgsqlBulkAtom<T> : EfCoreBulkAtom<T>
 
     private string BuildMergeSql(IList<string> updateOn, BulkMatchOptions<T> options)
     {
-        // PG 无 MERGE（旧版本）时用标准 Upsert：INSERT 全量 + ON CONFLICT(匹配列) DO UPDATE。
-        // EXCLUDED 代表「本将插入但发生冲突的那一行」。
+        // PG 无 MERGE（旧版本）时用标准 Upsert：INSERT 全量 + ON CONFLICT(匹配列) DO UPDATE
+        // EXCLUDED 代表「本将插入但发生冲突的那一行」
         var matchSet = updateOn.ToHashSet(StringComparer.OrdinalIgnoreCase);
         var insertCols = string.Join(", ", ColumnMappings.Select(m => QuoteIdentifier(m.Column.Name)));
         var selectCols = string.Join(", ", ColumnMappings.Select(m => $"{QuoteIdentifier(options.SourceAlias)}.{QuoteIdentifier(m.Column.Name)}"));

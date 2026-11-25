@@ -18,7 +18,7 @@ public sealed class AbpConnectionPoolRabbitConnection : IRabbitConnection
     }
 
     /// <summary>
-    /// 池内连接是否可用需异步探测；此处表示适配器本身可用，真正连通性在 CreateChannel 时校验。
+    /// 池内连接是否可用需异步探测；此处表示适配器本身可用，真正连通性在 CreateChannel 时校验
     /// </summary>
     public bool IsConnected => true;
 

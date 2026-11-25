@@ -154,7 +154,7 @@ internal static class ILGeneratorExtensions
         }
         else if (typeFromInfo.IsArray && typeToInfo.IsArray)
         {
-            // See DevDiv Bugs #94657.
+            // See DevDiv Bugs #94657
             ilGenerator.EmitCastToType(typeFromInfo, typeToInfo);
         }
         else
@@ -257,10 +257,10 @@ internal static class ILGeneratorExtensions
                 if (type.IsValueType())
                 {
                     // Type.GetTypeCode on an enum returns the underlying
-                    // integer TypeCode, so we won't get here.
+                    // integer TypeCode, so we won't get here
                     // This is the IL for default(T) if T is a generic type
                     // parameter, so it should work for any type. It's also
-                    // the standard pattern for structs.
+                    // the standard pattern for structs
                     var lb = ilGenerator.DeclareLocal(type);
                     ilGenerator.Emit(OpCodes.Ldloca, lb);
                     ilGenerator.Emit(OpCodes.Initobj, type);
@@ -481,10 +481,10 @@ internal static class ILGeneratorExtensions
         ilGenerator.Emit(OpCodes.Ldc_I8, value);
 
         //
-        // Now, emit convert to give the constant type information.
+        // Now, emit convert to give the constant type information
         //
         // Otherwise, it is treated as unsigned and overflow is not
-        // detected if it's used in checked ops.
+        // detected if it's used in checked ops
         //
         ilGenerator.Emit(OpCodes.Conv_I8);
     }
@@ -797,7 +797,7 @@ internal static class ILGeneratorExtensions
     private static void EmitNullableToReferenceConversion(this ILGenerator ilGenerator, TypeInfo typeFrom)
     {
         // We've got a conversion from nullable to Object, ValueType, Enum, etc.  Just box it so that
-        // we get the nullable semantics.
+        // we get the nullable semantics
         ilGenerator.Emit(OpCodes.Box, typeFrom.AsType());
     }
 
@@ -839,7 +839,7 @@ internal static class ILGeneratorExtensions
             var tc = Type.GetTypeCode(typeTo.AsType());
             if (isChecked)
             {
-                // Overflow checking needs to know if the source value on the IL stack is unsigned or not.
+                // Overflow checking needs to know if the source value on the IL stack is unsigned or not
                 if (isFromUnsigned)
                 {
                     switch (tc)

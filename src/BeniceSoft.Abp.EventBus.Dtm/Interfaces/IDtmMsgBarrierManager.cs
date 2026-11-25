@@ -6,7 +6,7 @@ namespace BeniceSoft.Abp.EventBus.Dtm;
 public interface IDtmMsgBarrierManager
 {
     /// <summary>
-    /// Invokes InsertBarrierAsync method if the databaseApi can be identified.
+    /// Invokes InsertBarrierAsync method if the databaseApi can be identified
     /// </summary>
     Task<bool> TryInvokeEnsureInsertBarrierAsync(IDatabaseApi databaseApi, [NotNull] string gid,
         CancellationToken cancellationToken = default);

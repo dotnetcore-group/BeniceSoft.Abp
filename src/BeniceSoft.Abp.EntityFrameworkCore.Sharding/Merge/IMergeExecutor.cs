@@ -225,7 +225,7 @@ internal abstract class WrapMethodExecutor<T>(StreamMergeContext context) : Merg
     }
 
     /// <summary>
-    /// 分片执行；Average 等在无数据时可通过 <see cref="RouteQueryResult{T}"/> 的 null Result 表示无结果。
+    /// 分片执行；Average 等在无数据时可通过 <see cref="RouteQueryResult{T}"/> 的 null Result 表示无结果
     /// </summary>
     protected abstract Task<T> ExecuteAsync(IQueryable queryable, CancellationToken cancellationToken = default);
 }

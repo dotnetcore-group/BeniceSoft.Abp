@@ -51,7 +51,7 @@ internal sealed class StreamMergeEnumerable<T>(StreamMergeContext context) : IAs
 }
 
 /// <summary>
-/// 枚举结束后释放所有者（StreamEnumerable / StreamMergeContext），避免 ParallelQuery DbContext 泄漏。
+/// 枚举结束后释放所有者（StreamEnumerable / StreamMergeContext），避免 ParallelQuery DbContext 泄漏
 /// </summary>
 internal sealed class OwnedAsyncEnumerator<T>(IAsyncEnumerator<T> inner, IDisposable owner) : IAsyncEnumerator<T>
 {
